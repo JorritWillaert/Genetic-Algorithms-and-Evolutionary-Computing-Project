@@ -35,6 +35,22 @@ def fitness(knapsackproblem, individual):
         # Forthcoming fitting items are hence still allowed.
     return current_value
 
+def in_knapsack(knapsackproblem, individual):
+    #TODO 40:28 --> Also use set
+
+    individual_order = individual.get_order()
+    remaining_capacity = knapsackproblem.get_capacity()
+    current_value = 0
+    objects_in_knapsack = []
+    for i in individual_order:
+        if knapsackproblem.weights[i] <= remaining_capacity:
+            remaining_capacity -= knapsackproblem.weights[i]
+            current_value += knapsackproblem.values[i]
+            objects_in_knapsack.append(i)
+        # It is suggested not to break if the current item does not fit in the knapsack.s
+        # Forthcoming fitting items are hence still allowed.
+    return current_value, objects_in_knapsack
+
 def initialization(kp, population_size):
     return [Individual(kp) for _ in range(population_size)]
 
@@ -59,6 +75,12 @@ def evolutionary_algorithm(kp):
             population[i] = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
 
         population = elimination(kp, population, offsprings)
+
+        fitnesses = []
+        for individual in population:
+            fitnesses.append(fitness(kp, individual))
+        print(f"Mean fitness: {sum(fitnesses) / len(fitnesses)}")
+        print(f"Best fitness: {max(fitnesses)}")
     
 
 def tests():
@@ -69,6 +91,12 @@ def tests():
     print(f"Knapsack capacity = {kp.capacity}")
     print(f"Individual: {ind.order}")
     print(f"Objective value of the individual: {fitness(kp, ind)}")
+    print()
+
+    population = initialization(kp, 3)
+    for ind in population:
+        print(f"Individual: {ind.order}")
+        print(f"Objective value of the individual: {fitness(kp, ind)}")
 
 
 if __name__ == '__main__':
