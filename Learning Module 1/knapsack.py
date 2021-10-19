@@ -35,7 +35,33 @@ def fitness(knapsackproblem, individual):
         # Forthcoming fitting items are hence still allowed.
     return current_value
 
-def main():
+def initialization(kp, population_size):
+    return [Individual(kp) for _ in range(population_size)]
+
+def evolutionary_algorithm(kp):
+    # Population size, number of offsprings
+    population_size = 100
+    num_offsprings = 100
+    num_episodes = 100
+
+    population = initialization(kp, population_size)
+    for episode in range(num_episodes):
+        offsprings = []
+        for offspring in range(num_offsprings):
+            parent1 = selection(kp, population)
+            parent2 = selection(kp, population)
+            offspring = recombination(parent1, parent2)
+            mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
+            offsprings.append(mut_offspring)
+        
+        # Mutation of the seed individuals
+        for i, seed_individual in enumerate(population):
+            population[i] = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
+
+        population = elimination(kp, population, offsprings)
+    
+
+def tests():
     kp = KnapsackProblem(10)
     ind = Individual(kp)
     print(f"Knapsack values: {kp.values}")
@@ -46,4 +72,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    tests()
