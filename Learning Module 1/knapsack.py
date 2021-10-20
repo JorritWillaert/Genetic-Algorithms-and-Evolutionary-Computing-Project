@@ -36,17 +36,15 @@ def fitness(knapsackproblem, individual):
     return current_value
 
 def in_knapsack(knapsackproblem, individual):
-    #TODO 40:28 --> Also use set
-
     individual_order = individual.get_order()
     remaining_capacity = knapsackproblem.get_capacity()
     current_value = 0
-    objects_in_knapsack = []
+    objects_in_knapsack = set()
     for i in individual_order:
         if knapsackproblem.weights[i] <= remaining_capacity:
             remaining_capacity -= knapsackproblem.weights[i]
             current_value += knapsackproblem.values[i]
-            objects_in_knapsack.append(i)
+            objects_in_knapsack.add(i)
         # It is suggested not to break if the current item does not fit in the knapsack.s
         # Forthcoming fitting items are hence still allowed.
     return current_value, objects_in_knapsack
@@ -96,7 +94,9 @@ def tests():
     population = initialization(kp, 3)
     for ind in population:
         print(f"Individual: {ind.order}")
-        print(f"Objective value of the individual: {fitness(kp, ind)}")
+        current_value, objects_in_knapsack = in_knapsack(kp, ind)
+        print(f"Objective value of the individual: {current_value}")
+        print(f"The objects in the knapsack: ", objects_in_knapsack)
 
 
 if __name__ == '__main__':
