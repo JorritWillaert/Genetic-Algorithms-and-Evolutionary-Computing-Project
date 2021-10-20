@@ -6,6 +6,7 @@ The goal is to maximize the total value of the selected objects,
 subject to a weight constraint.
 """
 import numpy as np
+import random
 
 class KnapsackProblem:
     def __init__(self, num_objects):
@@ -19,6 +20,7 @@ class KnapsackProblem:
 class Individual:
     def __init__(self, knapsackproblem):
         self.order = np.random.permutation(len(knapsackproblem.values))
+        self.alpha = 0.05 # Mutation rate
     
     def get_order(self):
         return self.order
@@ -51,6 +53,16 @@ def in_knapsack(knapsackproblem, individual):
 
 def initialization(kp, population_size):
     return [Individual(kp) for _ in range(population_size)]
+
+def mutation(individual):
+    """Example mutation: randomly choose 2 indices and swap them."""   
+    if random.random() < individual.alpha:
+        i = random.randint(0, len(individual.order))
+        j = random.randint(0, len(individual.order))
+        tmp = individual.order[i]
+        individual.order[i] = individual.order[j]
+        individual.order[j] = tmp
+    return individual
 
 def evolutionary_algorithm(kp):
     # Population size, number of offsprings
@@ -97,6 +109,10 @@ def tests():
         current_value, objects_in_knapsack = in_knapsack(kp, ind)
         print(f"Objective value of the individual: {current_value}")
         print(f"The objects in the knapsack: ", objects_in_knapsack)
+    
+    for i in range(20):
+        population[1] = mutation(population[1])
+        print(population[1].order)
 
 
 if __name__ == '__main__':
