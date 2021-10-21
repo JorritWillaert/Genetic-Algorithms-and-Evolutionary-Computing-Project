@@ -9,6 +9,8 @@ import numpy as np
 import random
 import sys
 
+from numpy.core.fromnumeric import cumprod
+
 class KnapsackProblem:
     def __init__(self, num_objects):
         self.values = [2 ** (np.random.randn()) for _ in range(num_objects)]
@@ -103,6 +105,19 @@ def recombination(knapsackproblem, parent1, parent2):
     alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
     return Individual(order=order, alpha=alpha)
 
+def selection(knapsackproblem, population):
+    """k-tournament selection"""
+    k = 5
+    selected = []
+    for i in range(k):
+        selected.append(random.choice(population))
+    current_max = float('-inf')
+    for ind in selected:
+        if fitness(knapsackproblem, ind) > current_max:
+            current_max = fitness(knapsackproblem, ind)
+            best_ind = ind
+    return best_ind
+
 def evolutionary_algorithm(kp):
     # Population size, number of offsprings
     population_size = 100
@@ -162,6 +177,11 @@ def tests():
     print(f"Order of the offspring: {offspring.order}")
     print(f"The objects in the knapsack of the offspring: {in_knapsack(kp, offspring)}")
     print(f"Offspring alpha: {offspring.alpha}")
+
+    print()
+
+    population = initialization(kp, 25)
+    print(selection(kp, population).order)
 
 
 if __name__ == '__main__':
