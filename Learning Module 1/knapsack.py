@@ -9,7 +9,7 @@ import numpy as np
 import random
 import sys
 
-from numpy.core.fromnumeric import cumprod
+from numpy.core.fromnumeric import cumprod, sort
 
 class KnapsackProblem:
     def __init__(self, num_objects):
@@ -118,6 +118,16 @@ def selection(knapsackproblem, population):
             best_ind = ind
     return best_ind
 
+def elimination(knapsackproblem, population, offsprings):
+    """Mu + lambda elimination"""
+    combined = population + offsprings
+    assert len(population) == len(offsprings)
+    combined_with_fitness = {}
+    for ind in combined:
+        combined_with_fitness[ind] =  fitness(knapsackproblem, ind)
+    sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=True)]
+    return sorted_combined[:len(population)]
+
 def evolutionary_algorithm(kp):
     # Population size, number of offsprings
     population_size = 100
@@ -155,7 +165,7 @@ def tests():
     print(f"Knapsack capacity = {kp.capacity}")
     print(f"Individual: {ind.order}")
     print(f"Objective value of the individual: {fitness(kp, ind)}")
-    print()
+    print("\nTest initialization")
 
     population = initialization(kp, 3)
     for ind in population:
@@ -167,7 +177,7 @@ def tests():
         population[0] = mutation(population[0])
         print(population[0].order)
 
-    print()
+    print("\nTest recombination")
 
     offspring = recombination(kp, population[0], population[1])
     print(f"Order of parent 1: {population[0].order}")
@@ -178,10 +188,17 @@ def tests():
     print(f"The objects in the knapsack of the offspring: {in_knapsack(kp, offspring)}")
     print(f"Offspring alpha: {offspring.alpha}")
 
-    print()
+    print("\nTrest selection")
 
     population = initialization(kp, 25)
     print(selection(kp, population).order)
+
+    print("\nTest elimination")
+    simulated_parents = initialization(kp, 3)
+    simulated_children = initialization(kp, 3)
+    outcome = elimination(kp, simulated_parents, simulated_children)
+    for ind in outcome:
+        print(ind.order)
 
 
 if __name__ == '__main__':
