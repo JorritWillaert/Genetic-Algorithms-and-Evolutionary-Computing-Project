@@ -20,6 +20,14 @@ class KnapsackProblem:
     def get_capacity(self):
         return self.capacity
 
+class Parameters:
+    def __init__(self):
+        # Population size, number of offsprings, number of episodes & the k-tournament parameter
+        population_size = 100
+        num_offsprings = 100
+        num_episodes = 100
+        k_tournament_par = 5
+
 class Individual:
     def __init__(self, knapsackproblem=None, order=None, alpha=0.05):
         if order is None:
@@ -105,9 +113,8 @@ def recombination(knapsackproblem, parent1, parent2):
     alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
     return Individual(order=order, alpha=alpha)
 
-def selection(knapsackproblem, population):
+def selection(knapsackproblem, population, k):
     """k-tournament selection"""
-    k = 5
     selected = []
     for i in range(k):
         selected.append(random.choice(population))
@@ -118,28 +125,22 @@ def selection(knapsackproblem, population):
             best_ind = ind
     return best_ind
 
-def elimination(knapsackproblem, population, offsprings):
+def elimination(knapsackproblem, population, offsprings, lambd):
     """Mu + lambda elimination"""
     combined = population + offsprings
-    assert len(population) == len(offsprings)
     combined_with_fitness = {}
     for ind in combined:
         combined_with_fitness[ind] =  fitness(knapsackproblem, ind)
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=True)]
-    return sorted_combined[:len(population)]
+    return sorted_combined[:lambd]
 
-def evolutionary_algorithm(kp):
-    # Population size, number of offsprings
-    population_size = 100
-    num_offsprings = 100
-    num_episodes = 100
-
-    population = initialization(kp, population_size)
-    for episode in range(num_episodes):
+def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
+    population = initialization(kp, p.population_size)
+    for episode in range(p.num_episodes):
         offsprings = []
-        for offspring in range(num_offsprings):
-            parent1 = selection(kp, population)
-            parent2 = selection(kp, population)
+        for offspring in range(p.num_offsprings):
+            parent1 = selection(kp, population, p.k)
+            parent2 = selection(kp, population, p.k)
             offspring = recombination(kp, parent1, parent2)
             mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
             offsprings.append(mut_offspring)
@@ -148,7 +149,7 @@ def evolutionary_algorithm(kp):
         for i, seed_individual in enumerate(population):
             population[i] = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
 
-        population = elimination(kp, population, offsprings)
+        population = elimination(kp, population, offsprings, p.num_offsprings)
 
         fitnesses = []
         for individual in population:
@@ -191,12 +192,12 @@ def tests():
     print("\nTrest selection")
 
     population = initialization(kp, 25)
-    print(selection(kp, population).order)
+    print(selection(kp, population, 5).order)
 
     print("\nTest elimination")
     simulated_parents = initialization(kp, 3)
     simulated_children = initialization(kp, 3)
-    outcome = elimination(kp, simulated_parents, simulated_children)
+    outcome = elimination(kp, simulated_parents, simulated_children, 3)
     for ind in outcome:
         print(ind.order)
 
