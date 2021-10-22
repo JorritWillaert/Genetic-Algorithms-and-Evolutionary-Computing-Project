@@ -66,7 +66,7 @@ def in_knapsack(knapsackproblem, individual):
     return objects_in_knapsack
 
 def initialization(kp, population_size):
-    return [Individual(knapsackproblem=kp) for _ in range(population_size)]
+    return [Individual(knapsackproblem=kp, alpha=max(0.01, 0.05+0.02*np.random.randn())) for _ in range(population_size)]
 
 def mutation(individual):
     """Example mutation: randomly choose 2 indices and swap them."""   
@@ -139,7 +139,7 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
     for individual in population:
         fitnesses.append(fitness(kp, individual))
     print(f"0: Mean fitness: {sum(fitnesses) / len(fitnesses)} \t Best fitness: {max(fitnesses)}")
-    
+
     for episode in range(p.num_episodes):
         offsprings = []
         for offspring in range(p.num_offsprings):
@@ -156,9 +156,14 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
         population = elimination(kp, population, offsprings, p.num_offsprings)
 
         fitnesses = []
+        best_fitness = float('-inf')
         for individual in population:
-            fitnesses.append(fitness(kp, individual))
-        print(f"{episode}: Mean fitness: {sum(fitnesses) / len(fitnesses)} \t Best fitness: {max(fitnesses)}")
+            fit = fitness(kp, individual)
+            fitnesses.append(fit)
+            if fit > best_fitness:
+                best_fitness = fit
+                best_individual = individual
+        print(f"{episode}: Mean fitness: {sum(fitnesses) / len(fitnesses)} \t Best fitness: {max(fitnesses)} \t Knapsack: {in_knapsack(kp, best_individual)}")
 
 def tests():
     kp = KnapsackProblem(25)
