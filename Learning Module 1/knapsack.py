@@ -8,8 +8,7 @@ subject to a weight constraint.
 import numpy as np
 import random
 import sys
-
-from numpy.core.fromnumeric import cumprod, sort
+from time import sleep
 
 class KnapsackProblem:
     def __init__(self, num_objects):
@@ -21,12 +20,12 @@ class KnapsackProblem:
         return self.capacity
 
 class Parameters:
-    def __init__(self):
+    def __init__(self, population_size=100, num_offspring=100, num_episodes=100, k_tournament_par=5):
         # Population size, number of offsprings, number of episodes & the k-tournament parameter
-        population_size = 100
-        num_offsprings = 100
-        num_episodes = 100
-        k_tournament_par = 5
+        self.population_size = population_size
+        self.num_offsprings = num_offspring
+        self.num_episodes = num_episodes
+        self.k = k_tournament_par
 
 class Individual:
     def __init__(self, knapsackproblem=None, order=None, alpha=0.05):
@@ -34,7 +33,7 @@ class Individual:
             if knapsackproblem is None:
                 print("Knapsackproblem may not be 'None' if the order is not specified!")
                 sys.exit()
-            self.order = np.random.permutation(len(knapsackproblem.values))
+            self.order = (np.random.permutation(len(knapsackproblem.values))).tolist()
         else:
             self.order = order
         self.alpha = alpha # Mutation rate
@@ -72,8 +71,8 @@ def initialization(kp, population_size):
 def mutation(individual):
     """Example mutation: randomly choose 2 indices and swap them."""   
     if random.random() < individual.alpha:
-        i = random.randint(0, len(individual.order))
-        j = random.randint(0, len(individual.order))
+        i = random.randint(0, len(individual.order) - 1)
+        j = random.randint(0, len(individual.order) - 1)
         tmp = individual.order[i]
         individual.order[i] = individual.order[j]
         individual.order[j] = tmp
@@ -104,9 +103,9 @@ def recombination(knapsackproblem, parent1, parent2):
         order.append(rem) # However, some of the first of these may be selected as well, if the preceding ones don't fit.
     
     # Make sure the elements from the offspring appear in a random order
-    order[0: len(offspring)] = np.random.permutation(order[0: len(offspring)])
+    order[0: len(offspring)] = (np.random.permutation(order[0: len(offspring)])).tolist()
     # The following elements (not from the offspring) should also be in random order
-    order[len(offspring) : ] = np.random.permutation(order[len(offspring) : len(knapsackproblem.values)])
+    order[len(offspring) : ] = (np.random.permutation(order[len(offspring) : len(knapsackproblem.values)])).tolist()
     
     # Way to assign a new alpha to our child
     beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
@@ -127,15 +126,20 @@ def selection(knapsackproblem, population, k):
 
 def elimination(knapsackproblem, population, offsprings, lambd):
     """Mu + lambda elimination"""
-    combined = population + offsprings
+    combined = population + offsprings  
     combined_with_fitness = {}
     for ind in combined:
-        combined_with_fitness[ind] =  fitness(knapsackproblem, ind)
+        combined_with_fitness[ind] = fitness(knapsackproblem, ind)
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=True)]
     return sorted_combined[:lambd]
 
 def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
     population = initialization(kp, p.population_size)
+    fitnesses = []
+    for individual in population:
+        fitnesses.append(fitness(kp, individual))
+    print(f"0: Mean fitness: {sum(fitnesses) / len(fitnesses)} \t Best fitness: {max(fitnesses)}")
+    
     for episode in range(p.num_episodes):
         offsprings = []
         for offspring in range(p.num_offsprings):
@@ -148,18 +152,16 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
         # Mutation of the seed individuals
         for i, seed_individual in enumerate(population):
             population[i] = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
-
+        
         population = elimination(kp, population, offsprings, p.num_offsprings)
 
         fitnesses = []
         for individual in population:
             fitnesses.append(fitness(kp, individual))
-        print(f"Mean fitness: {sum(fitnesses) / len(fitnesses)}")
-        print(f"Best fitness: {max(fitnesses)}")
-    
+        print(f"{episode}: Mean fitness: {sum(fitnesses) / len(fitnesses)} \t Best fitness: {max(fitnesses)}")
 
 def tests():
-    kp = KnapsackProblem(10)
+    kp = KnapsackProblem(25)
     ind = Individual(knapsackproblem=kp)
     print(f"Knapsack values: {kp.values}")
     print(f"Knapsack weights = {kp.weights}")
@@ -201,6 +203,17 @@ def tests():
     for ind in outcome:
         print(ind.order)
 
+def main():
+    p = Parameters(population_size=100, num_offspring=100, num_episodes=25, k_tournament_par=5)
+    kp = KnapsackProblem(50)
+    
+    print(f"Knapsack values: {kp.values}")
+    print(f"Knapsack weights = {kp.weights}")
+    print(f"Knapsack capacity = {kp.capacity}")
+
+    evolutionary_algorithm(kp, p)
+
 
 if __name__ == '__main__':
-    tests()
+    # tests()
+    main()
