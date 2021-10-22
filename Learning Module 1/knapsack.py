@@ -165,6 +165,14 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
                 best_individual = individual
         print(f"{episode}: Mean fitness: {sum(fitnesses) / len(fitnesses)} \t Best fitness: {max(fitnesses)} \t Knapsack: {in_knapsack(kp, best_individual)}")
 
+def heuristic_solution(kp):
+    ratios = []
+    for i in range(len(kp.values)):
+        ratios.append((i, kp.values[i] / kp.weights[i]))
+    sort_on_ratios = [k for k, _ in sorted(ratios, key=lambda x:x[1], reverse=True)]
+    heuristic_ind = Individual(knapsackproblem=kp, order=sort_on_ratios, alpha=0.0)
+    return heuristic_ind
+
 def tests():
     kp = KnapsackProblem(25)
     ind = Individual(knapsackproblem=kp)
@@ -217,6 +225,9 @@ def main():
     print(f"Knapsack capacity = {kp.capacity}")
 
     evolutionary_algorithm(kp, p)
+
+    heuristic_ind = heuristic_solution(kp)
+    print(f"Heuristic fitness: {fitness(kp, heuristic_ind)} \t Knapsack: {in_knapsack(kp, heuristic_ind)}")
 
 
 if __name__ == '__main__':
