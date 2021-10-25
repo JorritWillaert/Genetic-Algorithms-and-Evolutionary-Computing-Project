@@ -146,8 +146,8 @@ def local_search_operator(kp: KnapsackProblem, ind: Individual) -> Individual:
     for i in range(1, len(ind.order)):
         # Insert object i into first position
         copied_ind.order[0] = ind.order[i]
-        copied_ind.order[1:i] = ind.order[0:i-1]
-        copied_ind.order[i+1:] = copied_ind.order[i+1:]
+        copied_ind.order[1:i+1] = ind.order[0:i]
+        copied_ind.order[i+1:] = ind.order[i+1:]
         
         if fitness(kp, copied_ind) > best_fitness:
             best_fitness = fitness(kp, copied_ind)
@@ -172,7 +172,10 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
         
         # Mutation of the seed individuals
         for i, seed_individual in enumerate(population):
-            population[i] = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
+            mutated_ind = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
+
+            # Apply local search operator to the seed individuals
+            population[i] = local_search_operator(kp, mutated_ind)
         
         population = elimination(kp, population, offsprings, p.num_offsprings)
 
@@ -238,7 +241,7 @@ def tests():
         print(ind.order)
 
 def main():
-    p = Parameters(population_size=100, num_offspring=100, num_episodes=25, k_tournament_par=5)
+    p = Parameters(population_size=200, num_offspring=100, num_episodes=50, k_tournament_par=5)
     kp = KnapsackProblem(50)
     
     print(f"Knapsack values: {kp.values}")
@@ -248,7 +251,7 @@ def main():
     evolutionary_algorithm(kp, p)
 
     heuristic_ind = heuristic_solution(kp)
-    print(f"Heuristic fitness: {fitness(kp, heuristic_ind)} \t Knapsack: {in_knapsack(kp, heuristic_ind)}")
+    print(f"Heuristic fitness: {fitness(kp, heuristic_ind)} \t Knapsack: {in_knapsack(kp, heuristic_ind )}")
 
 
 if __name__ == '__main__':
