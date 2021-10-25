@@ -168,7 +168,7 @@ def local_search_operator_all_swaps(kp: KnapsackProblem, ind: Individual) -> Ind
                 best_fitness = fitness(kp, copied_ind)
                 best_order = copy.copy(copied_ind.order)
             # Change elements i and j to their original value (unswap)
-            copied_ind.order[i] = ind.order[j]
+            copied_ind.order[i] = ind.order[i]
             copied_ind.order[j] = ind.order[j]  
     return Individual(kp, order=best_order, alpha=ind.alpha)
 
@@ -193,8 +193,9 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
             mutated_ind = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
 
             # Apply local search operator to the seed individuals
-            population[i] = local_search_operator_basic(kp, mutated_ind)
-        
+            # population[i] = local_search_operator_basic(kp, mutated_ind)
+            population[i] = local_search_operator_all_swaps(kp, mutated_ind)
+
         population = elimination(kp, population, offsprings, p.num_offsprings)
 
         fitnesses = []
