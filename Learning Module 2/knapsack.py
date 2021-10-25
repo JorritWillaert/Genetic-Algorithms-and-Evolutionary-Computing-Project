@@ -10,18 +10,16 @@ import random
 import sys
 from time import sleep
 import copy
+from typing import List
 
 class KnapsackProblem:
-    def __init__(self, num_objects):
+    def __init__(self, num_objects:int):
         self.values = [2 ** (np.random.randn()) for _ in range(num_objects)]
         self.weights = [2 ** (np.random.randn()) for _ in range(num_objects)]
         self.capacity = 0.25 * sum(self.weights) # 25 % of the total weight
 
-    def get_capacity(self):
-        return self.capacity
-
 class Parameters:
-    def __init__(self, population_size=100, num_offspring=100, num_episodes=100, k_tournament_par=5):
+    def __init__(self, population_size: int=100, num_offspring: int=100, num_episodes: int=100, k_tournament_par: int=5):
         # Population size, number of offsprings, number of episodes & the k-tournament parameter
         self.population_size = population_size
         self.num_offsprings = num_offspring
@@ -29,7 +27,7 @@ class Parameters:
         self.k = k_tournament_par
 
 class Individual:
-    def __init__(self, knapsackproblem=None, order=None, alpha=0.05):
+    def __init__(self, knapsackproblem: KnapsackProblem=None, order: List[int]=None, alpha: float=0.05):
         if order is None:
             if knapsackproblem is None:
                 print("Knapsackproblem may not be 'None' if the order is not specified!")
@@ -38,15 +36,11 @@ class Individual:
         else:
             self.order = order
         self.alpha = alpha # Mutation rate
-    
-    def get_order(self):
-        return self.order
 
-def fitness(knapsackproblem, individual):
-    individual_order = individual.get_order()
-    remaining_capacity = knapsackproblem.get_capacity()
+def fitness(knapsackproblem: KnapsackProblem, individual: Individual) -> float:
+    remaining_capacity = knapsackproblem.capacity
     current_value = 0
-    for i in individual_order:
+    for i in individual.order:
         if knapsackproblem.weights[i] <= remaining_capacity:
             remaining_capacity -= knapsackproblem.weights[i]
             current_value += knapsackproblem.values[i]
@@ -54,11 +48,10 @@ def fitness(knapsackproblem, individual):
         # Forthcoming fitting items are hence still allowed.
     return current_value
 
-def in_knapsack(knapsackproblem, individual):
-    individual_order = individual.get_order()
-    remaining_capacity = knapsackproblem.get_capacity()
+def in_knapsack(knapsackproblem: KnapsackProblem, individual: Individual) -> set:
+    remaining_capacity = knapsackproblem.capacity
     objects_in_knapsack = set()
-    for i in individual_order:
+    for i in individual.order:
         if knapsackproblem.weights[i] <= remaining_capacity:
             remaining_capacity -= knapsackproblem.weights[i]
             objects_in_knapsack.add(i)
@@ -66,10 +59,10 @@ def in_knapsack(knapsackproblem, individual):
         # Forthcoming fitting items are hence still allowed.
     return objects_in_knapsack
 
-def initialization(kp, population_size):
+def initialization(kp: KnapsackProblem, population_size: int) -> List[Individual]:
     return [Individual(knapsackproblem=kp, alpha=max(0.01, 0.05+0.02*np.random.randn())) for _ in range(population_size)]
 
-def mutation(individual):
+def mutation(individual: Individual) -> Individual:
     """Example mutation: randomly choose 2 indices and swap them."""   
     if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
@@ -79,7 +72,7 @@ def mutation(individual):
         individual.order[j] = tmp
     return individual
 
-def recombination(knapsackproblem, parent1, parent2):
+def recombination(knapsackproblem: KnapsackProblem, parent1: Individual, parent2: Individual) -> Individual:
     """Use recombination for sets instead of permutation, since the order determines the elements in the knapsack."""
     s1 = in_knapsack(knapsackproblem, parent1)
     s2 = in_knapsack(knapsackproblem, parent2)
@@ -113,7 +106,7 @@ def recombination(knapsackproblem, parent1, parent2):
     alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
     return Individual(order=order, alpha=alpha)
 
-def selection(knapsackproblem, population, k):
+def selection(knapsackproblem: KnapsackProblem, population: List[Individual], k: int) -> Individual:
     """k-tournament selection"""
     selected = []
     for i in range(k):
@@ -125,7 +118,7 @@ def selection(knapsackproblem, population, k):
             best_ind = ind
     return best_ind
 
-def elimination(knapsackproblem, population, offsprings, lambd):
+def elimination(knapsackproblem: KnapsackProblem, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination"""
     combined = population + offsprings  
     combined_with_fitness = {}
@@ -208,7 +201,7 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
                 best_individual = individual
         print(f"{episode}: Mean fitness: {sum(fitnesses) / len(fitnesses)} \t Best fitness: {max(fitnesses)} \t Knapsack: {in_knapsack(kp, best_individual)}")
 
-def heuristic_solution(kp):
+def heuristic_solution(kp: KnapsackProblem) -> float:
     ratios = []
     for i in range(len(kp.values)):
         ratios.append((i, kp.values[i] / kp.weights[i]))
