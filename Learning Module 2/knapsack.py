@@ -9,6 +9,7 @@ import numpy as np
 import random
 import sys
 from time import sleep
+import copy
 
 class KnapsackProblem:
     def __init__(self, num_objects):
@@ -132,6 +133,26 @@ def elimination(knapsackproblem, population, offsprings, lambd):
         combined_with_fitness[ind] = fitness(knapsackproblem, ind)
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=True)]
     return sorted_combined[:lambd]
+
+def local_search_operator(kp: KnapsackProblem, ind: Individual) -> Individual:
+    """Basic local search operator.
+    Check for each element in the order, if we put it upfront (and move all elements one to the right),
+    if it improves the fitness."""
+    # Note, you could also let this operator happen in-place
+
+    best_fitness = fitness(kp, ind)
+    best_order = ind.order
+    copied_ind = copy.deepcopy(ind)
+    for i in range(1, len(ind.order)):
+        # Insert object i into first position
+        copied_ind.order[0] = ind.order[i]
+        copied_ind.order[1:i] = ind.order[0:i-1]
+        copied_ind.order[i+1:] = copied_ind.order[i+1:]
+        
+        if fitness(kp, copied_ind) > best_fitness:
+            best_fitness = fitness(kp, copied_ind)
+            best_order = copied_ind.order
+    return Individual(kp, order=best_order, alpha=ind.alpha)
 
 def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
     population = initialization(kp, p.population_size)
