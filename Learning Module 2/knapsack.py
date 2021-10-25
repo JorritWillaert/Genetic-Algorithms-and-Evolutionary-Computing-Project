@@ -134,12 +134,11 @@ def elimination(knapsackproblem, population, offsprings, lambd):
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=True)]
     return sorted_combined[:lambd]
 
-def local_search_operator(kp: KnapsackProblem, ind: Individual) -> Individual:
+def local_search_operator_basic(kp: KnapsackProblem, ind: Individual) -> Individual:
     """Basic local search operator.
     Check for each element in the order, if we put it upfront (and move all elements one to the right),
     if it improves the fitness."""
     # Note, you could also let this operator happen in-place
-
     best_fitness = fitness(kp, ind)
     best_order = ind.order
     copied_ind = copy.deepcopy(ind)
@@ -151,7 +150,26 @@ def local_search_operator(kp: KnapsackProblem, ind: Individual) -> Individual:
         
         if fitness(kp, copied_ind) > best_fitness:
             best_fitness = fitness(kp, copied_ind)
-            best_order = copied_ind.order
+            best_order = copy.copy(copied_ind.order)
+    return Individual(kp, order=best_order, alpha=ind.alpha)
+
+def local_search_operator_all_swaps(kp: KnapsackProblem, ind: Individual) -> Individual:
+    """Advanced local search operator.
+    Try out all possible swaps of the given order and check if it improves the fitness."""
+    best_fitness = fitness(kp, ind)
+    best_order = ind.order
+    copied_ind = copy.deepcopy(ind)
+    for i in range(len(ind.order)):
+        for j in range(i+1, len(ind.order)):
+            # Swap two elements
+            copied_ind.order[i] = ind.order[j]
+            copied_ind.order[j] = ind.order[i]         
+            if fitness(kp, copied_ind) > best_fitness:
+                best_fitness = fitness(kp, copied_ind)
+                best_order = copy.copy(copied_ind.order)
+            # Change elements i and j to their original value (unswap)
+            copied_ind.order[i] = ind.order[j]
+            copied_ind.order[j] = ind.order[j]  
     return Individual(kp, order=best_order, alpha=ind.alpha)
 
 def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
@@ -175,7 +193,7 @@ def evolutionary_algorithm(kp: KnapsackProblem, p: Parameters):
             mutated_ind = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
 
             # Apply local search operator to the seed individuals
-            population[i] = local_search_operator(kp, mutated_ind)
+            population[i] = local_search_operator_basic(kp, mutated_ind)
         
         population = elimination(kp, population, offsprings, p.num_offsprings)
 
