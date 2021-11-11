@@ -181,6 +181,20 @@ def plotPopulation2D(input):
 	ax.scatter(mini, minj, marker='*', color='yellow')
 	plt.pause(0.05)
 
+"""Plots the Pareto front."""
+def plotParetoFront(input):
+	pop = input[0]
+	fval = myfun(pop)
+	fig = plt.gcf()
+	fig.clear()
+	ax = fig.gca()
+	ax.scatter(fval[:,1], fval[:,0], marker='o', color='r')
+	plt.title('Plot to check how good the Pareto front is approximated')
+	plt.xlabel('Distance from (250, 250)')
+	plt.ylabel('Original fitness value')
+	plt.pause(0.001)
+
 eggEA = eggholderEA(myfun)
-eggEA.optimize(plotPopulation2D)
+# Now you want to optimize for two features, the original fitness value, and the closeness to (250, 250)
+eggEA.optimize(plotParetoFront)
 plt.show()
