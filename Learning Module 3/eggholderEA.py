@@ -11,13 +11,33 @@ class eggholderEA:
 
 	""" Initialize the evolutionary algorithm solver. """
 	def __init__(self, fun):
-		self.alpha = 0.05     		# Mutation probability
-		self.lambdaa = 100     		# Population size
-		self.mu = self.lambdaa * 2	# Offspring size
-		self.k = 3            		# Tournament selection
-		self.intMax = 500     		# Boundary of the domain, not intended to be changed.
-		self.numIters = 20			# Maximum number of iterations
-		self.objf = fun
+		self.alpha = 0.05     														# Mutation probability
+		self.lambdaa = 100     														# Population size
+		self.mu = self.lambdaa * 2													# Offspring size
+		self.k = 3            														# Tournament selection
+		self.intMax = 500    												 		# Boundary of the domain, not intended to be changed.
+		self.numIters = 20															# Maximum number of iterations
+		self.origfun = fun															# The original unmodified fitness function
+		self.objf = lambda x, pop=None: self.shared_fitness_wrapper(fun, x, pop)	# The objective function employed by the evolutionary algorithm
+
+	def shared_fitness_wrapper(self, fun, X, pop=None):
+		if pop is None:
+			return fun(X)
+		
+		alpha = 1
+		sigma = self.intMax * 0.1
+		modified_fitness = np.zeros(X.shape[0])
+		for i, x in enumerate(X):
+			ds = self.distance(x, pop)
+
+			# Note that x is in the population, so this also yields one time a + 1 for the beta (required!)
+			one_plus_beta = 0
+			for d in ds:
+				if d <= sigma:
+					one_plus_beta += 1 - (d / sigma) ** alpha 
+			orig_fun = fun(x)
+			modified_fitness[i] = orig_fun * one_plus_beta ** np.sign(orig_fun)
+		return modified_fitness
 
 	"""Calculate the Euclidean distances between one point (x) and an array of points (Y)."""
 	def distance(self, x, Y):
@@ -52,7 +72,7 @@ class eggholderEA:
 		selected = np.zeros((self.mu, 2))
 		for ii in range( self.mu ):
 			ri = random.choices(range(np.size(population,0)), k = self.k)
-			min = np.argmin( self.objf(population[ri, :]) )
+			min = np.argmin( self.objf(population[ri, :], population) )
 			selected[ii,:] = population[ri[min],:]
 		return selected
 
@@ -83,7 +103,7 @@ class eggholderEA:
 """ Compute the objective function at the vector of (x,y) values. """
 def myfun(x):
 	if np.size(x) == 2:
-		x = reshape(x, (1,2))
+		x = np.reshape(x, (1,2))
 	sas = np.sqrt(np.abs(x[:,0]+x[:,1]))
 	sad = np.sqrt(np.abs(x[:,0]-x[:,1]))
 	f = -x[:,1] * np.sin(sas) - x[:,0] * np.sin(sad)
