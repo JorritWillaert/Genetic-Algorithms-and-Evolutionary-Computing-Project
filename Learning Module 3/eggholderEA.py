@@ -19,6 +19,11 @@ class eggholderEA:
 		self.numIters = 20			# Maximum number of iterations
 		self.objf = fun
 
+	"""Calculate the Euclidean distances between one point (x) and an array of points (Y)."""
+	def distance(self, x, Y):
+		return np.linalg.norm(x - Y, axis=1) # Automatically broadcasts x
+
+
 	""" The main evolutionary algorithm loop. """
 	def optimize( self, plotFun = lambda x : None):
 		# Initialize population
