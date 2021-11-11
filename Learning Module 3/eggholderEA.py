@@ -119,7 +119,10 @@ def myfun(x):
 	sas = np.sqrt(np.abs(x[:,0]+x[:,1]))
 	sad = np.sqrt(np.abs(x[:,0]-x[:,1]))
 	f = -x[:,1] * np.sin(sas) - x[:,0] * np.sin(sad)
-	return f
+
+	# You want to return the distance to the point (250, 250 as well)
+	g = np.linalg.norm(x - np.array([250, 250]), axis=1)
+	return np.transpose(np.vstack((f, g)))
 
 """
 Make a 3D visualization of the optimization landscape and the location of the
@@ -167,7 +170,6 @@ def plotPopulation2D(input):
 	ax.scatter(population[:,0], population[:,1], marker='o', color='r')
 	ax.scatter(mini, minj, marker='*', color='yellow')
 	plt.pause(0.05)
-
 
 eggEA = eggholderEA(myfun)
 eggEA.optimize(plotPopulation2D)
