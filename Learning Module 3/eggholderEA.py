@@ -11,16 +11,16 @@ class eggholderEA:
 
 	""" Initialize the evolutionary algorithm solver. """
 	def __init__(self, fun):
-		self.alpha = 0.05     														# Mutation probability
-		self.lambdaa = 100     														# Population size
-		self.mu = self.lambdaa * 2													# Offspring size
-		self.k = 3            														# Tournament selection
-		self.intMax = 500    												 		# Boundary of the domain, not intended to be changed.
-		self.numIters = 20															# Maximum number of iterations
-		self.origfun = fun															# The original unmodified fitness function
-		self.objf = lambda x, pop=None: self.shared_fitness_wrapper(fun, x, pop)	# The objective function employed by the evolutionary algorithm
+		self.alpha = 0.05     																				# Mutation probability
+		self.lambdaa = 100     																				# Population size
+		self.mu = self.lambdaa * 2																			# Offspring size
+		self.k = 3            																				# Tournament selection
+		self.intMax = 500    												 								# Boundary of the domain, not intended to be changed.
+		self.numIters = 20																					# Maximum number of iterations
+		self.origfun = fun																					# The original unmodified fitness function
+		self.objf = lambda x, pop=None, beta_init = 0: self.shared_fitness_wrapper(fun, x, pop, beta_init)	# The objective function employed by the evolutionary algorithm
 
-	def shared_fitness_wrapper(self, fun, X, pop=None):
+	def shared_fitness_wrapper(self, fun, X, pop=None, beta_init=0):
 		if pop is None:
 			return fun(X)
 		
@@ -31,7 +31,7 @@ class eggholderEA:
 			ds = self.distance(x, pop)
 
 			# Note that x is in the population, so this also yields one time a + 1 for the beta (required!)
-			one_plus_beta = 0
+			one_plus_beta = beta_init
 			for d in ds:
 				if d <= sigma:
 					one_plus_beta += 1 - (d / sigma) ** alpha 
@@ -56,7 +56,7 @@ class eggholderEA:
 			selected = self.selection(population, self.k)
 			offspring = self.crossover(selected)
 			joinedPopulation = np.vstack((self.mutation(offspring, self.alpha), population))
-			population = self.elimination(joinedPopulation, self.lambdaa)
+			population = self.shared_elimination(joinedPopulation, self.lambdaa)
 			itT = time.time() - start
 
 			# Show progress
@@ -92,11 +92,21 @@ class eggholderEA:
 		offspring[ii,:] = np.clip(offspring[ii,:], 0, self.intMax)
 		return offspring
 
-	""" Eliminate the unfit candidate solutions. """
-	def elimination(self, joinedPopulation, keep):
+	""" Eliminate the unfit candidate solutions using lambda + mu elimination. """
+	def elimination(self, joinedPopulation, keep): # Note: lambda + mu elimination has a high selective pressure
 		fvals = self.objf(joinedPopulation)
 		perm = np.argsort(fvals)
 		survivors = joinedPopulation[perm[1:keep],:]
+		return survivors
+
+	"""Lambda + mu elimination based on shared fitness values."""
+	def shared_elimination(self, pop, keep):
+		survivors = np.zeros((keep, 2))
+		for i in range(keep):
+			# beta_init = 1, because we want to count the individual itself (has itself not copied into survivors!)
+			fvals = self.objf(pop, survivors[0:i-1,:], beta_init=1) 
+			idx = np.argmin(fvals)
+			survivors[i,:] = pop[idx,:]
 		return survivors
 
 
