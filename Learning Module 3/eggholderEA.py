@@ -72,7 +72,7 @@ class eggholderEA:
 		selected = np.zeros((self.mu, 2))
 		for ii in range( self.mu ):
 			ri = random.choices(range(np.size(population,0)), k = self.k)
-			min = np.argmin( self.objf(population[ri, :], population) )
+			min = np.argmin( self.objf(population[ri, :], population) ) # Can also disable shared fitness optimization here
 			selected[ii,:] = population[ri[min],:]
 		return selected
 
@@ -104,6 +104,8 @@ class eggholderEA:
 		survivors = np.zeros((keep, 2))
 		for i in range(keep):
 			# beta_init = 1, because we want to count the individual itself (has itself not copied into survivors!)
+			# Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
+			# (for most of them, their fitness will stay the same)
 			fvals = self.objf(pop, survivors[0:i-1,:], beta_init=1) 
 			idx = np.argmin(fvals)
 			survivors[i,:] = pop[idx,:]
