@@ -18,8 +18,18 @@ class eggholderEA:
 		self.intMax = 500    												 								# Boundary of the domain, not intended to be changed.
 		self.numIters = 20																					# Maximum number of iterations
 		self.origfun = fun																					# The original unmodified fitness function
-		self.objf = lambda x, pop=None, beta_init = 0: self.shared_fitness_wrapper(fun, x, pop, beta_init)	# The objective function employed by the evolutionary algorithm
+		#self.objf = lambda x, pop=None, beta_init = 0: self.shared_fitness_wrapper(fun, x, pop, beta_init)	# The objective function employed by the evolutionary algorithm
+		self.objf = lambda x, pop: self.dominated_fitness_wrapper(fun, x, pop)
 
+	def dominated_fitness_wrapper(self, fun, X, pop):
+		dominated_counts = np.zeros(np.size(X, 0))
+		xfvals = fun(X)
+		fvals = fun(pop)
+		for i, x in enumerate(X): # By how many are you dominated?
+			for yfval in fvals: # This loop can probably be written more efficiently
+				dominated_counts[i] += int(np.all(yfval <= xfvals[i,:])) # If so, then y is in all aspects better than x (true = 1, false = 0)
+		return dominated_counts
+	
 	def shared_fitness_wrapper(self, fun, X, pop=None, beta_init=0):
 		if pop is None:
 			return fun(X)
@@ -56,14 +66,14 @@ class eggholderEA:
 			selected = self.selection(population, self.k)
 			offspring = self.crossover(selected)
 			joinedPopulation = np.vstack((self.mutation(offspring, self.alpha), population))
-			population = self.shared_elimination(joinedPopulation, self.lambdaa)
+			population = self.selection(joinedPopulation, self.lambdaa) # For now let's just use k-tournament (it was first elimination or shared_elimination)
 			itT = time.time() - start
 
 			# Show progress
-			fvals = self.objf(population)
-			meanObj = np.mean(fvals)
-			bestObj = np.min(fvals)
-			print(f'{itT: .2f}s:\t Mean fitness = {meanObj: .5f} \t Best fitness = {bestObj: .5f}')
+			fvals = self.origfun(population) # Note: changed this to origfun for multi-objective optimization
+			meanObj = np.mean(fvals, axis=0) 
+			bestObj = np.min(fvals, axis=0)
+			print(f'{itT: .2f}s:\t Mean fitness = {meanObj[0]: .5f} \t Best fitness = {bestObj[0]: .5f}')
 			plotFun((population, self.intMax))
 		print('Done')
 
@@ -72,7 +82,7 @@ class eggholderEA:
 		selected = np.zeros((self.mu, 2))
 		for ii in range( self.mu ):
 			ri = random.choices(range(np.size(population,0)), k = self.k)
-			min = np.argmin( self.objf(population[ri, :], population) ) # Can also disable shared fitness optimization here
+			min = np.argmin(self.objf(population[ri, :], population)) # Can also enable shared fitness optimization here by providing population as extra argument
 			selected[ii,:] = population[ri[min],:]
 		return selected
 
@@ -135,7 +145,7 @@ def plotPopulation3D(input):
 	y = np.arange(0,input[1],0.5)
 	X, Y = np.meshgrid(x, y)
 	Z = myfun(np.transpose(np.vstack((X.flatten('F'),Y.flatten('F')))))
-	Z = np.reshape(Z, (np.size(x), np.size(y)))
+	Z = np.reshape(Z[:,0], (np.size(x), np.size(y))) # Note: changed Z into Z[:, 0] for the multiobjective optimization.
 
 	fig = plt.gcf()
 	fig.clear()
@@ -155,7 +165,7 @@ def plotPopulation2D(input):
 	y = np.arange(0,input[1],1)
 	X, Y = np.meshgrid(x, y)
 	Z = myfun(np.transpose(np.vstack((X.flatten('F'),Y.flatten('F')))))
-	Z = np.reshape(Z, (np.size(x), np.size(y)))
+	Z = np.reshape(Z[:, 0], (np.size(x), np.size(y))) # Note: changed Z into Z[:, 0] for the multiobjective optimization.
 
 	# Determine location of minimum
 	rowMin = np.min(Z, axis=0)
