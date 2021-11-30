@@ -6,26 +6,26 @@ import random
 import matplotlib.pyplot as plt
 
 class Parameters:
-	def __init__(self, population_size:int=100, num_offsprings:int=100, k:int=5, its:int=100):
+	def __init__(self, population_size: int = 100, num_offsprings: int = 100, k: int = 5, its: int = 100):
 		self.population_size = population_size
 		self.num_offsprings = num_offsprings
 		self.k = k
 		self.its = its
 
 class Individual:
-	def __init__(self, distanceMatrix, order:List[int]=None, alpha:float=0.05):
+	def __init__(self, distanceMatrix: np.ndarray, order:List[int]=None, alpha:float=0.05):
 		if order is None:
 			self.order = np.random.permutation((distanceMatrix.shape)[0])
 		else:
 			self.order = order
 		self.alpha = alpha
 
-def initialization(distanceMatrix, population_size:int):
+def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
 	order = np.random.permutation((distanceMatrix.shape)[0])
 	test =  [Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())) for _ in range(population_size)]
 	return test
 
-def fitness(distanceMatrix, ind: Individual):
+def fitness(distanceMatrix: np.ndarray, ind: Individual) -> float:
 	fit = 0
 	for i in range(len(ind.order)):
 		elem1 = ind.order[i]
@@ -33,7 +33,7 @@ def fitness(distanceMatrix, ind: Individual):
 		fit += distanceMatrix[elem1][elem2]
 	return fit
 
-def selection(distanceMatrix, population: List[Individual], k: int) -> Individual:
+def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) -> Individual:
 	"""k-tournament selection"""
 	current_min = float('+inf')
 	for i in range(k):
@@ -44,7 +44,7 @@ def selection(distanceMatrix, population: List[Individual], k: int) -> Individua
 			best_ind = ind
 	return best_ind
 
-def recombination(distanceMatrix, parent1:Individual, parent2: Individual):
+def recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
 	# Create edge table
 	edge_table = [set() for _ in range((distanceMatrix.shape)[0])]
 	for i in range((distanceMatrix.shape)[0]):
@@ -85,7 +85,7 @@ def recombination(distanceMatrix, parent1:Individual, parent2: Individual):
 	alpha = max(0.01, alpha)
 	return Individual(distanceMatrix, order=new_order, alpha=alpha)
 
-def mutation(individual:Individual):
+def mutation(individual: Individual) -> Individual: # Maybe make this operator in-place
 	"""Example mutation: randomly choose 2 indices and swap them."""   
 	if random.random() < individual.alpha:
 		i = random.randint(0, len(individual.order) - 1)
@@ -93,7 +93,7 @@ def mutation(individual:Individual):
 		individual.order[i], individual.order[j] = individual.order[j], individual.order[i]
 	return individual
 
-def elimination(distanceMatrix, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
+def elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination"""
     combined = population + offsprings  
     combined_with_fitness = {}
@@ -103,12 +103,11 @@ def elimination(distanceMatrix, population: List[Individual], offsprings: List[I
     return sorted_combined[:lambd]
 
 class r0652971:
-
 	def __init__(self):
 		self.reporter = Reporter.Reporter(self.__class__.__name__)
 
 	# The evolutionary algorithm's main loop
-	def optimize(self, filename):
+	def optimize(self, filename: str):
 		# Read distance matrix from file.		
 		file = open(filename)
 		distanceMatrix = np.loadtxt(file, delimiter=",")
