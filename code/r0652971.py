@@ -4,6 +4,7 @@ import numpy as np
 from typing import List
 import random
 import matplotlib.pyplot as plt
+import cProfile
 
 # TODO:
 # Probably beneficial to always start from the first city
@@ -202,5 +203,11 @@ class r0652971:
 		return best_fitness
 
 if __name__ == "__main__":
+	pr = cProfile.Profile()
+	pr.enable()
+
 	problem = r0652971()
 	problem.optimize('tours/tour29.csv')
+
+	pr.disable()
+	pr.print_stats(sort="time")
