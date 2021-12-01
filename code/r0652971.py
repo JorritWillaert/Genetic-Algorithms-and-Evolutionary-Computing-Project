@@ -13,7 +13,7 @@ class Parameters:
 		self.its = its
 
 class Individual:
-	def __init__(self, distanceMatrix: np.ndarray, order:List[int]=None, alpha:float=0.05):
+	def __init__(self, distanceMatrix: np.ndarray, order: List[int]=None, alpha: float=0.05):
 		if order is None:
 			self.order = np.random.permutation((distanceMatrix.shape)[0])
 		else:
@@ -129,7 +129,7 @@ class r0652971:
 		self.reporter = Reporter.Reporter(self.__class__.__name__)
 
 	# The evolutionary algorithm's main loop
-	def optimize(self, filename: str):
+	def optimize(self, filename: str) -> float:
 		# Read distance matrix from file.		
 		file = open(filename)
 		distanceMatrix = np.loadtxt(file, delimiter=",")
@@ -200,12 +200,4 @@ class r0652971:
 
 if __name__ == "__main__":
 	problem = r0652971()
-	current_best = float('+inf')
-	best_fitnesses = []
-	# problem.optimize('tour29.csv')
-	for i in range(50):
-		best_fitness = problem.optimize('tour29.csv')
-		best_fitnesses.append(best_fitness)
-		if best_fitness < current_best:
-			current_best = best_fitness
-			print(f"Iteration: {i}, current best: {current_best}")
+	problem.optimize('tour29.csv')
