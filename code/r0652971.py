@@ -23,7 +23,7 @@ class Individual:
 		self.alpha = alpha
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
-	order = np.random.permutation((distanceMatrix.shape)[0])
+	order = np.random.permutation((distanceMatrix.shape)[0]) #TODO: note that order is not accessed?
 	test =  [Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())) for _ in range(population_size)]
 	return test
 
@@ -38,6 +38,10 @@ def fitness(distanceMatrix: np.ndarray, ind: Individual) -> float:
 def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) -> Individual:
 	"""k-tournament selection"""
 	current_min = float('+inf')
+
+	# To catch problems if all randomly chosen individuals have path length of infinity.
+	best_ind = random.choice(population)
+
 	for i in range(k):
 		ind = random.choice(population)
 		fit = fitness(distanceMatrix, ind)
@@ -200,4 +204,4 @@ class r0652971:
 
 if __name__ == "__main__":
 	problem = r0652971()
-	problem.optimize('tour29.csv')
+	problem.optimize('tours/tour29.csv')
