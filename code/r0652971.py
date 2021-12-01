@@ -23,7 +23,6 @@ class Individual:
 		self.alpha = alpha
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
-	order = np.random.permutation((distanceMatrix.shape)[0]) #TODO: note that order is not accessed?
 	test =  [Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())) for _ in range(population_size)]
 	return test
 
@@ -89,7 +88,7 @@ def recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Indi
 	beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
 	alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
 	alpha = max(0.01, alpha)
-	return Individual(distanceMatrix, order=new_order, alpha=alpha)
+	return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
 def mutation(individual: Individual) -> Individual: # Maybe make this operator in-place
 	"""Example mutation: randomly choose 2 indices and swap them."""   
