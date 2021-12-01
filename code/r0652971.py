@@ -5,12 +5,14 @@ from typing import List
 import random
 import matplotlib.pyplot as plt
 
+# TODO:
+# Probably beneficial to always start from the first city
+
 class Parameters:
-	def __init__(self, population_size: int = 100, num_offsprings: int = 100, k: int = 5, its: int = 100):
+	def __init__(self, population_size: int = 100, num_offsprings: int = 100, k: int = 5):
 		self.population_size = population_size
 		self.num_offsprings = num_offsprings
 		self.k = k
-		self.its = its
 
 class Individual:
 	def __init__(self, distanceMatrix: np.ndarray, order: List[int]=None, alpha: float=0.05):
@@ -135,18 +137,14 @@ class r0652971:
 		distanceMatrix = np.loadtxt(file, delimiter=",")
 		file.close()
 
-		p = Parameters(population_size=100, num_offsprings=100, k=5, its=100)
+		p = Parameters(population_size=100, num_offsprings=100, k=5)
 
 		population = initialization(distanceMatrix, p.population_size)
-
-		it = 0
-
-		x = range(p.its)
 
 		best_fitnesses = []
 		mean_fitnesses = []
 
-		while( it < p.its ): 
+		while(True): 
 
 			# Your code here.
 
@@ -184,10 +182,10 @@ class r0652971:
 					best_fitness = fit
 					best_individual = individual
 			mean_fitness = sum(fitnesses) / len(fitnesses)
-			print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
+			self.reporter.report(mean_fitness, best_fitness, individual.order)
+			# print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
 			best_fitnesses.append(best_fitness)
 			mean_fitnesses.append(mean_fitness)
-			it += 1
 
 
 		# Your code here.
