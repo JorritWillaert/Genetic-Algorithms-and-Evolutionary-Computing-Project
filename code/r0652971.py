@@ -1,4 +1,6 @@
 from math import dist
+
+from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
 import numpy as np
 from typing import List
@@ -8,6 +10,7 @@ import cProfile
 
 # TODO:
 # Probably beneficial to always start from the first city
+# Lists to Numpy arrays
 
 class Parameters:
 	def __init__(self, population_size: int = 100, num_offsprings: int = 100, k: int = 5):
@@ -108,13 +111,42 @@ def elimination(distanceMatrix: np.ndarray, population: List[Individual], offspr
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=False)]
     return sorted_combined[:lambd]
 
-def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
-    """Swap two edges in a circle.
-    Image the cycle (A, B, C, ..., Y, Z). If you swap the edges between C-D and Y-Z, 
-    then the new cycle becomes (A, B, C, Y , X, W, V, ..., E, D, Z, A)."""  
-    return np.concatenate((ind.order[0:first],
-                           ind.order[second: - len(ind.order) + first - 1: -1],
-                           ind.order[second + 1: len(ind.order)]))
+def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
+	"""Mu + lambda elimination with fitness sharing.""" # TODO: Change this into another elimination procedure 
+	all_individuals = population + offsprings 
+	survivors = []
+	for i in range(lambd):
+		# beta_init = 1, because we want to count the individual itself (has itself not copied into survivors!)
+		# Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
+		# (for most of them, their fitness will stay the same)
+		fvals = fitness_sharing(distanceMatrix, all_individuals)
+		idx = np.argmin(fvals)
+		survivors.append(all_individuals[idx])
+	return survivors
+
+def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -> List[float]:
+	alpha = 1 # TODO: Put this parameter in the parameter class
+
+	# TODO: Play with this 0.1. It denotes for example that for tour29, it will consider two solutions 
+	# in each others neighbourhood if the Levenstein distance is less or equal than 2 (= 0.1 * 29 truncated). 
+	sigma = int((distanceMatrix.shape)[0] * 0.1) 
+	modified_fitness = np.zeros(len(individuals))
+	for i, individual in enumerate(individuals):
+
+		# Calculate all the Levenstein distances
+		ds = []
+		for j in range(len(individuals)):
+			ds.append(levenshtein_distance(individual.order, individuals[j].order))
+
+
+		# Note that x is in the population, so this also yields one time a + 1 for the beta (required!)
+		one_plus_beta = 0
+		for d in ds:
+			if d <= sigma:
+				one_plus_beta += 1 - (d / sigma) ** alpha 
+		orig_fitness = fitness(distanceMatrix, individual)
+		modified_fitness[i] = orig_fitness * one_plus_beta ** np.sign(orig_fitness)
+	return modified_fitness
 
 def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> Individual:
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
@@ -129,6 +161,46 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> 
                 best_ind = new_ind
                 best_fitness = new_fitness
     return best_ind
+
+def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
+    """Swap two edges in a circle.
+    Image the cycle (A, B, C, ..., Y, Z). If you swap the edges between C-D and Y-Z, 
+    then the new cycle becomes (A, B, C, Y , X, W, V, ..., E, D, Z, A)."""  
+    return np.concatenate((ind.order[0:first],
+                           ind.order[second: - len(ind.order) + first - 1: -1],
+                           ind.order[second + 1: len(ind.order)]))
+
+def levenshtein_distance(token1, token2): # TODO: cite https://blog.paperspace.com/implementing-levenshtein-distance-word-autocomplete-autocorrect/
+    distances = np.zeros((len(token1) + 1, len(token2) + 1))
+
+    for t1 in range(len(token1) + 1):
+        distances[t1][0] = t1
+
+    for t2 in range(len(token2) + 1):
+        distances[0][t2] = t2
+        
+    a = 0
+    b = 0
+    c = 0
+    
+    for t1 in range(1, len(token1) + 1):
+        for t2 in range(1, len(token2) + 1):
+            if (token1[t1-1] == token2[t2-1]):
+                distances[t1][t2] = distances[t1 - 1][t2 - 1]
+            else:
+                a = distances[t1][t2 - 1]
+                b = distances[t1 - 1][t2]
+                c = distances[t1 - 1][t2 - 1]
+                
+                if (a <= b and a <= c):
+                    distances[t1][t2] = a + 1
+                elif (b <= a and b <= c):
+                    distances[t1][t2] = b + 1
+                else:
+                    distances[t1][t2] = c + 1
+				
+    return distances[len(token1)][len(token2)]
+
 
 class r0652971:
 	def __init__(self):
@@ -175,7 +247,8 @@ class r0652971:
 			for i, seed_individual in enumerate(population):
 				mutated_ind = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
 
-			population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+			# population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+			population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
 
 			fitnesses = []
 			best_fitness = float('+inf')
