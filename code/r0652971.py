@@ -102,6 +102,28 @@ def elimination(distanceMatrix: np.ndarray, population: List[Individual], offspr
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=False)]
     return sorted_combined[:lambd]
 
+def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
+    """Swap two edges in a circle.
+    Image the cycle (A, B, C, ..., Y, Z). If you swap the edges between C-D and Y-Z, 
+    then the new cycle becomes (A, B, C, Y , X, W, V, ..., E, D, Z, A)."""  
+    return np.concatenate((ind.order[0:first],
+                           ind.order[second: - len(ind.order) + first - 1: -1],
+                           ind.order[second + 1: len(ind.order)]))
+
+def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> Individual:
+    """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
+    best_ind = ind
+    best_fitness = fitness(distanceMatrix, ind)
+    for first in range(1, len(ind.order) - 2):
+        for second in range(first + 1, len(ind.order) - 1):
+            new_order = swap_edges(ind, first, second)
+            new_ind = Individual(distanceMatrix, new_order, ind.alpha)
+            new_fitness = fitness(distanceMatrix, new_ind)
+            if new_fitness < best_fitness:
+                best_ind = new_ind
+                best_fitness = new_fitness
+    return best_ind
+
 class r0652971:
 	def __init__(self):
 		self.reporter = Reporter.Reporter(self.__class__.__name__)
@@ -144,7 +166,8 @@ class r0652971:
 				parent2 = selection(distanceMatrix, population, p.k)
 				offspring = recombination(distanceMatrix, parent1, parent2)
 				mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
-				offsprings.append(mut_offspring)
+				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, mut_offspring)
+				offsprings.append(ind_after_local_search)
 			
 			# Mutation of the seed individuals
 			for i, seed_individual in enumerate(population):
@@ -161,7 +184,7 @@ class r0652971:
 					best_fitness = fit
 					best_individual = individual
 			mean_fitness = sum(fitnesses) / len(fitnesses)
-			# print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
+			print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
 			best_fitnesses.append(best_fitness)
 			mean_fitnesses.append(mean_fitness)
 			it += 1
