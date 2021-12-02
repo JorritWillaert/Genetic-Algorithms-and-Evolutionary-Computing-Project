@@ -62,15 +62,15 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: In
 	first = random.randint(0, length - 1)
 	second = random.randint(0, length - 1)
 
-	if first < second:
+	if second < first:
 		first, second = second, first # Swap values
 
 	new_order = np.zeros((length), dtype=np.int)
-	new_order[first:second + 1] = parent1.order[first: second + 1]
+	new_order[first: second + 1] = parent1.order[first: second + 1]
 	chosen_segment = set(parent1.order[first: second + 1]) # Transform the elements in the segment into a set -> O(1) lookup time
-	position = (second + 2) % length
+	position = (second + 1) % length
 	for i in range(length):
-		elem_of_parent_2 = parent2.order[(second + 2 + i) % length]
+		elem_of_parent_2 = parent2.order[(second + 1 + i) % length]
 		if elem_of_parent_2 not in chosen_segment:
 			new_order[position] = elem_of_parent_2
 			position = (position + 1) % length
