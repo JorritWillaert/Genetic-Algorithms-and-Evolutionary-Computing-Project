@@ -1,4 +1,5 @@
 from math import dist
+from operator import pos
 
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
@@ -56,8 +57,25 @@ def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) 
 def edge_crossover():
 	return None
 
-def order_crossover():
-	return None
+def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
+	length = (distanceMatrix.shape)[0]
+	first = random.randint(0, length - 1)
+	second = random.randint(0, length - 1)
+
+	if first < second:
+		first, second = second, first # Swap values
+
+	new_order = np.zeros((length))
+	new_order[first:second + 1] = parent1.order[first: second + 1]
+	chosen_segment = set(parent1.order[first: second + 1]) # Transform the elements in the segment into a set -> O(1) lookup time
+	position = (second + 2) % length
+	for i in range(length):
+		elem_of_parent_2 = parent2.order[(second + 2 + i) % length]
+		if elem_of_parent_2 not in chosen_segment:
+			new_order[position] = elem_of_parent_2
+			position = (position + 1) % length
+	# TODO: Alpha
+	return Individual(distanceMatrix, new_order)
 
 def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual: # https://en.wikipedia.org/wiki/Edge_recombination_operator
 	# Create edge table
