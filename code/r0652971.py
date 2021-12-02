@@ -53,7 +53,13 @@ def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) 
 			best_ind = ind
 	return best_ind
 
-def recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
+def edge_crossover():
+	return None
+
+def order_crossover():
+	return None
+
+def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual: # https://en.wikipedia.org/wiki/Edge_recombination_operator
 	# Create edge table
 	edge_table = [set() for _ in range((distanceMatrix.shape)[0])]
 	for i in range((distanceMatrix.shape)[0]):
@@ -238,7 +244,7 @@ class r0652971:
 			for offspring in range(p.num_offsprings):
 				parent1 = selection(distanceMatrix, population, p.k)
 				parent2 = selection(distanceMatrix, population, p.k)
-				offspring = recombination(distanceMatrix, parent1, parent2)
+				offspring = simple_edge_recombination(distanceMatrix, parent1, parent2)
 				mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
 				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, mut_offspring)
 				offsprings.append(ind_after_local_search)
@@ -247,8 +253,8 @@ class r0652971:
 			for i, seed_individual in enumerate(population):
 				mutated_ind = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
 
-			# population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
-			population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+			population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+			# population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
 
 			fitnesses = []
 			best_fitness = float('+inf')
