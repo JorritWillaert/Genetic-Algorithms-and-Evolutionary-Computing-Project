@@ -65,7 +65,7 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: In
 	if first < second:
 		first, second = second, first # Swap values
 
-	new_order = np.zeros((length))
+	new_order = np.zeros((length), dtype=np.int)
 	new_order[first:second + 1] = parent1.order[first: second + 1]
 	chosen_segment = set(parent1.order[first: second + 1]) # Transform the elements in the segment into a set -> O(1) lookup time
 	position = (second + 2) % length
@@ -262,7 +262,7 @@ class r0652971:
 			for offspring in range(p.num_offsprings):
 				parent1 = selection(distanceMatrix, population, p.k)
 				parent2 = selection(distanceMatrix, population, p.k)
-				offspring = simple_edge_recombination(distanceMatrix, parent1, parent2)
+				offspring = order_crossover(distanceMatrix, parent1, parent2)
 				mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
 				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, mut_offspring)
 				offsprings.append(ind_after_local_search)
