@@ -1,5 +1,5 @@
 from math import dist
-from operator import length_hint, pos
+from operator import length_hint, ne, pos
 from os import wait
 from time import sleep
 
@@ -112,11 +112,13 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 	first_last = [0, 1]
 	first_or_last = 1 # Last
 	direction = 1
-	while first_last[0] != first_last[1]:
+	one_extra = False
+	while first_last[0] != first_last[1] or one_extra:
+		one_extra = False
 		# 4: Remove all references to 'node' from the table
 		for edge_set in edge_table:
 			edge_set.discard(node)
-		
+			edge_set.discard(-node)
 		# 5: Examine set for 'node'
 		# 5a: If there is a common edge, pick that to be the next node
 		current_set = edge_table[node]
@@ -150,10 +152,11 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 		
 		else:
 			# 6a: In case of reaching an empty set, the other end of the offspring is examined for extension
-			if direction == 1 and first_or_last != 1:
-				direction == -1
+			if direction == 1:
+				direction = -1
 				node = new_order[first_last[0]] # Set to first
 				first_or_last = 0 # Set to first
+				one_extra = True
 				continue
 			# 6b: Otherwise, a new element is chosen at random
 			# Reset direction again to forward
