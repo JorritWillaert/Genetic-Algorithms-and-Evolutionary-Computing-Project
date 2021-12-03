@@ -104,7 +104,7 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 	# 1: Construct edge table
 	edge_table = construct_edge_table(parent1, parent2, length)
 	# 2: Pick an initial element at random and put it in the offspring
-	node = random.randint(0, length -1)	
+	node = random.randint(0, length - 1)	
 	new_order = np.negative(np.ones((length), dtype=np.int))
 	
 	# 3: Set the variable 'node' to the randomly chosen element
@@ -112,9 +112,13 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 	first_last = [0, 1]
 	first_or_last = 1 # Last
 	direction = 1
-	one_extra = False
-	while first_last[0] != first_last[1] or one_extra:
-		one_extra = False
+	not_end = True
+	go_on = False
+	while (not_end and not go_on) or (not_end and go_on):
+		go_on = True
+		if first_last[0] == first_last[1]:
+			not_end = False
+
 		# 4: Remove all references to 'node' from the table
 		for edge_set in edge_table:
 			edge_set.discard(node)
@@ -156,7 +160,7 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 				direction = -1
 				node = new_order[first_last[0]] # Set to first
 				first_or_last = 0 # Set to first
-				one_extra = True
+				go_on = True
 				continue
 			# 6b: Otherwise, a new element is chosen at random
 			# Reset direction again to forward
