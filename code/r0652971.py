@@ -1,5 +1,5 @@
 from math import dist
-from operator import pos
+from operator import length_hint, pos
 
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
@@ -54,9 +54,6 @@ def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) 
 			best_ind = ind
 	return best_ind
 
-def edge_crossover():
-	return None
-
 def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
 	length = (distanceMatrix.shape)[0]
 	first = random.randint(0, length - 1)
@@ -76,6 +73,95 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: In
 			position = (position + 1) % length
 	# TODO: Alpha
 	return Individual(distanceMatrix, new_order)
+
+def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
+	length = (distanceMatrix.shape)[0]
+
+	# 1: Construct edge table
+	edge_table = [set() for _ in range(length)]
+	# TODO: Maybe more efficient implementation?
+	for i in range(length):
+		edge_table[parent1.order[i]].add(parent1.order[(i + 1) % len(parent1.order)])
+		edge_table[parent1.order[i]].add(parent1.order[(i - 1)])
+		elem = parent2.order[(i + 1) % len(parent2.order)]
+		set_to_be_added = parent2.order[i]
+		if elem in edge_table[set_to_be_added]:
+			set_to_be_added.remove(elem)
+			set_to_be_added.add(-elem) # A minus denotes that an element is in both parents
+		else:
+			set_to_be_added.add(elem)
+		
+		elem = parent2.order[(i + 1) % len(parent2.order)]
+		if elem in edge_table[set_to_be_added]:
+			set_to_be_added.remove(elem)
+			set_to_be_added.add(-elem) # A minus denotes that an element is in both parents
+		else:
+			set_to_be_added.add(elem)
+
+	# 2: Pick an initial element at random and put it in the offspring
+	node = random.randint(0, length -1)	
+	new_order = np.empty((length), dtype=np.int)
+	
+	# 3: Set the variable 'node' to the randomly chosen element
+	new_order[0] = node
+	first = 0
+	last = 1
+	first_or_last = last
+	direction = 1
+	while first != last:
+		# 4: Remove all references to 'node' from the table
+		for edge_set in edge_table:
+			edge_set.discard(node)
+		
+		# 5: Examine set for 'node'
+		# 5a: If there is a common edge, pick that to be the next node
+		current_set = edge_table[node]
+		if len(current_set) != 0:
+			double_edge_node = None
+			for elem in current_set:
+				if elem < 0:
+					double_edge_node = -elem
+					break
+			if double_edge_node is not None:
+				new_order[first_or_last] = double_edge_node
+				node = double_edge_node
+				first_or_last = (first_or_last + direction) % length
+				continue
+			
+			# 5b: Otherwise, pick the entry in the set which itself has the shortest list. Ties are split randomly
+			shortest = float('+inf')
+			set_of_shortest_sets = set()
+			for elem in current_set:
+				len_elem = len(edge_table[elem])
+				if len_elem < shortest:
+					shortest = len_elem
+					set_of_shortest_sets = set(elem)
+				elif len_elem == shortest:
+					set_of_shortest_sets.add(elem)
+			chosen_one = random.sample(set_of_shortest_sets, 1)[0] # Choose a random element from the shortest ones.
+			new_order[first_or_last] = chosen_one
+			node = chosen_one
+			first_or_last = (first_or_last + direction) % length
+			continue
+		
+		else:
+			# 6a: In case of reaching an empty set, the other end of the offspring is examined for extension
+			if direction == 1 and first_or_last != 1:
+				direction == -1
+				node = new_order[first]
+				first_or_last = first
+				continue
+			# 6b: Otherwise, a new element is chosen at random
+			# Reset direction again to forward
+			direction = 1
+			first_or_last = last
+			possibilities = set(range(length)) - set(new_order)
+			chosen_one = random.sample(possibilities, 1)[0] # Choose a random element from the possibilities
+			new_order[first_or_last] = chosen_one
+			node = chosen_one
+			first_or_last = (first_or_last + direction) % length
+	# TODO: alpha
+	return Individual(distanceMatrix, order=new_order)
 
 def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual: # https://en.wikipedia.org/wiki/Edge_recombination_operator
 	# Create edge table
@@ -262,7 +348,7 @@ class r0652971:
 			for offspring in range(p.num_offsprings):
 				parent1 = selection(distanceMatrix, population, p.k)
 				parent2 = selection(distanceMatrix, population, p.k)
-				offspring = order_crossover(distanceMatrix, parent1, parent2)
+				offspring = simple_edge_recombination(distanceMatrix, parent1, parent2)
 				mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
 				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, mut_offspring)
 				offsprings.append(ind_after_local_search)
