@@ -76,10 +76,7 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: In
 	# TODO: Alpha
 	return Individual(distanceMatrix, new_order)
 
-def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
-	length = (distanceMatrix.shape)[0]
-
-	# 1: Construct edge table
+def construct_edge_table(parent1: Individual, parent2: Individual, length: int) -> List[set]:
 	edge_table = [set() for _ in range(length)]
 	# TODO: Maybe more efficient implementation?
 	for i in range(length):
@@ -99,7 +96,13 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 			set_to_be_added.add(-elem) # A minus denotes that an element is in both parents
 		else:
 			set_to_be_added.add(elem)
+	return edge_table
 
+def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
+	length = (distanceMatrix.shape)[0]
+
+	# 1: Construct edge table
+	edge_table = construct_edge_table(parent1, parent2, length)
 	# 2: Pick an initial element at random and put it in the offspring
 	node = random.randint(0, length -1)	
 	new_order = np.negative(np.ones((length), dtype=np.int))
