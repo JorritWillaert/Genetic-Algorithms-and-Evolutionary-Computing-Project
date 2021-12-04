@@ -39,6 +39,8 @@ def fitness(distanceMatrix: np.ndarray, ind: Individual) -> float:
 		elem1 = ind.order[i]
 		elem2 = ind.order[(i + 1) % len(ind.order)]
 		fit += distanceMatrix[elem1][elem2]
+		if fit == float("+inf"):
+			return fit
 	return fit
 
 def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) -> Individual:
@@ -401,7 +403,7 @@ if __name__ == "__main__":
 	pr.enable()
 
 	problem = r0652971()
-	problem.optimize('tours/tour29.csv')
+	problem.optimize('tours/tour100.csv')
 
 	pr.disable()
 	pr.print_stats(sort="time")
