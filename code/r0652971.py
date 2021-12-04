@@ -30,8 +30,38 @@ class Individual:
 		self.alpha = alpha
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
-	test =  [Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())) for _ in range(population_size)]
-	return test
+	individuals = [None] * population_size
+	percentage_greedily = 0.20 # TODO: In Parameters class
+	greedily_number = int(population_size * percentage_greedily)
+	for i in range(greedily_number):
+		individuals[i] = greedily_initialize_individual(distanceMatrix)
+	for i in range(greedily_number, population_size):
+		individuals[i] = Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
+	return individuals
+
+def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
+	length = (distanceMatrix.shape)[0]	
+	
+	i = 0
+	while i != length:
+		order = np.negative(np.ones((length), dtype=np.int))
+		city = np.random.randint(0, length - 1)
+		order[0] = city
+		i = 1
+		while i < length:
+			possibilities = set(range(length)) - set([elem for elem in order if elem >= 0])
+			min_distance = float("+inf")
+			for pos in possibilities:
+				distance = distanceMatrix[city][pos]
+				if distance < min_distance:
+					min_distance = distance
+					new_city = pos
+			if min_distance == float("+inf"):
+				break
+			city = new_city
+			order[i] = city
+			i += 1
+	return Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn()))
 
 def fitness(distanceMatrix: np.ndarray, ind: Individual) -> float:
 	fit = 0
