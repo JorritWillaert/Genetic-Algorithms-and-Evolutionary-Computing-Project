@@ -105,8 +105,10 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: In
 		if elem_of_parent_2 not in chosen_segment:
 			new_order[position] = elem_of_parent_2
 			position = (position + 1) % length
-	# TODO: Alpha
-	return Individual(distanceMatrix, new_order)
+	beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
+	alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
+	alpha = max(0.01, alpha)
+	return Individual(distanceMatrix, new_order, alpha=alpha)
 
 def construct_edge_table(parent1: Individual, parent2: Individual, length: int) -> List[set]:
 	edge_table = [set() for _ in range(length)]
@@ -203,8 +205,10 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 			new_order[first_last[first_or_last]] = chosen_one
 			node = chosen_one
 			first_last[first_or_last] = (first_last[first_or_last] + direction) % length
-	# TODO: alpha
-	return Individual(distanceMatrix, order=new_order)
+	beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
+	alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
+	alpha = max(0.01, alpha)
+	return Individual(distanceMatrix, order=new_order, alpha=alpha)
 
 def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual: # https://en.wikipedia.org/wiki/Edge_recombination_operator
 	# Create edge table
