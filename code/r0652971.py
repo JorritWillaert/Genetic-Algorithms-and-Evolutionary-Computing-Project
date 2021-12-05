@@ -308,17 +308,16 @@ def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -
 
 def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> Individual:
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
-    best_ind = ind
+    best_order = ind.order
     best_fitness = fitness(distanceMatrix, ind.order)
     for first in range(1, len(ind.order) - 2):
         for second in range(first + 2, len(ind.order)):
             new_order = swap_edges(ind, first, second)
-            new_ind = Individual(distanceMatrix, new_order, ind.alpha)
-            new_fitness = fitness(distanceMatrix, new_ind.order)
+            new_fitness = fitness(distanceMatrix, new_order)
             if new_fitness < best_fitness:
-                best_ind = new_ind
+                best_order = new_order
                 best_fitness = new_fitness
-    return best_ind
+    return Individual(distanceMatrix, order=best_order, alpha=ind.alpha)
 
 def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
     """Swap two edges in a circle.
