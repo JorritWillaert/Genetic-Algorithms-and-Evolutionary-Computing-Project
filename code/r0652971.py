@@ -2,6 +2,7 @@ from math import dist
 from operator import length_hint, ne, pos
 from os import wait
 from time import sleep
+from numba import jit
 
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
@@ -310,7 +311,7 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> 
     best_ind = ind
     best_fitness = fitness(distanceMatrix, ind)
     for first in range(1, len(ind.order) - 2):
-        for second in range(first + 1, len(ind.order) - 1):
+        for second in range(first + 2, len(ind.order)):
             new_order = swap_edges(ind, first, second)
             new_ind = Individual(distanceMatrix, new_order, ind.alpha)
             new_fitness = fitness(distanceMatrix, new_ind)
@@ -398,7 +399,7 @@ class r0652971:
 				offspring = edge_crossover(distanceMatrix, parent1, parent2)
 				mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
 				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, mut_offspring)
-				offsprings.append(ind_after_local_search)
+				offsprings.append(mut_offspring)
 			
 			# Mutation of the seed individuals
 			for i, seed_individual in enumerate(population):
