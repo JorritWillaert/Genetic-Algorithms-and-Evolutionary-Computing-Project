@@ -1,4 +1,4 @@
-from math import dist
+from math import cos, dist
 from operator import length_hint, ne, pos
 from os import wait
 from time import sleep
@@ -308,25 +308,42 @@ def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -
 
 def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> Individual:
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
-    best_ind = ind
-    best_fitness = fitness(distanceMatrix, ind)
+    best_order = ind.order
+    best_cost_decrease = 0.0
     for first in range(1, len(ind.order) - 2):
         for second in range(first + 2, len(ind.order)):
-            new_order = swap_edges(ind, first, second)
-            new_ind = Individual(distanceMatrix, new_order, ind.alpha)
-            new_fitness = fitness(distanceMatrix, new_ind)
-            if new_fitness < best_fitness:
-                best_ind = new_ind
-                best_fitness = new_fitness
-    return best_ind
+            # new_order = swap_edges(ind, first, second)
+            cost_change = calculate_cost_change(distanceMatrix, first, second)
+            if cost_change == float("-inf"):
+                continue
+            if cost_change < best_cost_decrease:
+                best_cost_decrease = cost_change
+                best_combination = (first, second)
+    print(best_order)
+    if best_cost_decrease < 0.0:
+        (best_first, best_second) = best_combination
+        best_order[best_first:best_second] = best_order[best_second-1:best_first-1:-1]
+    print(best_order)
+    test = swap_edges(ind, best_first, best_second)
+    """
+    print(test)
+    for i in range(100):
+        print(i)
+        assert test[i] == best_order[i]
+    """
+    return swap_edges(ind, best_first, best_second)
 
+def calculate_cost_change(distanceMatrix: np.ndarray, first: int, second: int):
+    return distanceMatrix[first-1][second-1] + distanceMatrix[first][second] - (distanceMatrix[first-1][first] + distanceMatrix[second-1][second])
+
+# TODO : remove this function
 def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
     """Swap two edges in a circle.
     Image the cycle (A, B, C, ..., Y, Z). If you swap the edges between C-D and Y-Z, 
     then the new cycle becomes (A, B, C, Y , X, W, V, ..., E, D, Z, A)."""  
     return np.concatenate((ind.order[0:first],
-                           ind.order[second: - len(ind.order) + first - 1: -1],
-                           ind.order[second + 1: len(ind.order)]))
+                            ind.order[second: - len(ind.order) + first - 1: -1],
+                            ind.order[second + 1: len(ind.order)]))
 
 def levenshtein_distance(token1, token2): # TODO: cite https://blog.paperspace.com/implementing-levenshtein-distance-word-autocomplete-autocorrect/
     distances = np.zeros((len(token1) + 1, len(token2) + 1))
@@ -396,7 +413,7 @@ class r0652971:
 			for offspring in range(p.num_offsprings):
 				parent1 = selection(distanceMatrix, population, p.k)
 				parent2 = selection(distanceMatrix, population, p.k)
-				offspring = edge_crossover(distanceMatrix, parent1, parent2)
+				offspring = simple_edge_recombination(distanceMatrix, parent1, parent2) # TODO: edge crossover!
 				mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
 				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, mut_offspring)
 				offsprings.append(mut_offspring)

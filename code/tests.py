@@ -27,6 +27,7 @@ class Tests(unittest.TestCase):
             offspring = r0652971.edge_crossover(distanceMatrix, 
                             r0652971.Individual(distanceMatrix),
                             r0652971.Individual(distanceMatrix))
+            print(offspring.order)
             sorted_order = np.sort(offspring.order)
             for i in range((distanceMatrix.shape)[0]):
                 self.assertEqual(sorted_order[i], i)
