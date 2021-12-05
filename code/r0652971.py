@@ -32,7 +32,7 @@ class Individual:
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
 	individuals = [None] * population_size
-	percentage_greedily = 0.20 # TODO: In Parameters class
+	percentage_greedily = 0.80 # TODO: In Parameters class
 	greedily_number = int(population_size * percentage_greedily)
 	for i in range(greedily_number):
 		individuals[i] = greedily_initialize_individual(distanceMatrix)
@@ -64,11 +64,11 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
 			i += 1
 	return Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn()))
 
-def fitness(distanceMatrix: np.ndarray, ind: Individual) -> float:
+def fitness(distanceMatrix: np.ndarray, order: np.ndarray) -> float:
 	fit = 0
-	for i in range(len(ind.order)):
-		elem1 = ind.order[i]
-		elem2 = ind.order[(i + 1) % len(ind.order)]
+	for i in range(len(order)):
+		elem1 = order[i]
+		elem2 = order[(i + 1) % len(order)]
 		fit += distanceMatrix[elem1][elem2]
 		if fit == float("+inf"):
 			return fit
@@ -83,7 +83,7 @@ def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) 
 
 	for i in range(k):
 		ind = random.choice(population)
-		fit = fitness(distanceMatrix, ind)
+		fit = fitness(distanceMatrix, ind.order)
 		if fit < current_min:
 			current_min = fit
 			best_ind = ind
@@ -265,7 +265,7 @@ def elimination(distanceMatrix: np.ndarray, population: List[Individual], offspr
     combined = population + offsprings  
     combined_with_fitness = {}
     for ind in combined:
-        combined_with_fitness[ind] = fitness(distanceMatrix, ind)
+        combined_with_fitness[ind] = fitness(distanceMatrix, ind.order)
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=False)]
     return sorted_combined[:lambd]
 
@@ -302,19 +302,19 @@ def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -
 		for d in ds:
 			if d <= sigma:
 				one_plus_beta += 1 - (d / sigma) ** alpha 
-		orig_fitness = fitness(distanceMatrix, individual)
+		orig_fitness = fitness(distanceMatrix, individual.order)
 		modified_fitness[i] = orig_fitness * one_plus_beta ** np.sign(orig_fitness)
 	return modified_fitness
 
 def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> Individual:
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
     best_ind = ind
-    best_fitness = fitness(distanceMatrix, ind)
+    best_fitness = fitness(distanceMatrix, ind.order)
     for first in range(1, len(ind.order) - 2):
         for second in range(first + 2, len(ind.order)):
             new_order = swap_edges(ind, first, second)
             new_ind = Individual(distanceMatrix, new_order, ind.alpha)
-            new_fitness = fitness(distanceMatrix, new_ind)
+            new_fitness = fitness(distanceMatrix, new_ind.order)
             if new_fitness < best_fitness:
                 best_ind = new_ind
                 best_fitness = new_fitness
@@ -411,7 +411,7 @@ class r0652971:
 			fitnesses = []
 			best_fitness = float('+inf')
 			for individual in population:
-				fit = fitness(distanceMatrix, individual)
+				fit = fitness(distanceMatrix, individual.order)
 				fitnesses.append(fit)
 				if fit < best_fitness:
 					best_fitness = fit
