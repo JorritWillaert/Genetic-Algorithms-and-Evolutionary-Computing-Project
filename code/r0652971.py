@@ -247,11 +247,11 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
 	return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
 def mutation(individual: Individual):
-	"""Example mutation: randomly choose 2 indices and swap them."""   
+	"""Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
 	if random.random() < individual.alpha:
 		i = random.randint(0, len(individual.order) - 1)
 		j = random.randint(0, len(individual.order) - 1)
-		individual.order[i], individual.order[j] = individual.order[j], individual.order[i]
+		individual.order[i: j] = individual.order[i: j][::-1]
 
 def elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination"""
