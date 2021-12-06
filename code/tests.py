@@ -1,4 +1,5 @@
 from typing import List
+
 import r0652971
 
 import unittest
@@ -9,7 +10,16 @@ class Tests(unittest.TestCase):
     def __init__(self, methodName) -> None:
         super().__init__(methodName)
         with open('tours/tour29.csv') as f:
-            self.distanceMatrix = np.loadtxt(f, delimiter=',')       
+            self.distanceMatrix = np.loadtxt(f, delimiter=',')  
+
+    def test_a_solution(self):
+        """Check a given solution."""
+        solution = np.array([94,10,89,7,32,38,19,95,80,30,28,23,22,86,27,88,25,9,39,46,98,74,20,17,3,48,79,41,69,47,73,16,97,90,60,6,2,50,1,58,44,87,59,8,12,92,24,15,33,96,65,76,70,45,36,31,37,49,43,11,82,53,52,62,51,29,42,75,0,61,4,78,40,67,5,93,14,63,56,21,83,71,72,64,81,54,34,68,99,55,84,91,57,26,18,77,66,13,35,85])
+
+        sorted_solution = np.sort(solution)
+
+        for i in range(len(solution)):
+            self.assertEqual(sorted_solution[i], i)   
 
     def test_order_crossover(self):
         """Check if all elements are represented."""
