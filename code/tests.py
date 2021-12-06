@@ -30,8 +30,6 @@ class Tests(unittest.TestCase):
         parent2 = r0652971.Individual(self.distanceMatrix, order=np.array([8,2,6,7,1,5,4,0,3]))
 
         edge_table = r0652971.construct_edge_table(parent1, parent2, length=9)
-
-        print(edge_table)
         
         self.check_asserts(edge_table, 0, np.array([1,4,3,8]))
         self.check_asserts(edge_table, 1, np.array([0,2,5,7]))
