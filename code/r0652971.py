@@ -300,18 +300,31 @@ def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -
 	return modified_fitness
 
 def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> Individual:
-    """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
-    best_order = ind.order
-    best_fitness = fitness(distanceMatrix, ind.order)
-    for first in range(1, len(ind.order) - 2):
-        for second in range(first + 2, len(ind.order)):
-            new_order = swap_edges(ind, first, second)
-            new_fitness = fitness(distanceMatrix, new_order)
-            if new_fitness < best_fitness:
-                best_order = new_order
-                best_fitness = new_fitness
-    return Individual(distanceMatrix, order=best_order, alpha=ind.alpha)
+	"""Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
+	best_order = ind.order
+	print(best_order)
+	improvement = True
+	count = 0
+	while improvement and count < 100: # TODO: Cite
+		count += 1
+		improvement = False
+		for first in range(1, len(ind.order) - 2):
+			for second in range(first + 2, len(ind.order)):
+				cost_change = calculate_cost_change(distanceMatrix, best_order[first-1], best_order[first], best_order[second-1], best_order[second])
+				if cost_change == float("-inf"):
+					continue
+				elif cost_change < 0.0:
+					#print(cost_change)
+					improvement = True
+					best_order[first: second] = best_order[second - 1: first -1: -1]
+	print(best_order)
+	print("Out of here")
+	return Individual(distanceMatrix, order=best_order, alpha=ind.alpha)
 
+def calculate_cost_change(distanceMatrix: np.ndarray, start_first: int, start_second: int, end_first: int, end_second: int):
+    return distanceMatrix[start_first][end_first] + distanceMatrix[start_second][end_second] - (distanceMatrix[start_first][start_second] + distanceMatrix[end_first][end_second])
+
+# TODO: remove this function
 def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
     """Swap two edges in a circle.
     Image the cycle (A, B, C, ..., Y, Z). If you swap the edges between C-D and Y-Z, 
