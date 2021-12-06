@@ -146,16 +146,9 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 	
 	# 3: Set the variable 'node' to the randomly chosen element
 	new_order[0] = node
-	first_last = [0, 1]
-	first_or_last = 1 # Last
-	direction = 1
-	not_end = True
-	go_on = False
-	while (not_end and not go_on) or (not_end and go_on):
-		go_on = True
-		if first_last[0] == first_last[1]:
-			not_end = False
-
+	forward = True
+	counter = 1
+	while (counter != length):
 		# 4: Remove all references to 'node' from the table
 		for edge_set in edge_table:
 			edge_set.discard(node)
@@ -170,9 +163,9 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 					double_edge_node = -elem
 					break
 			if double_edge_node is not None:
-				new_order[first_last[first_or_last]] = double_edge_node
+				new_order[counter] = double_edge_node
 				node = double_edge_node
-				first_last[first_or_last] = (first_last[first_or_last] + direction) % length
+				counter += 1
 				continue
 			
 			# 5b: Otherwise, pick the entry in the set which itself has the shortest list. Ties are split randomly
@@ -186,28 +179,27 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
 				elif len_elem == shortest:
 					set_of_shortest_sets.add(elem)
 			chosen_one = random.sample(set_of_shortest_sets, 1)[0] # Choose a random element from the shortest ones.
-			new_order[first_last[first_or_last]] = chosen_one
+			new_order[counter] = chosen_one
 			node = chosen_one
-			first_last[first_or_last] = (first_last[first_or_last] + direction) % length
+			counter += 1
 			continue
 		
 		else:
 			# 6a: In case of reaching an empty set, the other end of the offspring is examined for extension
-			if direction == 1:
-				direction = -1
-				node = new_order[first_last[0]] # Set to first
-				first_or_last = 0 # Set to first
-				go_on = True
+			if forward:
+				forward = False
+				new_order[0: counter] = new_order[0: counter][::-1]
+				node = new_order[counter - 1] # Set to other side
 				continue
 			# 6b: Otherwise, a new element is chosen at random
 			# Reset direction again to forward
-			direction = 1
-			first_or_last = 1 # Set to last
+			forward = True
+			new_order[0: counter] = new_order[0: counter][::-1]
 			possibilities = set(range(length)) - set([elem for elem in new_order if elem >= 0])
 			chosen_one = random.sample(possibilities, 1)[0] # Choose a random element from the possibilities
-			new_order[first_last[first_or_last]] = chosen_one
+			new_order[counter] = chosen_one
 			node = chosen_one
-			first_last[first_or_last] = (first_last[first_or_last] + direction) % length
+			counter += 1
 	beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
 	alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
 	alpha = max(0.01, alpha)
