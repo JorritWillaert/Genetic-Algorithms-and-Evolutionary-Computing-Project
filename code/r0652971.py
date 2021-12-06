@@ -246,13 +246,12 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
 	alpha = max(0.01, alpha)
 	return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
-def mutation(individual: Individual) -> Individual: # Maybe make this operator in-place
+def mutation(individual: Individual):
 	"""Example mutation: randomly choose 2 indices and swap them."""   
 	if random.random() < individual.alpha:
 		i = random.randint(0, len(individual.order) - 1)
 		j = random.randint(0, len(individual.order) - 1)
 		individual.order[i], individual.order[j] = individual.order[j], individual.order[i]
-	return individual
 
 def elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination"""
@@ -390,13 +389,13 @@ class r0652971:
 				parent1 = selection(distanceMatrix, population, p.k)
 				parent2 = selection(distanceMatrix, population, p.k)
 				offspring = edge_crossover(distanceMatrix, parent1, parent2)
-				mut_offspring = mutation(offspring) # Maybe try to mutate list 'in-place' in the future (without return argument)
-				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, mut_offspring)
-				offsprings.append(mut_offspring)
+				mutation(offspring) # In-place
+				ind_after_local_search = local_search_operator_2_opt(distanceMatrix, offspring)
+				offsprings.append(ind_after_local_search)
 			
 			# Mutation of the seed individuals
-			for i, seed_individual in enumerate(population):
-				mutated_ind = mutation(seed_individual) # Maybe try to mutate list 'in-place' in the future (without return argument)
+			for seed_individual in population:
+				mutation(seed_individual) # In-place 
 
 			population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
 			# population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
