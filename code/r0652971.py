@@ -111,26 +111,28 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: In
 	alpha = max(0.01, alpha)
 	return Individual(distanceMatrix, new_order, alpha=alpha)
 
+def add_elem_to_set(set_to_be_added: set, elem: int):
+	if elem in set_to_be_added:
+			set_to_be_added.remove(elem)
+			set_to_be_added.add(-elem) # A minus denotes that an element is in both parents
+	else:
+		set_to_be_added.add(elem)
+
+def add_neighbours(edge_table: List[set], parent: Individual, i: int, length: int):
+	set_to_be_added = edge_table[parent.order[i]]
+	elem = parent.order[(i + 1) % length]
+	add_elem_to_set(set_to_be_added, elem)
+
+	elem = parent.order[(i - 1)]
+	add_elem_to_set(set_to_be_added, elem)
+
 def construct_edge_table(parent1: Individual, parent2: Individual, length: int) -> List[set]:
 	edge_table = [set() for _ in range(length)]
 	# TODO: Maybe more efficient implementation?
 	for i in range(length):
-		edge_table[parent1.order[i]].add(parent1.order[(i + 1) % len(parent1.order)])
-		edge_table[parent1.order[i]].add(parent1.order[(i - 1)])
-		elem = parent2.order[(i + 1) % len(parent2.order)]
-		set_to_be_added = edge_table[parent2.order[i]]
-		if elem in set_to_be_added:
-			set_to_be_added.remove(elem)
-			set_to_be_added.add(-elem) # A minus denotes that an element is in both parents
-		else:
-			set_to_be_added.add(elem)
+		add_neighbours(edge_table, parent1, i, length)
+		add_neighbours(edge_table, parent2, i, length)
 		
-		elem = parent2.order[(i - 1) % len(parent2.order)]
-		if elem in set_to_be_added:
-			set_to_be_added.remove(elem)
-			set_to_be_added.add(-elem) # A minus denotes that an element is in both parents
-		else:
-			set_to_be_added.add(elem)
 	return edge_table
 
 def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
