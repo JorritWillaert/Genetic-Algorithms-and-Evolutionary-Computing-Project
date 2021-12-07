@@ -3,6 +3,7 @@ from operator import length_hint, ne, pos
 from os import wait
 from time import sleep
 from numba import jit
+from numpy.core import numeric
 
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
@@ -322,6 +323,11 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
     best_fitness = fitness(distanceMatrix, ind.order)
     fit_first_part = 0.0
+    fit_last_part_at_start, num_of_infinities_at_start = partial_fitness_without_looping_back(distanceMatrix, ind.order[2:])
+    looping_back = partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
+    if looping_back == float("+inf"):
+        return
+    fit_last_part_at_start += looping_back
     length = len(ind.order)
     best_combination = (0, 0)
     for first in range(1, length - 2):
@@ -329,15 +335,14 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
             fit_first_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[first-2], to=ind.order[first-1])
             if fit_first_part == float("+inf"):
                 break
-        fit_middle_part = 0.0
-        if first + 2 < length:
-            fit_last_part, num_of_infinities = partial_fitness_without_looping_back(distanceMatrix, ind.order[first + 2:])
+        end_change = partial_fitness_one_value(distanceMatrix, frm=ind.order[first+1], to=ind.order[first+2])
+        if end_change == float("+inf"):
+            num_of_infinities_at_start -= 1
         else:
-            fit_last_part, num_of_infinities = 0.0, 0
-        looping_back = partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
-        if looping_back == float("+inf"):
-            break
-        fit_last_part += looping_back
+            fit_last_part_at_start -= end_change
+        num_of_infinities = num_of_infinities_at_start
+        fit_last_part = fit_last_part_at_start
+        fit_middle_part = 0.0
         for second in range(first + 2, length):
             if second < length - 1 and second != first + 2: # Do not update in beginning, due to initialization
                 end_change = partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second])
@@ -348,11 +353,22 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
             fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second-2])
             if fit_middle_part == float("+inf"):
                 break
+            if second != first + 2:
+                end_change = partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second])
+                if end_change == float("+inf"):
+                    num_of_infinities -= 1
+                else:
+                    fit_last_part -= end_change
+
             if num_of_infinities > 0:
                 continue
             bridge_first = partial_fitness_one_value(distanceMatrix, frm=ind.order[first-1], to=ind.order[second-1])
             bridge_second = partial_fitness_one_value(distanceMatrix, frm=ind.order[first], to=ind.order[second])
             new_fitness = fit_first_part + fit_middle_part + fit_last_part + bridge_first + bridge_second
+            print("New fitness:", new_fitness)
+            test = np.copy(ind.order)
+            test[first:second] = test[first:second][::-1]
+            print(fitness(distanceMatrix, test))
             if new_fitness < best_fitness:
                 best_combination = (first, second)
                 best_fitness = new_fitness
