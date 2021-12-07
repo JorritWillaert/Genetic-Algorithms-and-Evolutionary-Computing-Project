@@ -72,13 +72,15 @@ def partial_fitness_without_looping_back(distanceMatrix: np.ndarray, partial_ord
     if (len(partial_order) == 0):
         return 0.0
     fit = 0.0
+    num_of_infinities = 0
     for i in range(len(partial_order) - 1):
         elem1 = partial_order[i]
         elem2 = partial_order[i + 1]
-        fit += distanceMatrix[elem1][elem2]
         if fit == float("+inf"):
-            return fit
-    return fit
+            num_of_infinities += 1
+        else:
+            fit += distanceMatrix[elem1][elem2]
+    return fit, num_of_infinities
 
 def fitness(distanceMatrix: np.ndarray, order: np.ndarray) -> float:
     fit = 0.0
@@ -319,33 +321,43 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> 
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
     best_order = ind.order
     best_fitness = fitness(distanceMatrix, ind.order)
-    fit_first_part = partial_fitness_one_value(distanceMatrix, frm=ind.order[0], to=ind.order[1])
-    recalculate = False
+    fit_first_part = 0.0
     length = len(ind.order)
     for first in range(1, length - 2):
-        fit_first_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[first], to=ind.order[first+1])
-        if fit_first_part == float("+inf"):
-            break
-        fit_last_part = partial_fitness_without_looping_back(distanceMatrix, ind.order[first + 2:]) \
-            + partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
-        if fit_last_part == float("+inf"):
-            recalculate = True
-        fit_middle_part = partial_fitness_one_value(distanceMatrix, frm=ind.order[first+2], to=ind.order[first+1]) # Reversed
+        if first != 1:
+            fit_first_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[first-2], to=ind.order[first-1])
+            if fit_first_part == float("+inf"):
+                break
+        fit_middle_part = partial_fitness_one_value(distanceMatrix, frm=ind.order[first+1], to=ind.order[first]) # Reversed
         if fit_middle_part == float("+inf"):
             break
+        if first + 2 < length:
+            fit_last_part, num_of_infinities = partial_fitness_without_looping_back(distanceMatrix, ind.order[first + 2:])
+        else:
+            fit_last_part, num_of_infinities = 0.0, 0
+        looping_back = partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
+        if looping_back == float("+inf"):
+            break
+        fit_last_part += looping_back
         for second in range(first + 2, length):
-            if recalculate:
-                fit_last_part = partial_fitness_without_looping_back(distanceMatrix, ind.order[second:]) \
-                    + partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
-                if fit_last_part == float("+inf"):
-                    continue
-            else:
-                if second <= length - 2:
-                    fit_last_part -= partial_fitness_one_value(distanceMatrix, frm=ind.order[second], to=ind.order[second+1])
-            if second <= length - 2:
-                fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[second+1], to=ind.order[second]) # Reversed
+            if second < length - 1:
+                end_change = partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second])
+                if end_change != float("+inf"):
+                    fit_last_part -= end_change
+                else:
+                    num_of_infinities -= 1
+            fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[second], to=ind.order[second-1])
+            if fit_middle_part == float("+inf"):
+                break
             new_order = swap_edges(ind, first, second)
-            new_fitness = fit_first_part + fit_middle_part + fit_last_part
+            if num_of_infinities > 0:
+                continue
+            bridge_first = partial_fitness_one_value(distanceMatrix, frm=ind.order[first-1], to=ind.order[second-1])
+            bridge_second = partial_fitness_one_value(distanceMatrix, frm=ind.order[first], to=ind.order[second])
+            new_fitness = fit_first_part + fit_middle_part + fit_last_part + bridge_first + bridge_second
+            print("Start")
+            print(new_fitness)
+            print(fitness(distanceMatrix, new_order))
             if new_fitness < best_fitness:
                 best_order = new_order
                 best_fitness = new_fitness
@@ -469,7 +481,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour500.csv')
+    problem.optimize('tours/tour29.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
