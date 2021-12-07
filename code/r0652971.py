@@ -318,12 +318,12 @@ def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -
         modified_fitness[i] = orig_fitness * one_plus_beta ** np.sign(orig_fitness)
     return modified_fitness
 
-def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> Individual:
+def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # In-place
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
-    best_order = ind.order
     best_fitness = fitness(distanceMatrix, ind.order)
     fit_first_part = 0.0
     length = len(ind.order)
+    best_combination = (0, 0)
     for first in range(1, length - 2):
         if first != 1:
             fit_first_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[first-2], to=ind.order[first-1])
@@ -348,18 +348,23 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual) -> 
             fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second-2])
             if fit_middle_part == float("+inf"):
                 break
-            #new_order = swap_edges(ind, first, second)
-            new_order = np.copy(ind.order)
-            new_order[first:second] = new_order[first:second][::-1]
             if num_of_infinities > 0:
                 continue
             bridge_first = partial_fitness_one_value(distanceMatrix, frm=ind.order[first-1], to=ind.order[second-1])
             bridge_second = partial_fitness_one_value(distanceMatrix, frm=ind.order[first], to=ind.order[second])
             new_fitness = fit_first_part + fit_middle_part + fit_last_part + bridge_first + bridge_second
             if new_fitness < best_fitness:
-                best_order = new_order
+                best_combination = (first, second)
                 best_fitness = new_fitness
-    return Individual(distanceMatrix, order=best_order, alpha=ind.alpha)
+    best_first, best_second = best_combination
+    if best_first == 0: # Initial individual was best
+        return
+    ind.order[best_first:best_second] = ind.order[best_first:best_second][::-1] # In-place
+
+def get_new_order(first, second, ind):
+    new_order = np.copy(ind.order)
+    new_order[first:second] = new_order[first:second][::-1]
+    return new_order
 
 def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
     """Swap two edges in a circle.
@@ -445,8 +450,8 @@ class r0652971:
                 parent2 = selection(distanceMatrix, population, p.k)
                 offspring = edge_crossover(distanceMatrix, parent1, parent2)
                 mutation(offspring) # In-place
-                ind_after_local_search = local_search_operator_2_opt(distanceMatrix, offspring)
-                offsprings.append(ind_after_local_search)
+                local_search_operator_2_opt(distanceMatrix, offspring) # In-place
+                offsprings.append(offspring)
             
             # Mutation of the seed individuals
             for seed_individual in population:
@@ -485,7 +490,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour750.csv')
+    problem.optimize('tours/tour250.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
