@@ -7,7 +7,7 @@ from numba import jit
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
 import numpy as np
-from typing import List
+from typing import List, Tuple
 import random
 import matplotlib.pyplot as plt
 import cProfile
@@ -66,7 +66,10 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
     return Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn()))
 
 def partial_fitness_one_value(distanceMatrix: np.ndarray, frm: int, to: int):
-    return distanceMatrix[frm][to]
+    distance = distanceMatrix[frm][to]
+    if distance != float("inf"):
+        return distance
+    return 10_000_000.0
 
 
 def partial_fitness_without_looping_back(distanceMatrix: np.ndarray, partial_order: np.ndarray) -> float:
@@ -318,41 +321,47 @@ def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -
         modified_fitness[i] = orig_fitness * one_plus_beta ** np.sign(orig_fitness)
     return modified_fitness
 
+def build_cumulatives(distanceMatrix: np.ndarray, ind: Individual, length: int) -> Tuple[np.ndarray, np.ndarray]:
+    cum_from_0_to_first = np.zeros((length))
+    cum_from_second_to_end = np.zeros((length))
+    cum_from_second_to_end[length - 1] = partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
+    for i in range(1, length - 1):
+        cum_from_0_to_first[i] = cum_from_0_to_first[i - 1] \
+            + partial_fitness_one_value(distanceMatrix, frm=ind.order[i-1], to=ind.order[i])
+        cum_from_second_to_end[length - 1 - i] = cum_from_second_to_end[length - i] \
+            + partial_fitness_one_value(distanceMatrix, frm=ind.order[length -1 - i], to=ind.order[length - i])
+    return cum_from_0_to_first, cum_from_second_to_end
+
 def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # In-place
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
     best_fitness = fitness(distanceMatrix, ind.order)
-    fit_first_part = 0.0
     length = len(ind.order)
     best_combination = (0, 0)
+
+    cum_from_0_to_first, cum_from_second_to_end = build_cumulatives(distanceMatrix, ind, length)
+    if cum_from_second_to_end[-1] > 10_000_000:
+        return
+
     for first in range(1, length - 2):
-        if first != 1:
-            fit_first_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[first-2], to=ind.order[first-1])
-            if fit_first_part == float("+inf"):
-                break
         fit_middle_part = 0.0
-        if first + 2 < length:
-            fit_last_part, num_of_infinities = partial_fitness_without_looping_back(distanceMatrix, ind.order[first + 2:])
-        else:
-            fit_last_part, num_of_infinities = 0.0, 0
-        looping_back = partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
-        if looping_back == float("+inf"):
-            break
-        fit_last_part += looping_back
         for second in range(first + 2, length):
-            if second < length - 1 and second != first + 2: # Do not update in beginning, due to initialization
-                end_change = partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second])
-                if end_change != float("+inf"):
-                    fit_last_part -= end_change
-                else:
-                    num_of_infinities -= 1
             fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second-2])
-            if fit_middle_part == float("+inf"):
+            if fit_middle_part > 10_000_000:
                 break
-            if num_of_infinities > 0:
+
+            fit_first_part = cum_from_0_to_first[first-1]
+            if fit_first_part > 10_000_000:
+                break
+            
+            fit_last_part = cum_from_second_to_end[second]
+            if fit_last_part > 10_000_000:
                 continue
+
             bridge_first = partial_fitness_one_value(distanceMatrix, frm=ind.order[first-1], to=ind.order[second-1])
             bridge_second = partial_fitness_one_value(distanceMatrix, frm=ind.order[first], to=ind.order[second])
             new_fitness = fit_first_part + fit_middle_part + fit_last_part + bridge_first + bridge_second
+            test = np.copy(ind.order)
+            test[first:second] = test[first:second][::-1]
             if new_fitness < best_fitness:
                 best_combination = (first, second)
                 best_fitness = new_fitness
