@@ -38,6 +38,7 @@ def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Ind
         individuals[i] = greedily_initialize_individual(distanceMatrix)
     for i in range(greedily_number, population_size):
         individuals[i] = Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
+    print("Initialization ended")
     return individuals
 
 def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
@@ -414,6 +415,12 @@ class r0652971:
         p = Parameters(population_size=100, num_offsprings=100, k=5)
 
         population = initialization(distanceMatrix, p.population_size)
+        best_fitness = float("+inf")
+        for individual in population:
+                fit = fitness(distanceMatrix, individual.order)
+                if fit < best_fitness:
+                    best_fitness = fit
+        print("Best fitness after initialization:", best_fitness)
 
         best_fitnesses = []
         mean_fitnesses = []
@@ -478,7 +485,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour100.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
