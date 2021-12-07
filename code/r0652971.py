@@ -343,14 +343,13 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
         return
 
     for first in range(1, length - 2):
+        fit_first_part = cum_from_0_to_first[first-1]
+        if fit_first_part > 10_000_000 or fit_first_part > best_fitness:
+            break
         fit_middle_part = 0.0
         for second in range(first + 2, length):
             fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second-2])
             if fit_middle_part > 10_000_000:
-                break
-
-            fit_first_part = cum_from_0_to_first[first-1]
-            if fit_first_part > 10_000_000:
                 break
             
             fit_last_part = cum_from_second_to_end[second]
@@ -359,9 +358,11 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
 
             bridge_first = partial_fitness_one_value(distanceMatrix, frm=ind.order[first-1], to=ind.order[second-1])
             bridge_second = partial_fitness_one_value(distanceMatrix, frm=ind.order[first], to=ind.order[second])
-            new_fitness = fit_first_part + fit_middle_part + fit_last_part + bridge_first + bridge_second
-            test = np.copy(ind.order)
-            test[first:second] = test[first:second][::-1]
+            temp = fit_first_part + fit_middle_part
+            new_fitness = temp + fit_last_part + bridge_first + bridge_second
+            if temp > best_fitness:
+                continue
+            
             if new_fitness < best_fitness:
                 best_combination = (first, second)
                 best_fitness = new_fitness
@@ -499,7 +500,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour250.csv')
+    problem.optimize('tours/tour1000.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
