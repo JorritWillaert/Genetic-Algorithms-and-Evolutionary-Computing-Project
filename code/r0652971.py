@@ -447,7 +447,7 @@ class r0652971:
             for seed_individual in population:
                 mutation(seed_individual) # In-place 
 
-            population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+            # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
             population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
 
             fitnesses = []
@@ -480,7 +480,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour750.csv')
+    problem.optimize('tours/tour250.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
