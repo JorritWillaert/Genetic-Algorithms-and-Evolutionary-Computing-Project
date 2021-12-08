@@ -5,6 +5,7 @@ from time import sleep
 from numba import jit
 import cmath
 import pstats
+import numba
 
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
@@ -151,32 +152,35 @@ def add_elem_to_set(set_to_be_added: set, elem: int):
     else:
         set_to_be_added.add(elem)
 
-def add_neighbours(edge_table: List[set], parent: Individual, i: int, length: int):
-    set_to_be_added = edge_table[parent.order[i]]
-    elem = parent.order[(i + 1) % length]
+@jit(nopython=True)
+def add_neighbours(edge_table: List[set], order: np.ndarray, i: int, length: int):
+    set_to_be_added = edge_table[order[i]]
+    elem = order[(i + 1) % length]
     add_elem_to_set(set_to_be_added, elem)
 
-    elem = parent.order[(i - 1)]
+    elem = order[(i - 1)]
     add_elem_to_set(set_to_be_added, elem)
 
-def construct_edge_table(parent1: Individual, parent2: Individual, length: int) -> List[set]:
-    edge_table = [set() for _ in range(length)]
+@jit(nopython=True)
+def construct_edge_table(order1: np.ndarray, order2: np.ndarray, length: int) -> List[set]:
+    edge_table = [set for _ in range(length)]
     # TODO: Maybe more efficient implementation?
     for i in range(length):
-        add_neighbours(edge_table, parent1, i, length)
-        add_neighbours(edge_table, parent2, i, length)
+        add_neighbours(edge_table, order1, i, length)
+        add_neighbours(edge_table, order2, i, length)
         
     return edge_table
 
-def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
+@jit(nopython=True)
+def edge_crossover(distanceMatrix: np.ndarray, order1: Individual, order2: Individual, alpha1: float, alpha2: float) -> Individual:
     length = (distanceMatrix.shape)[0]
 
     # 1: Construct edge table
-    edge_table = construct_edge_table(parent1, parent2, length)
+    edge_table = construct_edge_table(order1, order2, length)
     # 2: Pick an initial element at random and put it in the offspring
     node = random.randint(0, length - 1)	
     new_order = np.negative(np.ones((length), dtype=np.int))
-    
+
     # 3: Set the variable 'node' to the randomly chosen element
     new_order[0] = node
     forward = True
@@ -234,9 +238,9 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Ind
             node = chosen_one
             counter += 1
     beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
-    alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
+    alpha = alpha1 + beta * (alpha2 - alpha1)
     alpha = max(0.01, alpha)
-    return Individual(distanceMatrix, order=new_order, alpha=alpha)
+    return new_order, alpha
 
 def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual: # https://en.wikipedia.org/wiki/Edge_recombination_operator
     # Create edge table
@@ -281,7 +285,7 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
 
 def mutation(individual: Individual):
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
-    if random.random() < individual.alpha * 10:
+    if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         individual.order[i: j] = individual.order[i: j][::-1]
@@ -444,7 +448,8 @@ class r0652971:
             for offspring in range(p.num_offsprings):
                 parent1 = selection(distanceMatrix, population, p.k)
                 parent2 = selection(distanceMatrix, population, p.k)
-                offspring = edge_crossover(distanceMatrix, parent1, parent2)
+                offspring_order, alpha_offspring = edge_crossover(distanceMatrix, parent1.order, parent2.order, parent1.alpha, parent2.alpha)
+                offspring = Individual(distanceMatrix, order=offspring_order, alpha=alpha_offspring)
                 mutation(offspring) # In-place
                 local_search_operator_2_opt(distanceMatrix, offspring.order) # In-place
                 offsprings.append(offspring)
