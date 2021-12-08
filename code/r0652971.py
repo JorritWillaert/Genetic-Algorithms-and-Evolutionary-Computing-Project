@@ -14,6 +14,8 @@ import cProfile
 
 # TODO:
 # Probably beneficial to always start from the first city
+# Add self-adaptivity (local search?)
+# Multiprocessing in initialization and main loop
 # Lists to Numpy arrays
 
 class Parameters:
@@ -29,6 +31,11 @@ class Individual:
         else:
             self.order = order
         self.alpha = alpha
+        self.length = (distanceMatrix.shape)[0]
+        self.build_edges()
+
+    def build_edges(self):
+        self.edges = [(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)]
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
     individuals = [None] * population_size
@@ -297,29 +304,31 @@ def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Ind
         survivors.append(all_individuals[idx])
     return survivors
 
-def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -> List[float]:
+def distance_from_to(first_ind: Individual, second_ind: Individual):
+    edges_first = first_ind.edges
+    edges_second = second_ind.edges
+    intersection = list(set(edges_first).intersection(set(edges_second)))
+    num_edges_first = len(first_ind.edges)
+
+    return num_edges_first - len(intersection)
+
+def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -> np.ndarray:
     alpha = 1 # TODO: Put this parameter in the parameter class
 
     # TODO: Play with this 0.1. It denotes for example that for tour29, it will consider two solutions 
-    # in each others neighbourhood if the Levenstein distance is less or equal than 2 (= 0.1 * 29 truncated). 
+    # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
     sigma = int((distanceMatrix.shape)[0] * 0.1) 
-    modified_fitness = np.zeros(len(individuals))
-    for i, individual in enumerate(individuals):
-
-        # Calculate all the Levenstein distances
-        ds = []
-        for j in range(len(individuals)):
-            ds.append(levenshtein_distance(individual.order, individuals[j].order))
-
-
-        # Note that x is in the population, so this also yields one time a + 1 for the beta (required!)
-        one_plus_beta = 0
-        for d in ds:
-            if d <= sigma:
-                one_plus_beta += 1 - (d / sigma) ** alpha 
-        orig_fitness = fitness(distanceMatrix, individual.order)
-        modified_fitness[i] = orig_fitness * one_plus_beta ** np.sign(orig_fitness)
-    return modified_fitness
+    
+    fitnesses = np.array([fitness(distanceMatrix, order=ind.order) for ind in individuals])
+    distances = np.array([[distance_from_to(ind1, ind2) for ind2 in individuals] for ind1 in individuals])
+    
+    shared_part = (1 - (distances / sigma) ** alpha)
+    shared_part *= np.array(distances <= sigma)
+    sum_shared_part = np.sum(shared_part, axis=1)
+    shared_fitnesses = fitnesses * sum_shared_part
+    shared_fitnesses = np.where(np.isnan(shared_fitnesses),
+                                np.inf, shared_fitnesses)
+    return shared_fitnesses
 
 def build_cumulatives(distanceMatrix: np.ndarray, ind: Individual, length: int) -> Tuple[np.ndarray, np.ndarray]:
     cum_from_0_to_first = np.zeros((length))
@@ -384,37 +393,6 @@ def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
                            ind.order[second: - len(ind.order) + first - 1: -1],
                            ind.order[second + 1: len(ind.order)]))
 
-def levenshtein_distance(token1, token2): # TODO: cite https://blog.paperspace.com/implementing-levenshtein-distance-word-autocomplete-autocorrect/
-    distances = np.zeros((len(token1) + 1, len(token2) + 1))
-
-    for t1 in range(len(token1) + 1):
-        distances[t1][0] = t1
-
-    for t2 in range(len(token2) + 1):
-        distances[0][t2] = t2
-        
-    a = 0
-    b = 0
-    c = 0
-    
-    for t1 in range(1, len(token1) + 1):
-        for t2 in range(1, len(token2) + 1):
-            if (token1[t1-1] == token2[t2-1]):
-                distances[t1][t2] = distances[t1 - 1][t2 - 1]
-            else:
-                a = distances[t1][t2 - 1]
-                b = distances[t1 - 1][t2]
-                c = distances[t1 - 1][t2 - 1]
-                
-                if (a <= b and a <= c):
-                    distances[t1][t2] = a + 1
-                elif (b <= a and b <= c):
-                    distances[t1][t2] = b + 1
-                else:
-                    distances[t1][t2] = c + 1
-                
-    return distances[len(token1)][len(token2)]
-
 
 class r0652971:
     def __init__(self):
@@ -427,7 +405,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=100, num_offsprings=100, k=5)
+        p = Parameters(population_size=10, num_offsprings=5, k=3)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
@@ -468,7 +446,7 @@ class r0652971:
                 mutation(seed_individual) # In-place 
 
             population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
-            # population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+            population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
 
             fitnesses = []
             best_fitness = float('+inf')
@@ -500,7 +478,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour1000.csv')
+    problem.optimize('tours/tour100.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
