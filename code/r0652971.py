@@ -3,6 +3,8 @@ from operator import length_hint, ne, pos
 from os import wait
 from time import sleep
 from numba import jit
+import cmath
+import pstats
 
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
@@ -72,9 +74,10 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
             i += 1
     return Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn()))
 
+@jit(nopython=True)
 def partial_fitness_one_value(distanceMatrix: np.ndarray, frm: int, to: int):
     distance = distanceMatrix[frm][to]
-    if distance != float("inf"):
+    if distance != cmath.inf:
         return distance
     return 10_000_000.0
 
@@ -93,13 +96,14 @@ def partial_fitness_without_looping_back(distanceMatrix: np.ndarray, partial_ord
             fit += distanceMatrix[elem1][elem2]
     return fit, num_of_infinities
 
+@jit(nopython=True)
 def fitness(distanceMatrix: np.ndarray, order: np.ndarray) -> float:
     fit = 0.0
     for i in range(len(order)):
         elem1 = order[i]
         elem2 = order[(i + 1) % len(order)]
         fit += distanceMatrix[elem1][elem2]
-        if fit == float("+inf"):
+        if fit == cmath.inf:
             return fit
     return fit
 
@@ -277,7 +281,7 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
 
 def mutation(individual: Individual):
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
-    if random.random() < individual.alpha:
+    if random.random() < individual.alpha * 10:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         individual.order[i: j] = individual.order[i: j][::-1]
@@ -316,7 +320,7 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     if not survivors:
         return np.array([fitness(distanceMatrix, individual.order) for individual in population])
     
-    alpha = 1 # TODO: Put this parameter in the parameter class
+    alpha = 4 # TODO: Put this parameter in the parameter class
 
     # TODO: Play with this 0.1. It denotes for example that for tour29, it will consider two solutions 
     # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
@@ -332,24 +336,26 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
                                 np.inf, shared_fitnesses)
     return shared_fitnesses
 
-def build_cumulatives(distanceMatrix: np.ndarray, ind: Individual, length: int) -> Tuple[np.ndarray, np.ndarray]:
+@jit(nopython=True)
+def build_cumulatives(distanceMatrix: np.ndarray, order: np.ndarray, length: int) -> Tuple[np.ndarray, np.ndarray]:
     cum_from_0_to_first = np.zeros((length))
     cum_from_second_to_end = np.zeros((length))
-    cum_from_second_to_end[length - 1] = partial_fitness_one_value(distanceMatrix, frm=ind.order[-1], to=ind.order[0])
+    cum_from_second_to_end[length - 1] = partial_fitness_one_value(distanceMatrix, frm=order[-1], to=order[0])
     for i in range(1, length - 1):
         cum_from_0_to_first[i] = cum_from_0_to_first[i - 1] \
-            + partial_fitness_one_value(distanceMatrix, frm=ind.order[i-1], to=ind.order[i])
+            + partial_fitness_one_value(distanceMatrix, frm=order[i-1], to=order[i])
         cum_from_second_to_end[length - 1 - i] = cum_from_second_to_end[length - i] \
-            + partial_fitness_one_value(distanceMatrix, frm=ind.order[length -1 - i], to=ind.order[length - i])
+            + partial_fitness_one_value(distanceMatrix, frm=order[length -1 - i], to=order[length - i])
     return cum_from_0_to_first, cum_from_second_to_end
 
-def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # In-place
+@jit(nopython=True)
+def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray): # In-place
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
-    best_fitness = fitness(distanceMatrix, ind.order)
-    length = len(ind.order)
+    best_fitness = fitness(distanceMatrix, order)
+    length = len(order)
     best_combination = (0, 0)
 
-    cum_from_0_to_first, cum_from_second_to_end = build_cumulatives(distanceMatrix, ind, length)
+    cum_from_0_to_first, cum_from_second_to_end = build_cumulatives(distanceMatrix, order, length)
     if cum_from_second_to_end[-1] > 10_000_000:
         return
 
@@ -359,7 +365,7 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
             break
         fit_middle_part = 0.0
         for second in range(first + 2, length):
-            fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=ind.order[second-1], to=ind.order[second-2])
+            fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=order[second-1], to=order[second-2])
             if fit_middle_part > 10_000_000:
                 break
             
@@ -367,8 +373,8 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
             if fit_last_part > 10_000_000:
                 continue
 
-            bridge_first = partial_fitness_one_value(distanceMatrix, frm=ind.order[first-1], to=ind.order[second-1])
-            bridge_second = partial_fitness_one_value(distanceMatrix, frm=ind.order[first], to=ind.order[second])
+            bridge_first = partial_fitness_one_value(distanceMatrix, frm=order[first-1], to=order[second-1])
+            bridge_second = partial_fitness_one_value(distanceMatrix, frm=order[first], to=order[second])
             temp = fit_first_part + fit_middle_part
             new_fitness = temp + fit_last_part + bridge_first + bridge_second
             if temp > best_fitness:
@@ -380,7 +386,7 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, ind: Individual): # 
     best_first, best_second = best_combination
     if best_first == 0: # Initial individual was best
         return
-    ind.order[best_first:best_second] = ind.order[best_first:best_second][::-1] # In-place
+    order[best_first:best_second] = order[best_first:best_second][::-1] # In-place
 
 def get_new_order(first, second, ind):
     new_order = np.copy(ind.order)
@@ -440,7 +446,7 @@ class r0652971:
                 parent2 = selection(distanceMatrix, population, p.k)
                 offspring = edge_crossover(distanceMatrix, parent1, parent2)
                 mutation(offspring) # In-place
-                local_search_operator_2_opt(distanceMatrix, offspring) # In-place
+                local_search_operator_2_opt(distanceMatrix, offspring.order) # In-place
                 offsprings.append(offspring)
             
             # Mutation of the seed individuals
@@ -480,7 +486,14 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour250.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
+    
+    pr.dump_stats('output.prof')
+
+    stream = open('output.txt', 'w')
+    stats = pstats.Stats('output.prof', stream=stream)
+    stats.sort_stats('cumtime')
+    stats.print_stats()
