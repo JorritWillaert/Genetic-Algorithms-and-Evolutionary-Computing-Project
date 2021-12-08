@@ -39,7 +39,7 @@ class Individual:
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
     individuals = [None] * population_size
-    percentage_greedily = 0.80 # TODO: In Parameters class
+    percentage_greedily = 0.10 # TODO: In Parameters class
     greedily_number = int(population_size * percentage_greedily)
     for i in range(greedily_number):
         individuals[i] = greedily_initialize_individual(distanceMatrix)
@@ -299,7 +299,7 @@ def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Ind
         # beta_init = 1, because we want to count the individual itself (has itself not copied into survivors!)
         # Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
         # (for most of them, their fitness will stay the same)
-        fvals = fitness_sharing(distanceMatrix, all_individuals)
+        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1])
         idx = np.argmin(fvals)
         survivors.append(all_individuals[idx])
     return survivors
@@ -312,16 +312,18 @@ def distance_from_to(first_ind: Individual, second_ind: Individual):
 
     return num_edges_first - len(intersection)
 
-def fitness_sharing(distanceMatrix: np.ndarray, individuals: List[Individual]) -> np.ndarray:
+def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: List[Individual]) -> np.ndarray:
+    if not survivors:
+        return np.array([fitness(distanceMatrix, individual.order) for individual in population])
+    
     alpha = 1 # TODO: Put this parameter in the parameter class
 
     # TODO: Play with this 0.1. It denotes for example that for tour29, it will consider two solutions 
     # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
-    sigma = int((distanceMatrix.shape)[0] * 0.1) 
+    sigma = int((distanceMatrix.shape)[0] * 0.2) 
     
-    fitnesses = np.array([fitness(distanceMatrix, order=ind.order) for ind in individuals])
-    distances = np.array([[distance_from_to(ind1, ind2) for ind2 in individuals] for ind1 in individuals])
-    
+    fitnesses = np.array([fitness(distanceMatrix, order=ind.order) for ind in population])
+    distances = np.array([[distance_from_to(ind1, ind2) for ind2 in survivors] for ind1 in population])
     shared_part = (1 - (distances / sigma) ** alpha)
     shared_part *= np.array(distances <= sigma)
     sum_shared_part = np.sum(shared_part, axis=1)
@@ -405,7 +407,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=10, num_offsprings=5, k=3)
+        p = Parameters(population_size=25, num_offsprings=25, k=5)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
@@ -478,7 +480,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour100.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
