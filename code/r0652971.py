@@ -281,7 +281,7 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
 
 def mutation(individual: Individual):
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
-    if random.random() < individual.alpha * 10:
+    if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         individual.order[i: j] = individual.order[i: j][::-1]
@@ -444,7 +444,7 @@ class r0652971:
             for offspring in range(p.num_offsprings):
                 parent1 = selection(distanceMatrix, population, p.k)
                 parent2 = selection(distanceMatrix, population, p.k)
-                offspring = edge_crossover(distanceMatrix, parent1, parent2)
+                offspring = order_crossover(distanceMatrix, parent1, parent2)
                 mutation(offspring) # In-place
                 local_search_operator_2_opt(distanceMatrix, offspring.order) # In-place
                 offsprings.append(offspring)
