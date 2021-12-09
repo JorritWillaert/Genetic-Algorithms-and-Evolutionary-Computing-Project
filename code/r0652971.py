@@ -297,28 +297,35 @@ def elimination(distanceMatrix: np.ndarray, population: List[Individual], offspr
 
 def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination with fitness sharing.""" # TODO: Change this into another elimination procedure 
-    all_individuals = population + offsprings 
+    all_individuals = population + offsprings
+    all_individuals_order = np.array([ind.order for ind in all_individuals], dtype=np.int)
     survivors = []
+    survivors_orders = np.zeros(((lambd, (distanceMatrix.shape)[0])), dtype=np.int)
     for i in range(lambd):
         # beta_init = 1, because we want to count the individual itself (has itself not copied into survivors!)
         # Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
         # (for most of them, their fitness will stay the same)
-        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1])
+        print(all_individuals_order.shape)
+        print(survivors_orders.shape)
+        print(survivors_orders[0:i-1,:].shape)
+        fvals = fitness_sharing(distanceMatrix, all_individuals_order, survivors_orders[0:i-1, :], i)
         idx = np.argmin(fvals)
+        survivors_orders[i, :] = all_individuals_order[idx]
         survivors.append(all_individuals[idx])
     return survivors
 
-def distance_from_to(first_ind: Individual, second_ind: Individual):
-    edges_first = first_ind.edges
-    edges_second = second_ind.edges
-    intersection = list(set(edges_first).intersection(set(edges_second)))
-    num_edges_first = len(first_ind.edges)
+@jit(nopython=True)
+def distance_from_to(first_edges: np.ndarray, second_edges: np.ndarray):
+    intersection = np.intersect1d(first_edges, second_edges)
+    num_edges_first = first_edges.size
+    return num_edges_first - intersection.size
 
-    return num_edges_first - len(intersection)
-
-def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: List[Individual]) -> np.ndarray:
-    if not survivors:
-        return np.array([fitness(distanceMatrix, individual.order) for individual in population])
+@jit(nopython=True)
+def fitness_sharing(distanceMatrix: np.ndarray, population_orders: np.ndarray, survivors: np.ndarray, i: int) -> np.ndarray:
+    print(survivors.shape)
+    print(population_orders.shape)
+    if i == 0 or i == 1:
+        return np.array([fitness(distanceMatrix, order) for order in population_orders])
     
     alpha = 4 # TODO: Put this parameter in the parameter class
 
@@ -326,8 +333,9 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
     sigma = int((distanceMatrix.shape)[0] * 0.2) 
     
-    fitnesses = np.array([fitness(distanceMatrix, order=ind.order) for ind in population])
-    distances = np.array([[distance_from_to(ind1, ind2) for ind2 in survivors] for ind1 in population])
+    fitnesses = np.array([fitness(distanceMatrix, order=pop_order) for pop_order in population_orders])
+    f = lambda x, y : x.size - np.intersect1d(x,y).size
+    distances = np.array([[(f(ind1_order, ind2_order)) for ind2_order in survivors] for ind1_order in population_orders], dtype=np.int)
     shared_part = (1 - (distances / sigma) ** alpha)
     shared_part *= np.array(distances <= sigma)
     sum_shared_part = np.sum(shared_part, axis=1)
@@ -453,7 +461,7 @@ class r0652971:
             for seed_individual in population:
                 mutation(seed_individual) # In-place 
 
-            # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+            #population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
             population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
 
             fitnesses = []
