@@ -444,7 +444,7 @@ class r0652971:
                     best_fitness = fit
                     best_individual = individual
             mean_fitness = sum(fitnesses) / len(fitnesses)
-            timeLeft = self.reporter.report(mean_fitness, best_fitness, individual.order)
+            timeLeft = self.reporter.report(mean_fitness, best_fitness, best_individual.order)
             if timeLeft < 0: 
                 break
             # print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
