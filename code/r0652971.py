@@ -1,11 +1,5 @@
-from math import dist
-from operator import length_hint, ne, pos
-from os import wait
-from time import sleep
 from numba import jit
 import pstats
-
-from numpy.core.numeric import _ones_like_dispatcher, ones_like
 import Reporter
 import numpy as np
 from typing import List, Tuple
@@ -385,19 +379,6 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray): 
     if best_first == 0: # Initial individual was best
         return
     order[best_first:best_second] = order[best_first:best_second][::-1] # In-place
-
-def get_new_order(first, second, ind):
-    new_order = np.copy(ind.order)
-    new_order[first:second] = new_order[first:second][::-1]
-    return new_order
-
-def swap_edges(ind: Individual, first: int, second: int) -> List[int]:
-    """Swap two edges in a circle.
-    Image the cycle (A, B, C, ..., Y, Z). If you swap the edges between C-D and Y-Z, 
-    then the new cycle becomes (A, B, C, Y , X, W, V, ..., E, D, Z, A)."""  
-    return np.concatenate((ind.order[0:first],
-                           ind.order[second: - len(ind.order) + first - 1: -1],
-                           ind.order[second + 1: len(ind.order)]))
 
 
 class r0652971:
