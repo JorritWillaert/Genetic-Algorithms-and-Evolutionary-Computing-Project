@@ -298,12 +298,12 @@ def elimination(distanceMatrix: np.ndarray, population: List[Individual], offspr
 def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination with fitness sharing.""" # TODO: Change this into another elimination procedure 
     all_individuals = population + offsprings 
-    survivors = []
+    survivors = [] 
+    fitnesses = np.array([fitness(distanceMatrix, order=ind.order) for ind in all_individuals])
     for i in range(lambd):
-        # beta_init = 1, because we want to count the individual itself (has itself not copied into survivors!)
         # Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
         # (for most of them, their fitness will stay the same)
-        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1])
+        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], fitnesses)
         idx = np.argmin(fvals)
         survivors.append(all_individuals[idx])
     return survivors
@@ -316,9 +316,9 @@ def distance_from_to(first_ind: Individual, second_ind: Individual):
 
     return num_edges_first - len(intersection)
 
-def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: List[Individual]) -> np.ndarray:
+def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: List[Individual], original_fits: np.ndarray) -> np.ndarray:
     if not survivors:
-        return np.array([fitness(distanceMatrix, individual.order) for individual in population])
+        return original_fits
     
     alpha = 4 # TODO: Put this parameter in the parameter class
 
@@ -326,12 +326,11 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
     sigma = int((distanceMatrix.shape)[0] * 0.2) 
     
-    fitnesses = np.array([fitness(distanceMatrix, order=ind.order) for ind in population])
     distances = np.array([[distance_from_to(ind1, ind2) for ind2 in survivors] for ind1 in population])
     shared_part = (1 - (distances / sigma) ** alpha)
     shared_part *= np.array(distances <= sigma)
     sum_shared_part = np.sum(shared_part, axis=1)
-    shared_fitnesses = fitnesses * sum_shared_part
+    shared_fitnesses = original_fits * sum_shared_part
     shared_fitnesses = np.where(np.isnan(shared_fitnesses),
                                 np.inf, shared_fitnesses)
     return shared_fitnesses
