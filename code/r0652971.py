@@ -3,7 +3,6 @@ from operator import length_hint, ne, pos
 from os import wait
 from time import sleep
 from numba import jit
-import cmath
 import pstats
 
 from numpy.core.numeric import _ones_like_dispatcher, ones_like
@@ -77,7 +76,7 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
 @jit(nopython=True)
 def partial_fitness_one_value(distanceMatrix: np.ndarray, frm: int, to: int):
     distance = distanceMatrix[frm][to]
-    if distance != cmath.inf:
+    if distance != np.inf:
         return distance
     return 10_000_000.0
 
@@ -103,7 +102,7 @@ def fitness(distanceMatrix: np.ndarray, order: np.ndarray) -> float:
         elem1 = order[i]
         elem2 = order[(i + 1) % len(order)]
         fit += distanceMatrix[elem1][elem2]
-        if fit == cmath.inf:
+        if fit == np.inf:
             return fit
     return fit
 
