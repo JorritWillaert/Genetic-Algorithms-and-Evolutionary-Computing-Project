@@ -30,7 +30,7 @@ class Individual:
         self.build_edges()
 
     def build_edges(self):
-        self.edges = [(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)]
+        self.edges = set([(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)])
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
     individuals = [None] * population_size
@@ -304,7 +304,7 @@ def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Ind
 def distance_from_to(first_ind: Individual, second_ind: Individual):
     edges_first = first_ind.edges
     edges_second = second_ind.edges
-    intersection = list(set(edges_first).intersection(set(edges_second)))
+    intersection = edges_first.intersection(edges_second)
     num_edges_first = len(first_ind.edges)
 
     return num_edges_first - len(intersection)
