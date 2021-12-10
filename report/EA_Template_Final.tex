@@ -69,20 +69,20 @@ This report should be uploaded to Toledo by \deadlineReport. It must be in the \
 \ReplaceMe{List the (up to six distinct) weak points that were identified in the two peer review reports that you received. Use at most 3 sentences to describe each weak point.}
 
 \begin{enumerate}
- \item Our initial recombination operator was a simplified version of the edge recombination operator \cite{initial_implementation_edge_crossover}. However, this version did not prioritize common edges between parents, but only chose an entry which itself had the shortest list. Hence, not enough exploitation of the parents features follows. 
+ \item Our initial recombination operator was a simplified version of the edge crossover operator \cite{initial_implementation_edge_crossover}. However, this version did not prioritize common edges between parents, but only chose an entry which itself had the shortest list. Hence, not enough exploitation of the parents features follows. 
  \item The ($\kappa$ + $\mu$)-elimination (without any type of diversity promotion) puts a lot of selective pressure on the population.
- \item Our mutation operator does not scale to larger problems, since it only swaps two random locations. As a consequence, the mutation operator will have a relativley even smaller impact on the solution when the problem size increases. 
- \item Due to the elimation strategy, together with the chosen mutation operator, premature convergence was observed.
+ \item Our mutation operator does not scale to larger problems, since it only swaps two random locations. As a consequence, the mutation operator will have a relatively even smaller impact on the solution when the problem size increases. 
+ \item Due to the elimination strategy, together with the chosen mutation operator, premature convergence was observed.
 \end{enumerate}
 
 \subsection{The solutions}
 \ReplaceMe{List the solutions to the identified weak points. Use at most 3 sentences to describe your solution. You do not need to explain the techniques in detail if they are in the slides or handbook; just state something like ``Weak point X was solved/mitigated/diminished by using the island model as diversity promotion scheme.'' Note there could be more or less solutions than the number of weak points.}
 
 \begin{enumerate}
- \item 
- \item 
- \item 
- \item 
+ \item The simplified version of the edge crossover operator was first replaced with the proper edge crossover operator \cite{eiben_smith}. However, once the running times of edge recombination were compared with the ones of order crossover, it was apparent that order crossover is much faster. For this reason, edge crossover was abandoned.
+ \item The ($\kappa$ + $\mu$)-elimination is kept, but supplemented with fitness sharing. The high selective pressure of ($\kappa$ + $\mu$)-elimination is somewhat mitigated With the introduction of this diversity promotion scheme.
+ \item The mutation operator has been changed from swap mutation to inversion mutation. Hence, the effect of the mutation operator is constant for rising problem sizes.
+ \item With the introduction of fitness sharing, along with the inversion mutation operator, premature convergence was largely avoided.
 \end{enumerate}
 
 \ReplaceMe{Which weak points did you not address? List them and briefly motivate (target, 3 lines each).}
