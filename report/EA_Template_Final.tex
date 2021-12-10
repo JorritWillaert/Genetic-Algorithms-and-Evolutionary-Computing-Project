@@ -28,7 +28,7 @@
 
 %opening
 \title{Evolutionary Algorithms: Final report}
-\author{\ReplaceMe{Your Name (r0123456)}}
+\author{Jorrit Willaert (r0652971)}
 
 \begin{document}
 \fontfamily{ppl}
@@ -36,9 +36,11 @@
 
 \maketitle
 
+% TODO remove this section
+
 \section{\RemoveMe{Formal requirements}} \label{sec_this}
 
-\RemoveMe{The report is structured for fair and efficient grading of over 100 individual projects in the space of only a few days. Please respect the exact structure of this document. You are allowed to remove sections \ref{sec_this} and \ref{sec_other}. Brevity is the soul of wit: a good report will be \textbf{around $7.5$ pages} long. The hard limit is 12 pages. 
+\RemoveMe{The report is structured for fair and efficient grading of over 100 individual projects in the space of only a few days. Please respect the exact structure of this document. You are allowed to remove sections and . is the soul of wit: a good report will be \textbf{around $7.5$ pages} long. The hard limit is 12 pages. 
 
 \begin{quote}
 Think of this report as a \textbf{take-home exam}; it will be used at the exam for structuring the discussion and questions. Make an effort so that it can be visually scanned efficiently, e.g., by using boldface or colors to highlight key points, using lists, clearly defined paragraphs, figures, etc.
@@ -53,10 +55,10 @@ This report should be uploaded to Toledo by \deadlineReport. It must be in the \
 \section{Metadata}
 
 \begin{itemize}
- \item \textbf{Group members during group phase:} \ReplaceMe{Group member 1} and \ReplaceMe{group member 2}
- \item \textbf{Time spent on group phase:} \ReplaceMe{10 hours}
- \item \textbf{Time spent on final code:} \ReplaceMe{40 hours}
- \item \textbf{Time spent on final report:} \ReplaceMe{10 hours}
+ \item \textbf{Group members during group phase:} Lukas De Greve and Thomas Vanhemel
+ \item \textbf{Time spent on group phase:} \ReplaceMe{10 hours} % TODO
+ \item \textbf{Time spent on final code:} \ReplaceMe{40 hours}  % TODO
+ \item \textbf{Time spent on final report:} \ReplaceMe{10 hours} % TODO
 \end{itemize}
 
 \section{Peer review reports (target: 1 page)}
@@ -67,12 +69,10 @@ This report should be uploaded to Toledo by \deadlineReport. It must be in the \
 \ReplaceMe{List the (up to six distinct) weak points that were identified in the two peer review reports that you received. Use at most 3 sentences to describe each weak point.}
 
 \begin{enumerate}
- \item 
- \item 
- \item 
- \item 
- \item 
- \item 
+ \item Our initial recombination operator was a simplified version of the edge recombination operator \cite{initial_implementation_edge_crossover}. However, this version did not prioritize common edges between parents, but only chose an entry which itself had the shortest list. Hence, not enough exploitation of the parents features follows. 
+ \item The ($\kappa$ + $\mu$)-elimination (without any type of diversity promotion) puts a lot of selective pressure on the population.
+ \item Our mutation operator does not scale to larger problems, since it only swaps two random locations. As a consequence, the mutation operator will have a relativley even smaller impact on the solution when the problem size increases. 
+ \item Due to the elimation strategy, together with the chosen mutation operator, premature convergence was observed.
 \end{enumerate}
 
 \subsection{The solutions}
@@ -120,11 +120,12 @@ This report should be uploaded to Toledo by \deadlineReport. It must be in the \
 
 \subsection{The main loop}
 
-\ReplaceMe{Make a picture of the ``flow'' in your evolutionary algorithm, similar to the example below. Include all the main components (mutation, recombination, selection, elimination, initialization, local search operators, diversity promotion mechanisms). There are no formal requirements on how to do this, as long as it is clear and you can efficiently explain your complete evolutionary algorithm using this picture at the exam. Contrary to the picture below, include the specific techniques, e.g., top-$\lambda$ elimination, $k$-tournament selection, where possible.}
+5\ReplaceMe{Make a picture of the ``flow'' in your evolutionary algorithm, similar to the example below. Include all the main components (mutation, recombination, selection, elimination, initialization, local search operators, diversity promotion mechanisms). There are no formal requirements on how to do this, as long as it is clear and you can efficiently explain your complete evolutionary algorithm using this picture at the exam. Contrary to the picture below, include the specific techniques, e.g., top-$\lambda$ elimination, $k$-tournament selection, where possible.}
 
-\begin{center}
-\includegraphics[height=10em]{../../BasicLoop.png}
-\end{center}
+%
+%\begin{center}
+%\includegraphics[height=10em]{../../BasicLoop.png}
+%\end{center}
 
 \clearpage
 \RemoveMe{\textbf{The questions we ask from section 5.3 onwards in blue are there to guide which topics to discuss}, rather than an exact list of questions that must be answered. Feel free to add more items to discuss.}
@@ -246,5 +247,8 @@ Interpret your results. How do you rate the performance of your algorithm (time,
 \section{Other comments} \label{sec_other}
 
 \ReplaceMe{In case you think there is something important to discuss that is not covered by the previous sections, you can do it here. }
+
+\bibliographystyle{plain} 
+\bibliography{genetic_algorithms_project}
 
 \end{document}
