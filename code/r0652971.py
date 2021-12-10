@@ -299,6 +299,8 @@ def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Ind
         fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], fitnesses)
         idx = np.argmin(fvals)
         survivors.append(all_individuals[idx])
+        del all_individuals[idx]
+        fitnesses = np.delete(fitnesses, idx)
     return survivors
 
 def distance_from_to(first_ind: Individual, second_ind: Individual):
@@ -309,7 +311,7 @@ def distance_from_to(first_ind: Individual, second_ind: Individual):
 
     return num_edges_first - len(intersection)
 
-def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: List[Individual], original_fits: np.ndarray) -> np.ndarray:
+def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: np.ndarray, original_fits: np.ndarray) -> np.ndarray:
     if not survivors:
         return original_fits
     
@@ -319,7 +321,10 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
     sigma = int((distanceMatrix.shape)[0] * 0.2) 
     
-    distances = np.array([[distance_from_to(ind1, ind2) for ind2 in survivors] for ind1 in population])
+    distances = np.zeros((len(population), len(survivors)))
+    for i in range(len(population)):
+        for j in range(len(survivors)):
+            distances[i][j] = distance_from_to(population[i], survivors[j])
     shared_part = (1 - (distances / sigma) ** alpha)
     shared_part *= np.array(distances <= sigma)
     sum_shared_part = np.sum(shared_part, axis=1)
