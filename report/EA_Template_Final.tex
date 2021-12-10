@@ -1,0 +1,250 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage[english]{babel}
+\usepackage[dvinames]{xcolor}
+\usepackage[compact,small]{titlesec}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsfonts,amsmath,amssymb}
+\usepackage{marginnote}
+\usepackage[top=1.8cm, bottom=1.8cm, outer=1.8cm, inner=1.8cm, heightrounded, marginparwidth=2.5cm, marginparsep=0.5cm]{geometry}
+\usepackage{enumitem}
+\setlist{noitemsep,parsep=2pt}
+\newcommand{\highlight}[1]{\textcolor{kuleuven}{#1}}
+\usepackage{pythonhighlight}
+\usepackage{cleveref}
+\usepackage{graphicx}
+
+\newcommand{\nextyear}{\advance\year by 1 \the\year\advance\year by -1}
+\newcommand{\thisyear}{\the\year}
+\newcommand{\deadlineCode}{December 31, \thisyear{} at 16:00 CET}
+\newcommand{\deadlineReport}{\deadlineCode}
+
+\newcommand{\ReplaceMe}[1]{{\color{blue}#1}}
+\newcommand{\RemoveMe}[1]{{\color{purple}#1}}
+
+\setlength{\parskip}{5pt}
+
+%opening
+\title{Evolutionary Algorithms: Final report}
+\author{\ReplaceMe{Your Name (r0123456)}}
+
+\begin{document}
+\fontfamily{ppl}
+\selectfont{}
+
+\maketitle
+
+\section{\RemoveMe{Formal requirements}} \label{sec_this}
+
+\RemoveMe{The report is structured for fair and efficient grading of over 100 individual projects in the space of only a few days. Please respect the exact structure of this document. You are allowed to remove sections \ref{sec_this} and \ref{sec_other}. Brevity is the soul of wit: a good report will be \textbf{around $7.5$ pages} long. The hard limit is 12 pages. 
+
+\begin{quote}
+Think of this report as a \textbf{take-home exam}; it will be used at the exam for structuring the discussion and questions. Make an effort so that it can be visually scanned efficiently, e.g., by using boldface or colors to highlight key points, using lists, clearly defined paragraphs, figures, etc.
+
+You do not need to explain in this report \textbf{how} the techniques and concepts that are literally in the slides work. The goal of this report is \textbf{not} to illustrate that you can reproduce the slides. You need to convince me that you aptly used these (and other) techniques in this project. If I have doubts about your understanding of certain concepts in the course materials, I will test this hypothesis at the exam.
+\end{quote}
+
+It is recommended that you use this \LaTeX{} template, but you are allowed to reproduce it with the same structure in a WYSIWYG-editor. The purple text containing our evaluation criteria can be removed. You should replace the blue text with your discussion.
+
+This report should be uploaded to Toledo by \deadlineReport. It must be in the \textbf{Portable Document Format} (pdf) and must be named \texttt{r0123456\_final.pdf}, where r0123456 should be replaced with your student number.}
+
+\section{Metadata}
+
+\begin{itemize}
+ \item \textbf{Group members during group phase:} \ReplaceMe{Group member 1} and \ReplaceMe{group member 2}
+ \item \textbf{Time spent on group phase:} \ReplaceMe{10 hours}
+ \item \textbf{Time spent on final code:} \ReplaceMe{40 hours}
+ \item \textbf{Time spent on final report:} \ReplaceMe{10 hours}
+\end{itemize}
+
+\section{Peer review reports (target: 1 page)}
+
+\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate insofar as you are able to recognize and analyze common problems arising in the design and implementation of evolutionary algorithms and your ability to effectively solve them.}
+
+\subsection{The weak points}
+\ReplaceMe{List the (up to six distinct) weak points that were identified in the two peer review reports that you received. Use at most 3 sentences to describe each weak point.}
+
+\begin{enumerate}
+ \item 
+ \item 
+ \item 
+ \item 
+ \item 
+ \item 
+\end{enumerate}
+
+\subsection{The solutions}
+\ReplaceMe{List the solutions to the identified weak points. Use at most 3 sentences to describe your solution. You do not need to explain the techniques in detail if they are in the slides or handbook; just state something like ``Weak point X was solved/mitigated/diminished by using the island model as diversity promotion scheme.'' Note there could be more or less solutions than the number of weak points.}
+
+\begin{enumerate}
+ \item 
+ \item 
+ \item 
+ \item 
+\end{enumerate}
+
+\ReplaceMe{Which weak points did you not address? List them and briefly motivate (target, 3 lines each).}
+
+\begin{enumerate}
+ \item 
+ \item 
+\end{enumerate}
+
+\subsection{The best suggestion}
+\ReplaceMe{Among the two suggestions that you received and the two suggestions that you gave, which one did you find the most helpful? Briefly describe the suggestion and why you think it was the best. (suggested maximum: 10 lines)}
+
+\section{Changes since the group phase (target: $0.5$ pages)} 
+
+\ReplaceMe{List the main changes that you implemented since the group phase. You do not need to explain the employed techniques in detail; for this, you should refer to the appropriate subsection of section 3 of the report. Naturally, there can be overlap with the solutions from the previous section.}
+
+\begin{enumerate}
+ \item \ReplaceMe{State here the modification that you made (e.g., replaced top-$\lambda$ selection with $k$-tournament selection).}
+ \item 
+\end{enumerate}
+
+\section{Final design of the evolutionary algorithm (target: $3.5$ pages)} 
+
+\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate insofar as you are able to design and implement an advanced, effective evolutionary algorithm for solving a model problem.}
+
+
+\subsection{The three main features}
+\ReplaceMe{List the three main components of your evolutionary algorithm for this project. That is, what are its most distinctive characteristics, what components am I not allowed to change to a more basic version? Ideally these are some of the more advanced features that you added since the group phase.}
+
+\begin{enumerate}
+ \item \ReplaceMe{Just state the feature, you do not need to explain it, instead refer to the appropriate section below.}
+ \item 
+ \item
+\end{enumerate}
+
+\subsection{The main loop}
+
+\ReplaceMe{Make a picture of the ``flow'' in your evolutionary algorithm, similar to the example below. Include all the main components (mutation, recombination, selection, elimination, initialization, local search operators, diversity promotion mechanisms). There are no formal requirements on how to do this, as long as it is clear and you can efficiently explain your complete evolutionary algorithm using this picture at the exam. Contrary to the picture below, include the specific techniques, e.g., top-$\lambda$ elimination, $k$-tournament selection, where possible.}
+
+\begin{center}
+\includegraphics[height=10em]{../../BasicLoop.png}
+\end{center}
+
+\clearpage
+\RemoveMe{\textbf{The questions we ask from section 5.3 onwards in blue are there to guide which topics to discuss}, rather than an exact list of questions that must be answered. Feel free to add more items to discuss.}
+
+
+\subsection{Representation}
+
+\ReplaceMe{How do you represent the candidate solutions? What is your motivation to choose this one? What other options did you consider? How did you implement this specifically in Python (e.g., a list, set, numpy array, etc)?}
+
+\subsection{Initialization}
+
+\ReplaceMe{How do you initialize the population? How did you determine the number of individuals? Did you implement advanced initialization mechanisms (local search operators, heuristic solutions)? If so, describe them. Do you believe your approach maintains sufficient diversity? How do you ensure that your population enrichment scheme does not immediately take over the population? Did you implement other initialization schemes that did not make it to the final version? Why did you discard them? How did you determine the population size?}
+
+\subsection{Selection operators}
+
+\ReplaceMe{Which selection operators did you implement? If they are not from the slides, describe them. Can you motivate why you chose this one? Are there parameters that need to be chosen? Did you use an advanced scheme to vary these parameters throughout the iterations? Did you try other selection operators not included in the final version? Why did you discard them?}
+
+\subsection{Mutation operators}
+
+\ReplaceMe{Which mutation operators did you implement? If they are not from the slides, describe them. How do you choose among several mutation operators? Do you believe it will introduce sufficient randomness? Can that be controlled with parameters? Do you use self-adaptivity? Do you use any other advanced parameter control mechanisms (e.g., variable across iterations)? Did you try other mutation operators not included in the final version? Why did you discard them?}
+
+\subsection{Recombination operators}
+
+\ReplaceMe{Which recombination operators did you implement? If they are not from the slides, describe them. How do you choose among several recombination operators? Why did you choose these ones specifically? Explain how you believe that these operators can produce offspring that combine the best features from their parents. How does your operator behave if there is little overlap between the parents? Can your recombination be controlled with parameters; what behavior do they change? Do you use self-adaptivity? Do you use any other advanced parameter control mechanisms (e.g., variable across iterations)? Did you try other recombination operators not included in the final version? Why did you discard them? Did you consider recombination with arity strictly greater than 2?}
+
+\subsection{Elimination operators}
+
+\ReplaceMe{Which elimination operators did you implement? If they are not from the slides, describe them. Why did you select this one? Are there parameters that need to be chosen? Did you use an advanced scheme to vary these parameters throughout the iterations? Did you try other elimination operators not included in the final version? Why did you discard them?} 
+
+\subsection{Local search operators}
+
+\ReplaceMe{What local search operators did you implement? Describe them. Did they cause a significant improvement in the performance of your algorithm? Why (not)? Did you consider other local search operators that did not make the cut? Why did you discard them? Are there parameters that need to be determined in your operator? Do you use an advanced scheme to determine them (e.g., adaptive or self-adaptive)?}
+
+\subsection{Diversity promotion mechanisms}
+
+\ReplaceMe{Did you implement a diversity promotion scheme? If yes, which one? If no, why not? Describe the mechanism you implemented. In what sense does the mechanism improve the performance of your evolutionary algorithm? Are there parameters that need to be determined? Did you use an advanced scheme to determine them?}
+
+\subsection{Stopping criterion}
+
+\ReplaceMe{Which stopping criterion did you implement? Did you combine several criteria?}
+
+\subsection{Parameter selection}
+
+\ReplaceMe{For all of the parameters that are not automatically determined by adaptivity or self-adaptivity (as you have described above), describe how you determined them. Did you perform a hyperparameter search? How did you do this? How did you determine these parameters would be valid both for small and large problem instances?}
+
+\subsection{Other considerations}
+
+\ReplaceMe{Did you consider other items not listed above, such as elitism, multiobjective optimization strategies (e.g., island model, pareto front approximation), a parallel implementation, or other interesting computational optimizations (e.g. using advanced algorithms or data structures)? You can describe them here or add additional subsections as needed.}
+
+
+\section{Numerical experiments (target: 1.5 pages)}
+
+\RemoveMe{\textbf{Goal:} Based on this section and our execution of your code, we will evaluate the performance (time, quality of solutions) of your implementation and your ability to interpret and explain the results on benchmark problems.}
+
+\subsection{Metadata}
+
+\ReplaceMe{What parameters are there to choose in your evolutionary algorithm? Which fixed parameter values did you use for all experiments below? If some parameters are determined based on information from the problem instance (e.g., number of cities), also report their specific values for the problems below.
+
+Report the main characteristics of the computer system on which you ran your evolutionary algorithm. Include the processor or CPU (including the number of cores and clock speed), the amount of main memory, and the version of Python 3.}
+
+
+\subsection{tour29.csv}
+
+\ReplaceMe{Run your algorithm on this benchmark problem (with the 5 minute time limit from the Reporter). Include a typical convergence graph, by plotting the mean and best objective values in function of the time (for example based on the output of the Reporter class). 
+
+What is the best tour length you found? What is the corresponding sequence of cities? 
+
+Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?
+
+Solve this problem 1000 times and record the results. Make a histogram of the final mean fitnessess and the final best fitnesses of the 1000 runs. Comment on this figure: is there a lot of variability in the results, what are the means and the standard deviations?}
+
+\subsection{tour100.csv}
+
+\ReplaceMe{Run your algorithm on this benchmark problem (with the 5 minute time limit from the Reporter). Include a typical convergence graph, by plotting the mean and best objective values in function of the time (for example based on the output of the Reporter class). 
+
+What is the best tour length you found in each case? 
+
+Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?}
+
+\subsection{tour500.csv}
+
+\ReplaceMe{Run your algorithm on this benchmark problem (with the 5 minute time limit from the Reporter). Include a typical convergence graph, by plotting the mean and best objective values in function of the time (for example based on the output of the Reporter class). 
+
+What is the best tour length you found? 
+
+Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?}
+
+\subsection{tour1000.csv}
+
+\ReplaceMe{Run your algorithm on this benchmark problem (with the 5 minute time limit from the Reporter). Include a typical convergence graph, by plotting the mean and best objective values in function of the time (for example based on the output of the Reporter class). 
+
+What is the best tour length you found? 
+
+Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one? }
+
+
+\section{Critical reflection (target: 0.75 pages)}
+
+\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate your understanding and insight into the main strengths and weaknesses of your evolutionary algorithms.}
+
+\ReplaceMe{What are the three main strengths of evolutionary algorithms in your experience?}
+
+\begin{enumerate}
+ \item 
+ \item 
+ \item 
+\end{enumerate}
+
+\ReplaceMe{What are the three main weak points of evolutionary algorithms in your experience?}
+
+\begin{enumerate}
+ \item 
+ \item 
+ \item 
+\end{enumerate}
+
+\ReplaceMe{Describe the main lessons learned from this project. Do you believe evolutionary algorithms are appropriate for the problem studied in this project? Why (not)? What surprised you and why? What did you learn from this project?}
+
+\section{Other comments} \label{sec_other}
+
+\ReplaceMe{In case you think there is something important to discuss that is not covered by the previous sections, you can do it here. }
+
+\end{document}
