@@ -47,7 +47,6 @@ def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Ind
 
 def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
     length = (distanceMatrix.shape)[0]	
-    
     i = 0
     while i != length:
         order = np.negative(np.ones((length), dtype=np.int))
@@ -56,17 +55,17 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
         i = 1
         while i <= length:
             if i == length:
-                if distanceMatrix[order[-1]][order[0]] == float("+inf"):
+                if distanceMatrix[order[-1]][order[0]] == np.inf:
                     i = 0 # If returning to start yields a distance of infinity, start over again
                 break 
             possibilities = set(range(length)) - set([elem for elem in order if elem >= 0])
-            min_distance = float("+inf")
+            min_distance = np.inf
             for pos in possibilities:
                 distance = distanceMatrix[city][pos]
                 if distance < min_distance:
                     min_distance = distance
                     new_city = pos
-            if min_distance == float("+inf"):
+            if min_distance == np.inf:
                 break
             city = new_city
             order[i] = city
