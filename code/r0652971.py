@@ -43,6 +43,8 @@ def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Ind
     print("Initialization ended")
     return individuals
 
+# TODO: put time constraint on greedy initialization + try initialization where you choose city out of possibilities (not just the best city from that city, i.e. just make sure that the route is a possible one)
+
 def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
     length = (distanceMatrix.shape)[0]	
     
@@ -52,7 +54,11 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
         city = np.random.randint(0, length - 1)
         order[0] = city
         i = 1
-        while i < length:
+        while i <= length:
+            if i == length:
+                if distanceMatrix[order[-1]][order[0]] == float("+inf"):
+                    i = 0 # If returning to start yields a distance of infinity, start over again
+                break 
             possibilities = set(range(length)) - set([elem for elem in order if elem >= 0])
             min_distance = float("+inf")
             for pos in possibilities:
