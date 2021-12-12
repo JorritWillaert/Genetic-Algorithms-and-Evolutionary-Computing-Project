@@ -15,6 +15,8 @@
 \usepackage{pythonhighlight}
 \usepackage{cleveref}
 \usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \newcommand{\nextyear}{\advance\year by 1 \the\year\advance\year by -1}
 \newcommand{\thisyear}{\the\year}
@@ -165,6 +167,32 @@ with a random variation of ... % TODO
 \subsection{Recombination operators}
 \label{recombination}
 \ReplaceMe{Which recombination operators did you implement? If they are not from the slides, describe them. How do you choose among several recombination operators? Why did you choose these ones specifically? Explain how you believe that these operators can produce offspring that combine the best features from their parents. How does your operator behave if there is little overlap between the parents? Can your recombination be controlled with parameters; what behavior do they change? Do you use self-adaptivity? Do you use any other advanced parameter control mechanisms (e.g., variable across iterations)? Did you try other recombination operators not included in the final version? Why did you discard them? Did you consider recombination with arity strictly greater than 2?}
+
+In the group phase part of the project, a simplified version of the edge crossover was used as the recombination algorithm. This process is described in Algorithm \ref{simple_edge_crossover} \cite{initial_implementation_edge_crossover}. This recombination results in a new path where all edges of the child were present in at least one of the parents. It does however not prioritize edges present in both parents over edges present in a single parent.
+
+\begin{algorithm}
+\caption{Simple edge recombination operator}\label{simple_edge_crossover}
+\begin{algorithmic}
+\State Let K be the empty list
+\State let N be the first node of a random parent
+\While{length(K) $<$ length(Parent)}
+\State Append K to N
+\State Remove N from all neighbour lists
+\If{N's neighbour list is not empty}
+\State let $N^*$ be the neighbor of N with the fewest neighbours in its list (or a random one, should there be multiple)
+\Else 
+\State let $N^*$ be a randomly chosen node that is not in K
+\EndIf
+\EndWhile
+\State N $\gets N^*$
+\end{algorithmic}
+\end{algorithm}
+
+This algorithm is very simple and was the weakest part of the genetic algorithm. However, the algorithm still has some desirable features despite its simplicity. When N consecutive edges are present in both parents (N $ \ge $ 2), the child will contain at least N/2 of these edges, so important features are mostly preserved. On the other hand,
+when the parents are very different, the child will look fairly different from both parents. This combined with some aspects of randomness in the algorithm makes it decent at exploring the different solutions. 
+
+The reason this simplified algorithm was implemented, instead of the proper one from Eiben \& Smith, was due to the belief that the computational cost of this algorithm was (much) lower than the one from Eiben \& Smith. 
+
 
 \subsection{Elimination operators}
 \label{elimination}
