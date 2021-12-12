@@ -191,8 +191,19 @@ In the group phase part of the project, a simplified version of the edge crossov
 This algorithm is very simple and was the weakest part of the genetic algorithm. However, the algorithm still has some desirable features despite its simplicity. When N consecutive edges are present in both parents (N $ \ge $ 2), the child will contain at least N/2 of these edges, so important features are mostly preserved. On the other hand,
 when the parents are very different, the child will look fairly different from both parents. This combined with some aspects of randomness in the algorithm makes it decent at exploring the different solutions. 
 
-The reason this simplified algorithm was implemented, instead of the proper one from Eiben \& Smith, was due to the belief that the computational cost of this algorithm was (much) lower than the one from Eiben \& Smith. 
+The reason this simplified algorithm was implemented, instead of the proper one from Eiben \& Smith \cite{eiben_smith}, was due to the belief that the computational cost of this algorithm was (much) lower than the one from Eiben \& Smith. 
 
+
+For the individual phase of the project, an analyses was made between order crossover and the proper edge crossover algorithm of Eiben \& Smith. After some research, with a lot of contradictory advices, an arbitrary choice has been made to first try out the proper edge crossover algorithm.
+
+Implementation wise, quite a lot of effort has been made to catch all the corner cases of the algorithm, along with achieving relatively optimized code. The algorithm was ket a long time thereafter, until it was noticed that for the large problem sizes, crossover took an extremely long time (up to 95 \% of the total runtime was spend in the edge crossover operator). 
+% Probable reason, the sets
+% Algorithm?
+
+Due to this slow execution time, order crossover \cite{eiben_smith} has been implemented as well. 
+% Algorithm?
+
+This crossover algorithm is inherently much cheaper to calculate and takes only about 5 \% of the total execution time in the final algorithm. This is exactly the reason why the crossover algorithm was eventually used. 
 
 \subsection{Elimination operators}
 \label{elimination}
