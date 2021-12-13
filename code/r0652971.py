@@ -12,6 +12,7 @@ import cProfile
 # Add self-adaptivity (local search?)
 # Multiprocessing in initialization and main loop
 # Lists to Numpy arrays
+# Change 10_000_000 to max of matrix * problem size
 
 class Parameters:
     def __init__(self, population_size: int = 100, num_offsprings: int = 100, k: int = 5):
@@ -35,15 +36,45 @@ class Individual:
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
     individuals = [None] * population_size
     percentage_greedily = 0.00 # TODO: In Parameters class
+    percentage_legal = 0.00 # TODO: In Parameters clas
     greedily_number = int(population_size * percentage_greedily)
+    legal_number =  int(population_size * percentage_legal) 
     for i in range(greedily_number):
         individuals[i] = greedily_initialize_individual(distanceMatrix)
-    for i in range(greedily_number, population_size):
+    for i in range(greedily_number, greedily_number + legal_number):
+        individuals[i] = initialize_legally(distanceMatrix)
+    for i in range(greedily_number + legal_number, population_size):
         individuals[i] = Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
     print("Initialization ended")
     return individuals
 
 # TODO: put time constraint on greedy initialization + try initialization where you choose city out of possibilities (not just the best city from that city, i.e. just make sure that the route is a possible one)
+
+def initialize_legally(distanceMatrix: np.ndarray) -> Individual:
+    length = (distanceMatrix.shape)[0]	
+    i = 0
+    while i != length:
+        order = np.negative(np.ones((length), dtype=np.int))
+        city = np.random.randint(0, length - 1)
+        order[0] = city
+        i = 1
+        while i <= length:
+            if i == length:
+                if distanceMatrix[order[-1]][order[0]] == np.inf:
+                    i = 0 # If returning to start yields a distance of infinity, start over again
+                break 
+            possibilities = set(range(length)) - set([elem for elem in order if elem >= 0])
+            possibilities_legal = []
+            for pos in possibilities:
+                distance = distanceMatrix[city][pos]
+                if distance < np.inf:
+                    possibilities_legal.append(pos)
+            if not possibilities_legal:
+                break
+            city = random.choice(possibilities_legal)
+            order[i] = city
+            i += 1
+    return Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn()))
 
 def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
     length = (distanceMatrix.shape)[0]	
@@ -445,8 +476,8 @@ class r0652971:
                 offsprings.append(offspring)
             
             # Mutation of the seed individuals
-            for seed_individual in population:
-                mutation(seed_individual) # In-place 
+            #for seed_individual in population:
+            #    mutation(seed_individual) # In-place 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
             population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap)
@@ -482,7 +513,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour750.csv')
+    problem.optimize('tours/tour250.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
