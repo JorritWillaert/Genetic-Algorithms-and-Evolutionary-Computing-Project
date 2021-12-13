@@ -35,8 +35,8 @@ class Individual:
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
     individuals = [None] * population_size
-    percentage_greedily = 0.00 # TODO: In Parameters class
-    percentage_legal = 0.00 # TODO: In Parameters clas
+    percentage_greedily = 0.25 # TODO: In Parameters class
+    percentage_legal = 0.50 # TODO: In Parameters clas
     greedily_number = int(population_size * percentage_greedily)
     legal_number =  int(population_size * percentage_legal) 
     for i in range(greedily_number):
@@ -437,7 +437,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=35, num_offsprings=35, k=4)
+        p = Parameters(population_size=65, num_offsprings=65, k=6)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
@@ -475,9 +475,18 @@ class r0652971:
                 local_search_operator_2_opt(distanceMatrix, offspring.order) # In-place
                 offsprings.append(offspring)
             
+            best_seed = random.choice(population)
+            best_fitness = np.inf
+            for seed_ind in population:
+                if fitness(distanceMatrix, seed_ind.order) < best_fitness:
+                    best_fitness = fitness(distanceMatrix, seed_ind.order)
+                    best_seed = seed_ind
+
             # Mutation of the seed individuals
-            #for seed_individual in population:
-            #    mutation(seed_individual) # In-place 
+            for seed_individual in population:
+                if seed_individual == best_seed:
+                    continue
+                mutation(seed_individual) # In-place 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
             population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap)
@@ -513,7 +522,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour250.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
