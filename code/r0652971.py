@@ -34,7 +34,7 @@ class Individual:
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
     individuals = [None] * population_size
-    percentage_greedily = 0.10 # TODO: In Parameters class
+    percentage_greedily = 0.00 # TODO: In Parameters class
     greedily_number = int(population_size * percentage_greedily)
     for i in range(greedily_number):
         individuals[i] = greedily_initialize_individual(distanceMatrix)
@@ -406,7 +406,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=25, num_offsprings=25, k=5)
+        p = Parameters(population_size=35, num_offsprings=35, k=4)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
@@ -453,6 +453,7 @@ class r0652971:
 
             fitnesses = []
             best_fitness = float('+inf')
+            best_individual = individual
             for individual in population:
                 fit = fitness(distanceMatrix, individual.order)
                 fitnesses.append(fit)
