@@ -293,7 +293,7 @@ def elimination(distanceMatrix: np.ndarray, population: List[Individual], offspr
     sorted_combined = [k for k, _ in sorted(combined_with_fitness.items(), key=lambda x:x[1], reverse=False)]
     return sorted_combined[:lambd]
 
-def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
+def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int, all_distances_hashmap: dict) -> List[Individual]:
     """Mu + lambda elimination with fitness sharing.""" # TODO: Change this into another elimination procedure 
     all_individuals = population + offsprings 
     survivors = [] 
@@ -301,11 +301,11 @@ def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Ind
     for i in range(lambd):
         # Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
         # (for most of them, their fitness will stay the same)
-        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], fitnesses)
+        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], fitnesses, all_distances_hashmap)
         idx = np.argmin(fvals)
         survivors.append(all_individuals[idx])
-        del all_individuals[idx]
-        fitnesses = np.delete(fitnesses, idx)
+        #del all_individuals[idx]
+        #fitnesses = np.delete(fitnesses, idx)
     return survivors
 
 def distance_from_to(first_ind: Individual, second_ind: Individual):
@@ -316,7 +316,7 @@ def distance_from_to(first_ind: Individual, second_ind: Individual):
 
     return num_edges_first - len(intersection)
 
-def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: np.ndarray, original_fits: np.ndarray) -> np.ndarray:
+def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: np.ndarray, original_fits: np.ndarray, all_distances_hashmap: dict) -> np.ndarray:
     if not survivors:
         return original_fits
     
@@ -329,7 +329,11 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     distances = np.zeros((len(population), len(survivors)))
     for i in range(len(population)):
         for j in range(len(survivors)):
-            distances[i][j] = distance_from_to(population[i], survivors[j])
+            distance = all_distances_hashmap.get((population[i], survivors[j]), -1)
+            if distance == -1:
+                distance = distance_from_to(population[i], survivors[j])
+                all_distances_hashmap[(population[i], survivors[j])] = distance
+            distances[i][j] = distance
     shared_part = (1 - (distances / sigma) ** alpha)
     shared_part *= np.array(distances <= sigma)
     sum_shared_part = np.sum(shared_part, axis=1)
@@ -414,6 +418,8 @@ class r0652971:
 
         best_fitnesses = []
         mean_fitnesses = []
+        
+        all_distances_hashmap = {}
 
         while(True): 
 
@@ -443,7 +449,7 @@ class r0652971:
                 mutation(seed_individual) # In-place 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
-            population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+            population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap)
 
             fitnesses = []
             best_fitness = float('+inf')
