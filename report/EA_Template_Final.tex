@@ -218,6 +218,8 @@ The 2-opt local search operator has been implemented, which swaps every two poss
 
 
 
+It should also be noted that by using Numba with the command $@jit(nopython=True)$ above the method declarations, the local search operator runs \textbf{745 times as fast}. Numba can make these huge improvements due to compilation of these methods, where especially the looping contributes massively to the speedup.
+
 % TODO maybe some kind of illustration
 
 \subsection{Diversity promotion mechanisms}
@@ -304,6 +306,8 @@ Interpret your results. How do you rate the performance of your algorithm (time,
 \end{enumerate}
 
 \ReplaceMe{Describe the main lessons learned from this project. Do you believe evolutionary algorithms are appropriate for the problem studied in this project? Why (not)? What surprised you and why? What did you learn from this project?}
+
+% Numba!
 
 \section{Other comments} \label{sec_other}
 
