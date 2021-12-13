@@ -216,7 +216,34 @@ K-tournament and ($ \mu $ + $ \lambda $)-elimination were considered. Ultimately
 
 The 2-opt local search operator has been implemented, which swaps every two possible edges in a given cycle. In a first version of this algorithm, the fitness was recalculated for every possible `neighbor' of the given individual, which entailed an unacceptable high computational cost, especially for the larger problem sizes. After some investigation, patterns were detected in the computation of the fitness. Hence, instead of recalculating the fitness for every neighbor, some kind of dynamic programming approach was undertaken. For every individual, there is a sort of preprocessing step, whereby so-called `cumulative' are created. These cumulatives capture the path length from the first city to that corresponding city in the cumulative array. The same process applies for the calculation of the path length from the last city to the corresponding city in the array (i.e. in reverse order, whereby the return cost of the last city to the first city is also incorporated). It is clear that the calculation of these cumulatives is done in $O(N)$, where $N$ is the number of cities in the problem size.
 
+Now, calculations of fitnesses of individuals are simply a matter of bookkeeping. The process is explained in Algorithm \ref{local_search_operator_algorithm}.
 
+% TODO maybe explain the loops a bit in words as well
+
+\begin{algorithm}
+\caption{Local search operator}\label{local_search_operator_algorithm}
+\begin{algorithmic}
+\State Let the best fitness be the fitness of the original individual
+\State Let the best combination be (0, 0)
+\State Build cumulatives
+\For {first from 1 to (length - 3)} 
+\State $fit_{first \; part} = forward\_cumulative[first - 1]$
+\State $fit_{middle \; part} = 0.0$
+\For {second from (first + 2) to (length - 1)}
+\State $fit_{middle \; part} \mathrel{{+}{=}} distanceMatrix[order[second-1]][order[second-2]]$
+\State $fit_{last \; part} = backward\_cumulative[second]$
+\State $first\_bridge = distanceMatrix[order[first-1]][order[second-1]]$
+\State $second\_bridge = distanceMatrix[order[first]][order[second]]$
+\State $fitness = fit_{first \; part} + first\_bridge + fit_{middle \; part} + second\_bridge + fit_{last \; part}$
+\If {$fitness < best\_fitness$}
+\State Let the new best combination be (first, second)
+\State Let the new best fitness be the newly calculated fitness
+\EndIf
+\EndFor
+\EndFor
+\State Swap the order of the individual from from the best first and best second, obtained from the best combination.
+\end{algorithmic}
+\end{algorithm}
 
 It should also be noted that by using Numba with the command $@jit(nopython=True)$ above the method declarations, the local search operator runs \textbf{745 times as fast}. Numba can make these huge improvements due to compilation of these methods, where especially the looping contributes massively to the speedup.
 
