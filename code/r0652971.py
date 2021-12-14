@@ -442,7 +442,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=15, num_offsprings=15, k=7)
+        p = Parameters(population_size=15, num_offsprings=15, k=2)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
