@@ -35,7 +35,7 @@ class Individual:
         self.edges = set([(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)])
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
-    percentage_greedily = 0.25 # TODO: In Parameters class
+    percentage_greedily = 0.10 # TODO: In Parameters class
     percentage_legal = 0.50 # TODO: In Parameters clas
     greedily_number = int(population_size * percentage_greedily)
     legal_number =  int(population_size * percentage_legal) 
@@ -315,7 +315,7 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
 
 def mutation(individual: Individual):
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
-    if random.random() < individual.alpha:
+    if random.random() < individual.alpha * 4:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         individual.order[i: j] = individual.order[i: j][::-1]
@@ -356,11 +356,11 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     if not survivors:
         return original_fits
     
-    alpha = 4 # TODO: Put this parameter in the parameter class
+    alpha = 1 # TODO: Put this parameter in the parameter class
 
     # TODO: Play with this 0.1. It denotes for example that for tour29, it will consider two solutions 
     # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
-    sigma = int((distanceMatrix.shape)[0] * 0.2) 
+    sigma = int((distanceMatrix.shape)[0] * 0.5) 
     
     distances = np.zeros((len(population), len(survivors)))
     for i in range(len(population)):
@@ -442,7 +442,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=65, num_offsprings=65, k=6)
+        p = Parameters(population_size=30, num_offsprings=30, k=7)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
