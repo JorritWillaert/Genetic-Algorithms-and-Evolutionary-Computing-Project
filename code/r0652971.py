@@ -47,10 +47,9 @@ def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Ind
     for i in range(greedily_number, greedily_number + legal_number):
         pool.apply_async(initialize_legally, args=(distanceMatrix, L))
     pool.close()
-    pool.join()
-    print(L)
     for i in range(greedily_number + legal_number, population_size):
         L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
+    pool.join()
     print("Initialization ended")
     return L
 
