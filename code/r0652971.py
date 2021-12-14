@@ -6,6 +6,7 @@ from typing import List, Tuple
 import random
 import matplotlib.pyplot as plt
 import cProfile
+import multiprocessing
 
 # TODO:
 # Probably beneficial to always start from the first city
@@ -34,23 +35,28 @@ class Individual:
         self.edges = set([(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)])
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
-    individuals = [None] * population_size
     percentage_greedily = 0.25 # TODO: In Parameters class
     percentage_legal = 0.50 # TODO: In Parameters clas
     greedily_number = int(population_size * percentage_greedily)
     legal_number =  int(population_size * percentage_legal) 
+    pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    manager = multiprocessing.Manager()
+    L = manager.list()
     for i in range(greedily_number):
-        individuals[i] = greedily_initialize_individual(distanceMatrix)
+        pool.apply_async(greedily_initialize_individual, args=(distanceMatrix, L))
     for i in range(greedily_number, greedily_number + legal_number):
-        individuals[i] = initialize_legally(distanceMatrix)
+        pool.apply_async(initialize_legally, args=(distanceMatrix, L))
+    pool.close()
+    pool.join()
+    print(L)
     for i in range(greedily_number + legal_number, population_size):
-        individuals[i] = Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
+        L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
     print("Initialization ended")
-    return individuals
+    return L
 
 # TODO: put time constraint on greedy initialization + try initialization where you choose city out of possibilities (not just the best city from that city, i.e. just make sure that the route is a possible one)
 
-def initialize_legally(distanceMatrix: np.ndarray) -> Individual:
+def initialize_legally(distanceMatrix: np.ndarray, L) -> Individual:
     length = (distanceMatrix.shape)[0]	
     i = 0
     while i != length:
@@ -74,9 +80,9 @@ def initialize_legally(distanceMatrix: np.ndarray) -> Individual:
             city = random.choice(possibilities_legal)
             order[i] = city
             i += 1
-    return Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn()))
+    L.append(Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn())))
 
-def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
+def greedily_initialize_individual(distanceMatrix: np.ndarray, L) -> Individual:
     length = (distanceMatrix.shape)[0]	
     i = 0
     while i != length:
@@ -101,7 +107,7 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray) -> Individual:
             city = new_city
             order[i] = city
             i += 1
-    return Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn()))
+    L.append(Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn())))
 
 @jit(nopython=True)
 def partial_fitness_one_value(distanceMatrix: np.ndarray, frm: int, to: int):
