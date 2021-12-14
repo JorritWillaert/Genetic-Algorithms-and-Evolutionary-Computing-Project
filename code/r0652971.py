@@ -35,8 +35,8 @@ class Individual:
         self.edges = set([(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)])
 
 def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
-    percentage_greedily = 0.10 # TODO: In Parameters class
-    percentage_legal = 0.50 # TODO: In Parameters clas
+    percentage_greedily = 0.90 # TODO: In Parameters class
+    percentage_legal = 0.10 # TODO: In Parameters clas
     greedily_number = int(population_size * percentage_greedily)
     legal_number =  int(population_size * percentage_legal) 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
@@ -442,7 +442,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=30, num_offsprings=30, k=7)
+        p = Parameters(population_size=15, num_offsprings=15, k=7)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
@@ -527,7 +527,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour750.csv')
+    problem.optimize('tours/tour250.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
