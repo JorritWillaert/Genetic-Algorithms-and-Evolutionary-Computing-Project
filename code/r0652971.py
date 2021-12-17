@@ -360,8 +360,8 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
         
         current_min = INF
         # To catch problems if all randomly chosen individuals have path length of infinity.
-        best_ind = random.choice(all_individuals)
-
+        
+        best_idx = 0
         k = 5
         for i in range(k):
             idx = random.randint(0, len(fvals) - 1)
