@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import cProfile
 import multiprocessing
 
+INF = 10_000_000_000.0
+
 # TODO:
 # Probably beneficial to always start from the first city
 # Add self-adaptivity (local search?)
@@ -113,7 +115,7 @@ def partial_fitness_one_value(distanceMatrix: np.ndarray, frm: int, to: int):
     distance = distanceMatrix[frm][to]
     if distance != np.inf:
         return distance
-    return 10_000_000.0
+    return INF
 
 
 def partial_fitness_without_looping_back(distanceMatrix: np.ndarray, partial_order: np.ndarray) -> float:
@@ -398,21 +400,21 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray): 
     best_combination = (0, 0)
 
     cum_from_0_to_first, cum_from_second_to_end = build_cumulatives(distanceMatrix, order, length)
-    if cum_from_second_to_end[-1] > 10_000_000:
+    if cum_from_second_to_end[-1] > INF:
         return
 
     for first in range(1, length - 2):
         fit_first_part = cum_from_0_to_first[first-1]
-        if fit_first_part > 10_000_000 or fit_first_part > best_fitness:
+        if fit_first_part > INF or fit_first_part > best_fitness:
             break
         fit_middle_part = 0.0
         for second in range(first + 2, length):
             fit_middle_part += partial_fitness_one_value(distanceMatrix, frm=order[second-1], to=order[second-2])
-            if fit_middle_part > 10_000_000:
+            if fit_middle_part > INF:
                 break
             
             fit_last_part = cum_from_second_to_end[second]
-            if fit_last_part > 10_000_000:
+            if fit_last_part > INF:
                 continue
 
             bridge_first = partial_fitness_one_value(distanceMatrix, frm=order[first-1], to=order[second-1])
@@ -527,7 +529,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour250.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
