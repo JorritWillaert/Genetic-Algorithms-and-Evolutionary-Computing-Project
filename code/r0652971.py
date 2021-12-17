@@ -346,6 +346,34 @@ def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Ind
         #fitnesses = np.delete(fitnesses, idx)
     return survivors
 
+def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int, all_distances_hashmap: dict) -> List[Individual]:
+    """Mu + lambda elimination with fitness sharing.""" # TODO: Change this into another elimination procedure 
+    all_individuals = population + offsprings 
+    survivors = [] 
+    fitnesses = np.array([fitness(distanceMatrix, order=ind.order) for ind in all_individuals])
+    best_ind_idx = np.argmin(fitnesses)
+    survivors.append(all_individuals[best_ind_idx])
+    for i in range(lambd):
+        # Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
+        # (for most of them, their fitness will stay the same)
+        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], fitnesses, all_distances_hashmap)
+        
+        current_min = INF
+        # To catch problems if all randomly chosen individuals have path length of infinity.
+        best_ind = random.choice(all_individuals)
+
+        k = 5
+        for i in range(k):
+            idx = random.randint(0, len(fvals) - 1)
+            fit = fvals[idx]
+            if fit < current_min:
+                current_min = fit
+                best_idx = idx
+        survivors.append(all_individuals[best_idx])
+        #del all_individuals[idx]
+        #fitnesses = np.delete(fitnesses, idx)
+    return survivors
+
 def distance_from_to(first_ind: Individual, second_ind: Individual):
     edges_first = first_ind.edges
     edges_second = second_ind.edges
@@ -444,7 +472,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=15, num_offsprings=15, k=2)
+        p = Parameters(population_size=15, num_offsprings=15, k=5)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
@@ -496,7 +524,7 @@ class r0652971:
                 mutation(seed_individual) # In-place 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
-            population = fitness_sharing_elimination(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap)
+            population = fitness_sharing_elimination_k_tournament(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap)
 
             fitnesses = []
             best_fitness = float('+inf')
