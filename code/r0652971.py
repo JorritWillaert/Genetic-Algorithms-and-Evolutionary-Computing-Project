@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import cProfile
 import multiprocessing
 import psutil
+import time
 
 INF = 10_000_000_000.0
 
@@ -57,7 +58,11 @@ def initialization(distanceMatrix: np.ndarray, population_size: int, greedily_pe
 def initialize_legally(distanceMatrix: np.ndarray, L) -> Individual:
     length = (distanceMatrix.shape)[0]	
     i = 0
+    start_time = time.time()
     while i != length:
+        if time.time() - start_time > 1.0: # Don't spend more than 1 second initializing one individual
+            print("Aborted initialization")
+            return Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
         order = np.negative(np.ones((length), dtype=np.int))
         city = np.random.randint(0, length - 1)
         order[0] = city
@@ -83,7 +88,11 @@ def initialize_legally(distanceMatrix: np.ndarray, L) -> Individual:
 def greedily_initialize_individual(distanceMatrix: np.ndarray, L) -> Individual:
     length = (distanceMatrix.shape)[0]	
     i = 0
+    start_time = time.time()
     while i != length:
+        if time.time() - start_time > 1.0: # Don't spend more than 1 second initializing one individual
+            print("Aborted initialization")
+            return Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
         order = np.negative(np.ones((length), dtype=np.int))
         city = np.random.randint(0, length - 1)
         order[0] = city
