@@ -322,6 +322,15 @@ def mutation(individual: Individual):
         j = random.randint(0, len(individual.order) - 1)
         individual.order[i: j] = individual.order[i: j][::-1]
 
+def scramble_mutation(individual: Individual):
+    """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
+    if random.random() < individual.alpha:
+        i = random.randint(0, len(individual.order) - 1)
+        j = random.randint(0, len(individual.order) - 1)
+        if j < i:
+            i, j = j, i
+        np.random.shuffle(individual.order[i: j])
+
 def elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination"""
     combined = population + offsprings  
@@ -557,7 +566,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour750.csv')
+    problem.optimize('tours/tour250.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
