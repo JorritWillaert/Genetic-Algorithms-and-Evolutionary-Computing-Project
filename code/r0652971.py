@@ -53,8 +53,6 @@ def initialization(distanceMatrix: np.ndarray, population_size: int, greedily_pe
     print("Initialization ended")
     return L
 
-# TODO: put time constraint on greedy initialization + try initialization where you choose city out of possibilities (not just the best city from that city, i.e. just make sure that the route is a possible one)
-
 def initialize_legally(distanceMatrix: np.ndarray, L) -> Individual:
     length = (distanceMatrix.shape)[0]	
     i = 0
@@ -62,7 +60,7 @@ def initialize_legally(distanceMatrix: np.ndarray, L) -> Individual:
     while i != length:
         if time.time() - start_time > 1.0: # Don't spend more than 1 second initializing one individual
             print("Aborted initialization")
-            return Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
+            L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
         order = np.negative(np.ones((length), dtype=np.int))
         city = np.random.randint(0, length - 1)
         order[0] = city
@@ -92,7 +90,7 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray, L) -> Individual:
     while i != length:
         if time.time() - start_time > 1.0: # Don't spend more than 1 second initializing one individual
             print("Aborted initialization")
-            return Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn()))
+            L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
         order = np.negative(np.ones((length), dtype=np.int))
         city = np.random.randint(0, length - 1)
         order[0] = city
