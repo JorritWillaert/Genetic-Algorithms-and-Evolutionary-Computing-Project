@@ -161,7 +161,8 @@ def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int) 
             best_ind = ind
     return best_ind
 
-def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
+@jit(nopython=True)
+def order_crossover_jit(distanceMatrix: np.ndarray, parent1_order: np.ndarray, parent2_order: np.ndarray, new_order) -> np.ndarray:
     length = (distanceMatrix.shape)[0]
     first = random.randint(0, length - 1)
     second = random.randint(0, length - 1)
@@ -169,15 +170,19 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: In
     if second < first:
         first, second = second, first # Swap values
 
-    new_order = np.zeros((length), dtype=np.int)
-    new_order[first: second + 1] = parent1.order[first: second + 1]
-    chosen_segment = set(parent1.order[first: second + 1]) # Transform the elements in the segment into a set -> O(1) lookup time
+    new_order[first: second + 1] = parent1_order[first: second + 1]
+    chosen_segment = set(parent1_order[first: second + 1]) # Transform the elements in the segment into a set -> O(1) lookup time
     position = (second + 1) % length
     for i in range(length):
-        elem_of_parent_2 = parent2.order[(second + 1 + i) % length]
+        elem_of_parent_2 = parent2_order[(second + 1 + i) % length]
         if elem_of_parent_2 not in chosen_segment:
             new_order[position] = elem_of_parent_2
-            position = (position + 1) % length
+            position = (position + 1) % length  
+    return new_order
+
+def order_crossover(distanceMatrix: np.ndarray, parent1: Individual, parent2: Individual) -> Individual:
+    new_order = np.empty(((distanceMatrix.shape)[0]), dtype=np.int)
+    new_order = order_crossover_jit(distanceMatrix, parent1.order, parent2.order, new_order)
     beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
     alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
     alpha = max(0.01, alpha)
