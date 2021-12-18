@@ -499,6 +499,8 @@ class r0652971:
         mean_fitnesses = []
         
         all_distances_hashmap = {}
+        num = 0
+        best_prev_fitness = np.inf
 
         while(True): 
 
@@ -556,9 +558,13 @@ class r0652971:
                     best_fitness = fit
                     best_individual = individual
             mean_fitness = sum(fitnesses) / len(fitnesses)
-            timeLeft = self.reporter.report(mean_fitness, best_fitness, best_individual.order)
-            if timeLeft < 0: 
-                break
+            if num >= 100 or best_fitness < best_prev_fitness:
+                timeLeft = self.reporter.report(mean_fitness, best_fitness, best_individual.order)
+                if timeLeft < 0: 
+                    break
+                best_prev_fitness = best_fitness
+                num = 0
+            num += 1
             # print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
             best_fitnesses.append(best_fitness)
             mean_fitnesses.append(mean_fitness)
