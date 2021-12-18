@@ -7,6 +7,7 @@ import random
 import matplotlib.pyplot as plt
 import cProfile
 import multiprocessing
+import psutil
 
 INF = 10_000_000_000.0
 
@@ -512,6 +513,9 @@ class r0652971:
             # timeLeft = self.reporter.report(meanObjective, bestObjective, bestSolution)
             # if timeLeft < 0:
             # 	break
+
+            if (psutil.virtual_memory()[2] > 90.0):
+                all_distances_hashmap = {} # To prevent thrashing (especially because RAM size of the testing framework is unknown)
 
             offsprings = []
             #count = 0
