@@ -53,7 +53,7 @@ def initialization(distanceMatrix: np.ndarray, population_size: int, greedily_pe
     print("Initialization ended")
     return L
 
-def initialize_legally(distanceMatrix: np.ndarray, L) -> Individual:
+def initialize_legally(distanceMatrix: np.ndarray, L: list):
     length = (distanceMatrix.shape)[0]	
     i = 0
     start_time = time.time()
@@ -83,7 +83,7 @@ def initialize_legally(distanceMatrix: np.ndarray, L) -> Individual:
             i += 1
     L.append(Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn())))
 
-def greedily_initialize_individual(distanceMatrix: np.ndarray, L) -> Individual:
+def greedily_initialize_individual(distanceMatrix: np.ndarray, L: list):
     length = (distanceMatrix.shape)[0]	
     i = 0
     start_time = time.time()
@@ -120,7 +120,6 @@ def partial_fitness_one_value(distanceMatrix: np.ndarray, frm: int, to: int):
     if distance != np.inf:
         return distance
     return INF
-
 
 def partial_fitness_without_looping_back(distanceMatrix: np.ndarray, partial_order: np.ndarray) -> float:
     if (len(partial_order) == 0):
