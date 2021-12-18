@@ -371,16 +371,16 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
         # To catch problems if all randomly chosen individuals have path length of infinity.
         
         best_idx = 0
-        k = 2
-        for i in range(k):
+        k = 3
+        for i in range(k - 1):
             idx = random.randint(0, len(fvals) - 1)
             fit = fvals[idx]
             if fit < current_min:
                 current_min = fit
                 best_idx = idx
         survivors.append(all_individuals[best_idx])
-        #del all_individuals[idx]
-        #fitnesses = np.delete(fitnesses, idx)
+        del all_individuals[idx]
+        fitnesses = np.delete(fitnesses, idx)
     return survivors
 
 def distance_from_to(first_ind: Individual, second_ind: Individual):
