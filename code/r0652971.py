@@ -412,10 +412,16 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     distances = np.zeros((len(population), len(survivors)))
     for i in range(len(population)):
         for j in range(len(survivors)):
-            distance = all_distances_hashmap.get((population[i], survivors[j]), -1)
-            if distance == -1:
+            distance1 = all_distances_hashmap.get((population[i], survivors[j]), -1)
+            distance2 = all_distances_hashmap.get((survivors[j], population[i]), -1)
+            if distance1 == -1 and distance2 == -1:
                 distance = distance_from_to(population[i], survivors[j])
                 all_distances_hashmap[(population[i], survivors[j])] = distance
+            else:
+                if distance1 != -1:
+                    distance = distance1
+                else:
+                    distance = distance2
             distances[i][j] = distance
     shared_part = (1 - (distances / sigma) ** alpha)
     shared_part *= np.array(distances <= sigma)
