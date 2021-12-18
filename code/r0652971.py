@@ -323,12 +323,15 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
     alpha = max(0.01, alpha)
     return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
-def mutation(individual: Individual):
+def mutation(distanceMatrix, individual: Individual):
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
     if random.random() < individual.alpha * 4:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
-        individual.order[i: j] = individual.order[i: j][::-1]
+        new_order = np.copy(individual.order)
+        new_order[i: j] = new_order[i: j][::-1]
+        return Individual(distanceMatrix, new_order, individual.alpha)
+    return individual
 
 def scramble_mutation(individual: Individual):
     """Scramble mutation: randomly choose 2 indices and scramble that subsequence."""   
@@ -337,7 +340,10 @@ def scramble_mutation(individual: Individual):
         j = random.randint(0, len(individual.order) - 1)
         if j < i:
             i, j = j, i
-        np.random.shuffle(individual.order[i: j])
+        new_order = np.copy(individual.order)
+        np.random.shuffle(new_order[i: j])
+        return Individual(distanceMatrix, new_order, individual.alpha)
+    return individual
 
 def elimination(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int) -> List[Individual]:
     """Mu + lambda elimination"""
@@ -452,7 +458,7 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray): 
 
     cum_from_0_to_first, cum_from_second_to_end = build_cumulatives(distanceMatrix, order, length)
     if cum_from_second_to_end[-1] > INF:
-        return
+        return None
 
     for first in range(1, length - 2):
         fit_first_part = cum_from_0_to_first[first-1]
@@ -480,8 +486,10 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray): 
                 best_fitness = new_fitness
     best_first, best_second = best_combination
     if best_first == 0: # Initial individual was best
-        return
-    order[best_first:best_second] = order[best_first:best_second][::-1] # In-place
+        return None
+    new_order = np.copy(order)
+    new_order[best_first:best_second] = new_order[best_first:best_second][::-1]
+    return new_order
 
 
 class r0652971:
@@ -540,8 +548,10 @@ class r0652971:
                 #if np.array_equiv(parent1.order, parent2.order):
                 #    count += 1
                 offspring = order_crossover(distanceMatrix, parent1, parent2)
-                mutation(offspring) # In-place
-                local_search_operator_2_opt(distanceMatrix, offspring.order) # In-place
+                mutation(distanceMatrix, offspring) # In-place
+                new_order = local_search_operator_2_opt(distanceMatrix, offspring.order)
+                if new_order is not None:
+                    offspring = Individual(distanceMatrix, new_order, offspring.alpha)
                 offsprings.append(offspring)
             #print("Number of same parents: " + str(count)) 
             
@@ -556,7 +566,7 @@ class r0652971:
             for seed_individual in population:
                 if seed_individual == best_seed:
                     continue
-                mutation(seed_individual) # In-place 
+                mutation(distanceMatrix, seed_individual) # In-place 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
             population = fitness_sharing_elimination_k_tournament(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap)
