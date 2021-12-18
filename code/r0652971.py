@@ -483,6 +483,9 @@ class r0652971:
 
         p = Parameters(population_size=15, num_offsprings=15, k=3)
 
+        INF = np.nanmax(distanceMatrix[distanceMatrix != np.inf]) * (distanceMatrix.shape)[0]
+        print("Infinity is: " + str(INF))
+
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
         for individual in population:
