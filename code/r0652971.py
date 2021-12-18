@@ -323,7 +323,7 @@ def mutation(individual: Individual):
         individual.order[i: j] = individual.order[i: j][::-1]
 
 def scramble_mutation(individual: Individual):
-    """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
+    """Scramble mutation: randomly choose 2 indices and scramble that subsequence."""   
     if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
