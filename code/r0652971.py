@@ -371,7 +371,7 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
         # To catch problems if all randomly chosen individuals have path length of infinity.
         
         best_idx = 0
-        k = 3
+        k = 8
         for i in range(k - 1):
             idx = random.randint(0, len(fvals) - 1)
             fit = fvals[idx]
@@ -481,7 +481,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=15, num_offsprings=15, k=2)
+        p = Parameters(population_size=15, num_offsprings=15, k=3)
 
         population = initialization(distanceMatrix, p.population_size)
         best_fitness = float("+inf")
@@ -511,13 +511,17 @@ class r0652971:
             # 	break
 
             offsprings = []
+            #count = 0
             for offspring in range(p.num_offsprings):
                 parent1 = selection(distanceMatrix, population, p.k)
                 parent2 = selection(distanceMatrix, population, p.k)
+                #if np.array_equiv(parent1.order, parent2.order):
+                #    count += 1
                 offspring = order_crossover(distanceMatrix, parent1, parent2)
                 mutation(offspring) # In-place
                 local_search_operator_2_opt(distanceMatrix, offspring.order) # In-place
                 offsprings.append(offspring)
+            #print("Number of same parents: " + str(count)) 
             
             best_seed = random.choice(population)
             best_fitness = np.inf
