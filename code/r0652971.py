@@ -12,17 +12,15 @@ import psutil
 INF = 10_000_000_000.0
 
 # TODO:
-# Probably beneficial to always start from the first city
-# Add self-adaptivity (local search?)
 # Multiprocessing in initialization and main loop
 # Lists to Numpy arrays
-# Change 10_000_000 to max of matrix * problem size
 
 class Parameters:
-    def __init__(self, population_size: int = 100, num_offsprings: int = 100, k: int = 5):
+    def __init__(self, population_size: int, num_offsprings: int, k: int, percentage_greedily: float):
         self.population_size = population_size
         self.num_offsprings = num_offsprings
         self.k = k
+        self.percentage_greedily = percentage_greedily
 
 class Individual:
     def __init__(self, distanceMatrix: np.ndarray, order: List[int]=None, alpha: float=0.05):
@@ -37,20 +35,18 @@ class Individual:
     def build_edges(self):
         self.edges = set([(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)])
 
-def initialization(distanceMatrix: np.ndarray, population_size: int) -> List[Individual]:
-    percentage_greedily = 0.10 # TODO: In Parameters class
-    percentage_legal = 0.90 # TODO: In Parameters clas
-    greedily_number = int(population_size * percentage_greedily)
-    legal_number =  int(population_size * percentage_legal) 
+def initialization(distanceMatrix: np.ndarray, population_size: int, greedily_percentage: float) -> List[Individual]:
+    greedily_number = int(greedily_percentage * population_size)
+    legal_number =  population_size - greedily_number
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
     manager = multiprocessing.Manager()
     L = manager.list()
-    for i in range(greedily_number):
+    for _ in range(greedily_number):
         pool.apply_async(greedily_initialize_individual, args=(distanceMatrix, L))
-    for i in range(greedily_number, greedily_number + legal_number):
+    for _ in range(greedily_number, greedily_number + legal_number):
         pool.apply_async(initialize_legally, args=(distanceMatrix, L))
     pool.close()
-    for i in range(greedily_number + legal_number, population_size):
+    for _ in range(greedily_number + legal_number, population_size):
         L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
     pool.join()
     print("Initialization ended")
@@ -482,12 +478,12 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=15, num_offsprings=15, k=3)
+        p = Parameters(population_size=15, num_offsprings=15, k=3, percentage_greedily=0.1)
 
         INF = np.nanmax(distanceMatrix[distanceMatrix != np.inf]) * (distanceMatrix.shape)[0]
         print("Infinity is: " + str(INF))
 
-        population = initialization(distanceMatrix, p.population_size)
+        population = initialization(distanceMatrix, p.population_size, p.percentage_greedily)
         best_fitness = float("+inf")
         for individual in population:
                 fit = fitness(distanceMatrix, individual.order)
