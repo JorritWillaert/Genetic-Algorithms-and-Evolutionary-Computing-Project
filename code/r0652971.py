@@ -323,7 +323,7 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
     alpha = max(0.01, alpha)
     return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
-def mutation(distanceMatrix, individual: Individual):
+def mutation(distanceMatrix: np.ndarray, individual: Individual):
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
     if random.random() < individual.alpha * 4:
         i = random.randint(0, len(individual.order) - 1)
@@ -333,7 +333,7 @@ def mutation(distanceMatrix, individual: Individual):
         return Individual(distanceMatrix, new_order, individual.alpha)
     return individual
 
-def scramble_mutation(individual: Individual):
+def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual):
     """Scramble mutation: randomly choose 2 indices and scramble that subsequence."""   
     if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
@@ -503,7 +503,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=15, num_offsprings=15, k=3, percentage_greedily=0.1)
+        p = Parameters(population_size=15, num_offsprings=15, k=4, percentage_greedily=0.15)
 
         INF = np.nanmax(distanceMatrix[distanceMatrix != np.inf]) * (distanceMatrix.shape)[0]
         print("Infinity is: " + str(INF))
