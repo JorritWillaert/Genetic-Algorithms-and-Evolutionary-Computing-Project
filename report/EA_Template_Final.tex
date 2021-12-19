@@ -104,8 +104,13 @@ Both groups suggested to modify the simplified edge crossover operator to the `p
 \ReplaceMe{List the main changes that you implemented since the group phase. You do not need to explain the employed techniques in detail; for this, you should refer to the appropriate subsection of section 3 of the report. Naturally, there can be overlap with the solutions from the previous section.}
 
 \begin{enumerate}
- \item \ReplaceMe{State here the modification that you made (e.g., replaced top-$\lambda$ selection with $k$-tournament selection).}
- \item 
+\item The simplified edge recombination operator was first replaced with the proper edge recombination operator, after which it eventually was replaced by the order recombination operator due to massive speed gains. An elaboration on the recombination operators is provided in Section \ref{recombination}). 
+\item Fitness sharing has been introduced in the elimination step, as further explained in Section \ref{diversity_promotion}.
+\item A local search operator (2-opt) has been introduced to increase the fitnesses of the newly created offsprings (Section \ref{local_search_operator}).
+\item Simple random initialization has been replaced by greedy and legal initialization, as further explained in Section \ref{initialization}.
+\item The mutation operator has been changed from the swap mutation to inversion mutation. This is more elaborated in Section \ref{mutation}.
+\item The elimination operator has eventually been changed from ($\kappa$ + $\mu$)-elimination to k-tournament elimination, for reasons explained further in Section \ref{elimination}.
+\item Numerous optimizations have been made in almost all parts of the algorithm to massively increase the execution speed.
 \end{enumerate}
 
 \section{Final design of the evolutionary algorithm (target: $3.5$ pages)} 
@@ -117,9 +122,7 @@ Both groups suggested to modify the simplified edge crossover operator to the `p
 \ReplaceMe{List the three main components of your evolutionary algorithm for this project. That is, what are its most distinctive characteristics, what components am I not allowed to change to a more basic version? Ideally these are some of the more advanced features that you added since the group phase.}
 
 \begin{enumerate}
- \item The simplified edge recombination operator was first replaced with the proper edge recombination operator, after which it eventually was replaced by the order recombination operator due to massive speed gains. An elaboration on the recombination operators is provided in Section \ref{recombination}). 
- \item Fitness sharing has been introduced in the elimination step, as further explained in Section \ref{diversity_promotion}.
- \item A local search operator (2-opt) has been introduced to increase the fitnesses of the newly created offsprings (Section \ref{local_search_operator}).
+\item
 \end{enumerate}
 
 \subsection{The main loop}
