@@ -122,7 +122,9 @@ Both groups suggested to modify the simplified edge crossover operator to the `p
 \ReplaceMe{List the three main components of your evolutionary algorithm for this project. That is, what are its most distinctive characteristics, what components am I not allowed to change to a more basic version? Ideally these are some of the more advanced features that you added since the group phase.}
 
 \begin{enumerate}
-\item
+\item Fitness sharing has been used in the elimination step of the algorithm. This diversity promotion scheme is of crucial importance to avoid premature convergence, and hence makes sure that far better solutions can be found, instead of letting all individuals converge to one local minima.
+\item By introducing the 2-opt local search operator, far better solutions were quickly found. Without the local search operator, much more iterations were required to find the same fitness values, along with a necessary larger population. Although this operator is inherently extremely computationally expensive, it is turns out to be pivotal in the algorithm. Especially in this operator, optimizations such as making use of dynamic programming and using Numba were decisive in making the operator computationally feasible.
+\item One last crucial improvement is the introduction of the greedy and legally initializations. Greedy initialization starts from a random node, and chooses the next one according to the smallest distance. The details of this initialization scheme are elaborated in Section \ref{initialization}, along with a consideration of the introduced biases. Furthermore, legal initialization simply chooses the next node from a random neighbor that has an existing road between them.
 \end{enumerate}
 
 \subsection{The main loop}
