@@ -31,6 +31,7 @@ class Individual:
             self.order = order
         self.alpha = alpha
         self.length = (distanceMatrix.shape)[0]
+        self.locally_optimal = False
         self.build_edges()
 
     def build_edges(self):
@@ -549,9 +550,12 @@ class r0652971:
                 #    count += 1
                 offspring = order_crossover(distanceMatrix, parent1, parent2)
                 mutation(distanceMatrix, offspring) # In-place
-                new_order = local_search_operator_2_opt(distanceMatrix, offspring.order)
-                if new_order is not None:
-                    offspring = Individual(distanceMatrix, new_order, offspring.alpha)
+                if not offspring.locally_optimal:
+                    new_order = local_search_operator_2_opt(distanceMatrix, offspring.order)
+                    if new_order is not None:
+                        offspring = Individual(distanceMatrix, new_order, offspring.alpha)
+                    else:
+                        offspring.locally_optimal = True
                 offsprings.append(offspring)
             #print("Number of same parents: " + str(count)) 
             
