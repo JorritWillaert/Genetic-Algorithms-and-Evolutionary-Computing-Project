@@ -59,7 +59,7 @@ def initialize_legally(distanceMatrix: np.ndarray, L: list):
     i = 0
     start_time = time.time()
     while i != length:
-        if time.time() - start_time > 1.0: # Don't spend more than 1 second initializing one individual
+        if time.time() - start_time > 2.0: # Don't spend more than 1 second initializing one individual
             print("Aborted initialization")
             L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
         order = np.negative(np.ones((length), dtype=np.int))
@@ -89,7 +89,7 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray, L: list):
     i = 0
     start_time = time.time()
     while i != length:
-        if time.time() - start_time > 1.0: # Don't spend more than 1 second initializing one individual
+        if time.time() - start_time > 2.0: # Don't spend more than 1 second initializing one individual
             print("Aborted initialization")
             L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
         order = np.negative(np.ones((length), dtype=np.int))
