@@ -179,6 +179,7 @@ When initializing an individual legally, one makes sure that the generated path 
 This legal initialization scheme does not introduce undesirable biases. In theory, also the most optimal route could have been initialized, and the only bias present is a bias to not have nonexisting paths. I therefore can't think of any disadvantage this initialization scheme entails. 
 
 \subsubsection{Greedy initialization}
+\label{greedy_initialization}
 Besides the legal initialization scheme, I also initialize some individuals greedily. The algorithm resembles the legal initialization scheme, with the only change that the successor city is chosen to be the closest neighbor, instead of a random legal neighbor. The pseudo-algorithm is given in Algorithm \ref{greedy_initialization_algorithm}.
 
 \begin{algorithm}
@@ -208,15 +209,23 @@ However, after experimenting with this initialization scheme, it became apparent
 
 \subsubsection{General aspects}
 \label{general_aspects_initialization}
-Self adaptivity, time constraint, multiprocessing
-Population size
+The distance matrix can be constructed in a way where greedy initialization gets stuck in an infinite loop, because greedy initialization simply constructs a dead path, starting from each node. To create a legal path in special cases, it should instead sometimes take sub-optimal paths to a neighbor to not end up in a dead path near the end of the initialization. To prevent the whole algorithm from crashing, a time constraint on the initialization of one individual has been introduced. Once an individual takes longer than two second to initialize, simple random initialization of that individual ensues.
 
-% TODO for code: put time constraint on greedy initialization + try initialization where you choose city out of possibilities (not just the best city from that city, i.e. just make sure that the route is a possible one)
+An individual also gets assigned a random $\alpha$ value, which represents the probability that the individual will mutate in the mutation step of the algorithm. This way, a suitable mutation rate is determined by self-adaptivity.
 
-An individual also gets assigned a random $\alpha$ value, which represents the probability that the individual will mutate in the mutation step of the algorithm. % This is self-adaptivity
+The initial value of $\alpha$ is given by Formula \ref{initial_alpha}.
 
-% TODO population size? Biases introduced? Time constraint on construction? Check code for other discrepancies.
-% Multiprocessing
+\begin{equation}
+    \label{initial_alpha}
+    \alpha = max(0.01, 0.05+0.02 \cdot (X \sim \mathcal{N}(0,\,1)))
+\end{equation}
+
+After some testing with population sizes, a size of 15 % TODO still correct
+has been chosen. Furthermore, as mentioned in Section \ref{greedy_initialization}, only a fraction of the population should be initialized greedily. Given that the  population size is 15 % TODO still correct
+, I found that greedily initializing 20 \% of the individuals (i.e. 3 individuals) worked out quite well in practice. The remaining 80 \% of the individuals are initialized legally.
+
+For large problem sizes, initialization could take up to 10 seconds. Since the initialization of an individual is totally independent of the other individuals, multiprocessing has been added to this step, which entailed a factor five speed improvement on a machine with four physical cores (eight virtual cores).
+
 
 \subsection{Selection operators}
 \label{selection}
