@@ -324,17 +324,18 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
     alpha = max(0.01, alpha)
     return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
-def mutation(distanceMatrix: np.ndarray, individual: Individual):
+def mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict):
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
     if random.random() < individual.alpha * 4:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         new_order = np.copy(individual.order)
         new_order[i: j] = new_order[i: j][::-1]
+        all_distances_hashmap.pop(individual, None)
         return Individual(distanceMatrix, new_order, individual.alpha)
     return individual
 
-def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual):
+def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict):
     """Scramble mutation: randomly choose 2 indices and scramble that subsequence."""   
     if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
@@ -343,6 +344,7 @@ def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual):
             i, j = j, i
         new_order = np.copy(individual.order)
         np.random.shuffle(new_order[i: j])
+        all_distances_hashmap.pop(individual, None)
         return Individual(distanceMatrix, new_order, individual.alpha)
     return individual
 
@@ -396,6 +398,8 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
         survivors.append(all_individuals[best_idx])
         del all_individuals[idx]
         fitnesses = np.delete(fitnesses, idx)
+    for dead_ind in set(all_individuals).difference(survivors):
+        all_distances_hashmap.pop(dead_ind, None)
     return survivors
 
 def distance_from_to(first_ind: Individual, second_ind: Individual):
@@ -549,10 +553,11 @@ class r0652971:
                 #if np.array_equiv(parent1.order, parent2.order):
                 #    count += 1
                 offspring = order_crossover(distanceMatrix, parent1, parent2)
-                mutation(distanceMatrix, offspring) # In-place
+                offspring = mutation(distanceMatrix, offspring, all_distances_hashmap) # In-place
                 if not offspring.locally_optimal:
                     new_order = local_search_operator_2_opt(distanceMatrix, offspring.order)
                     if new_order is not None:
+                        all_distances_hashmap.pop(offspring, None)
                         offspring = Individual(distanceMatrix, new_order, offspring.alpha)
                     else:
                         offspring.locally_optimal = True
@@ -567,10 +572,10 @@ class r0652971:
                     best_seed = seed_ind
 
             # Mutation of the seed individuals
-            for seed_individual in population:
+            for i, seed_individual in enumerate(population):
                 if seed_individual == best_seed:
                     continue
-                mutation(distanceMatrix, seed_individual) # In-place 
+                population[i] = mutation(distanceMatrix, seed_individual, all_distances_hashmap) # In-place 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
             population = fitness_sharing_elimination_k_tournament(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap)
