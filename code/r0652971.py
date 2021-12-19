@@ -595,13 +595,7 @@ class r0652971:
                 population[i] = mutation(distanceMatrix, seed_individual, all_fitnesses_hashmap) 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
-            
-            print()
-            print(len(all_distances_hashmap))
-            print(len(all_fitnesses_hashmap))
             population = fitness_sharing_elimination_k_tournament(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap, all_fitnesses_hashmap)
-
-            print("Population size: " + str(len(population)))
 
             fitnesses = []
             best_fitness = float('+inf')
@@ -626,9 +620,6 @@ class r0652971:
             # print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
             best_fitnesses.append(best_fitness)
             mean_fitnesses.append(mean_fitness)
-
-            print(len(all_distances_hashmap))
-            print(len(all_fitnesses_hashmap))
 
 
         # Your code here.
