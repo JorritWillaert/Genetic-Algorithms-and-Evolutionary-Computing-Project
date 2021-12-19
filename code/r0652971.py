@@ -159,6 +159,7 @@ def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int, 
         fit = all_fitnesses_hashmap.get(ind, -1)
         if fit == -1:
             fit = fitness(distanceMatrix, ind.order)
+            all_fitnesses_hashmap[ind] = fit
         if fit < current_min:
             current_min = fit
             best_ind = ind
@@ -326,7 +327,7 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
     alpha = max(0.01, alpha)
     return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
-def mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict, all_fitnesses_hashmap: dict):
+def mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict, all_fitnesses_hashmap: dict) -> Individual:
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
     if random.random() < individual.alpha * 4:
         i = random.randint(0, len(individual.order) - 1)
@@ -334,11 +335,11 @@ def mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_h
         new_order = np.copy(individual.order)
         new_order[i: j] = new_order[i: j][::-1]
         all_distances_hashmap.pop(individual, None)
-        all_distances_hashmap.pop(individual, None)
+        all_fitnesses_hashmap.pop(individual, None)
         return Individual(distanceMatrix, new_order, individual.alpha)
     return individual
 
-def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict):
+def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict, all_fitnesses_hashmap: dict) -> Individual:
     """Scramble mutation: randomly choose 2 indices and scramble that subsequence."""   
     if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
@@ -348,7 +349,7 @@ def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual, all_di
         new_order = np.copy(individual.order)
         np.random.shuffle(new_order[i: j])
         all_distances_hashmap.pop(individual, None)
-        all_distances_hashmap.pop(individual, None)
+        all_fitnesses_hashmap.pop(individual, None)
         return Individual(distanceMatrix, new_order, individual.alpha)
     return individual
 
@@ -385,6 +386,7 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
         fit = all_fitnesses_hashmap.get(ind, -1)
         if fit == -1:
             fit = fitness(distanceMatrix, order=ind.order)
+            all_fitnesses_hashmap[ind] = fit
         fitnesses[i] = fit 
     best_ind_idx = np.argmin(fitnesses)
     survivors.append(all_individuals[best_ind_idx])
@@ -465,7 +467,7 @@ def build_cumulatives(distanceMatrix: np.ndarray, order: np.ndarray, length: int
     return cum_from_0_to_first, cum_from_second_to_end
 
 @jit(nopython=True)
-def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray): # In-place
+def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray) -> Individual:
     """Local search operator, which makes use of 2-opt. Swap two edges within a cycle."""
     best_fitness = fitness(distanceMatrix, order)
     length = len(order)
@@ -583,6 +585,7 @@ class r0652971:
                 fit = all_fitnesses_hashmap.get(seed_ind, -1)
                 if fit == -1:
                     fit = fitness(distanceMatrix, seed_ind.order)
+                    all_fitnesses_hashmap[individual] = fit
                 if fit < best_fitness:
                     best_fitness = fit
                     best_seed = seed_ind
@@ -603,6 +606,7 @@ class r0652971:
                 fit = all_fitnesses_hashmap.get(individual, -1)
                 if fit == -1:
                     fit = fitness(distanceMatrix, individual.order)
+                    all_fitnesses_hashmap[individual] = fit
                 fitnesses.append(fit)
                 if fit < best_fitness:
                     best_fitness = fit
@@ -618,6 +622,10 @@ class r0652971:
             # print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
             best_fitnesses.append(best_fitness)
             mean_fitnesses.append(mean_fitness)
+
+            print(len(all_distances_hashmap))
+            print()
+            print(len(all_fitnesses_hashmap))
 
 
         # Your code here.
