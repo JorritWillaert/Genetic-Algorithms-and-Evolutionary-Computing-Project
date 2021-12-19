@@ -504,7 +504,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=15, num_offsprings=15, k=4, percentage_greedily=0.15)
+        p = Parameters(population_size=15, num_offsprings=15, k=4, percentage_greedily=0.20)
 
         INF = np.nanmax(distanceMatrix[distanceMatrix != np.inf]) * (distanceMatrix.shape)[0]
         print("Infinity is: " + str(INF))
@@ -610,7 +610,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour250.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
