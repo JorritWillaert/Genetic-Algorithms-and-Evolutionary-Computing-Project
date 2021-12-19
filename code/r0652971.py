@@ -327,19 +327,18 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
     alpha = max(0.01, alpha)
     return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
-def mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict, all_fitnesses_hashmap: dict) -> Individual:
+def mutation(distanceMatrix: np.ndarray, individual: Individual, all_fitnesses_hashmap: dict) -> Individual:
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
     if random.random() < individual.alpha * 4:
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         new_order = np.copy(individual.order)
         new_order[i: j] = new_order[i: j][::-1]
-        all_distances_hashmap.pop(individual, None)
         all_fitnesses_hashmap.pop(individual, None)
         return Individual(distanceMatrix, new_order, individual.alpha)
     return individual
 
-def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual, all_distances_hashmap: dict, all_fitnesses_hashmap: dict) -> Individual:
+def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual, all_fitnesses_hashmap: dict) -> Individual:
     """Scramble mutation: randomly choose 2 indices and scramble that subsequence."""   
     if random.random() < individual.alpha:
         i = random.randint(0, len(individual.order) - 1)
@@ -348,7 +347,6 @@ def scramble_mutation(distanceMatrix: np.ndarray, individual: Individual, all_di
             i, j = j, i
         new_order = np.copy(individual.order)
         np.random.shuffle(new_order[i: j])
-        all_distances_hashmap.pop(individual, None)
         all_fitnesses_hashmap.pop(individual, None)
         return Individual(distanceMatrix, new_order, individual.alpha)
     return individual
@@ -379,7 +377,8 @@ def fitness_sharing_elimination(distanceMatrix: np.ndarray, population: List[Ind
 
 def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, population: List[Individual], offsprings: List[Individual], lambd: int, all_distances_hashmap: dict, all_fitnesses_hashmap: dict) -> List[Individual]:
     """Mu + lambda elimination with fitness sharing.""" # TODO: Change this into another elimination procedure 
-    all_individuals = population + offsprings 
+    all_individuals = population + offsprings
+    all_orig_individuals = all_individuals.copy()
     survivors = []
     fitnesses = np.empty((len(all_individuals)))
     for i, ind in enumerate(all_individuals):
@@ -390,7 +389,7 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
         fitnesses[i] = fit 
     best_ind_idx = np.argmin(fitnesses)
     survivors.append(all_individuals[best_ind_idx])
-    for i in range(lambd):
+    for i in range(lambd - 1):
         # Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
         # (for most of them, their fitness will stay the same)
         fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], fitnesses, all_distances_hashmap)
@@ -406,11 +405,11 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
             if fit < current_min:
                 current_min = fit
                 best_idx = idx
-        survivors.append(all_individuals[best_idx])
+        new_survivor = all_individuals[best_idx]
+        survivors.append(new_survivor)
         del all_individuals[idx]
         fitnesses = np.delete(fitnesses, idx)
-    for dead_ind in set(all_individuals).difference(survivors):
-        all_distances_hashmap.pop(dead_ind, None)
+    for dead_ind in (set(all_orig_individuals).difference(survivors)):
         all_fitnesses_hashmap.pop(dead_ind, None)
     return survivors
 
@@ -556,8 +555,8 @@ class r0652971:
             # 	break
 
             if (psutil.virtual_memory()[2] > 90.0):
-                all_distances_hashmap = {} # To prevent thrashing (especially because RAM size of the testing framework is unknown) - normally it shouldn't be needed anymore
-                all_fitnesses_hashmap = {} # To prevent thrashing (especially because RAM size of the testing framework is unknown) - normally it shouldn't be needed anymore
+                all_distances_hashmap = {} # To prevent thrashing (especially because RAM size of the testing framework is unknown) 
+                all_fitnesses_hashmap = {} # To prevent thrashing (especially because RAM size of the testing framework is unknown)
 
             offsprings = []
             #count = 0
@@ -567,11 +566,10 @@ class r0652971:
                 #if np.array_equiv(parent1.order, parent2.order):
                 #    count += 1
                 offspring = order_crossover(distanceMatrix, parent1, parent2)
-                offspring = mutation(distanceMatrix, offspring, all_distances_hashmap, all_fitnesses_hashmap)
+                offspring = mutation(distanceMatrix, offspring, all_fitnesses_hashmap)
                 if not offspring.locally_optimal:
                     new_order = local_search_operator_2_opt(distanceMatrix, offspring.order)
                     if new_order is not None:
-                        all_distances_hashmap.pop(offspring, None)
                         all_fitnesses_hashmap.pop(offspring, None)
                         offspring = Individual(distanceMatrix, new_order, offspring.alpha)
                     else:
@@ -594,10 +592,16 @@ class r0652971:
             for i, seed_individual in enumerate(population):
                 if seed_individual == best_seed:
                     continue
-                population[i] = mutation(distanceMatrix, seed_individual, all_distances_hashmap, all_fitnesses_hashmap) 
+                population[i] = mutation(distanceMatrix, seed_individual, all_fitnesses_hashmap) 
 
             # population = elimination(distanceMatrix, population, offsprings, p.num_offsprings)
+            
+            print()
+            print(len(all_distances_hashmap))
+            print(len(all_fitnesses_hashmap))
             population = fitness_sharing_elimination_k_tournament(distanceMatrix, population, offsprings, p.num_offsprings, all_distances_hashmap, all_fitnesses_hashmap)
+
+            print("Population size: " + str(len(population)))
 
             fitnesses = []
             best_fitness = float('+inf')
@@ -624,7 +628,6 @@ class r0652971:
             mean_fitnesses.append(mean_fitness)
 
             print(len(all_distances_hashmap))
-            print()
             print(len(all_fitnesses_hashmap))
 
 
