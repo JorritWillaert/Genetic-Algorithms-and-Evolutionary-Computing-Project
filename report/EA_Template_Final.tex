@@ -82,20 +82,22 @@ This report should be uploaded to Toledo by \deadlineReport. It must be in the \
 
 \begin{enumerate}
  \item The simplified version of the edge crossover operator was first replaced with the proper edge crossover operator \cite{eiben_smith}. However, once the running times of edge recombination were compared with the ones of order crossover, it was apparent that order crossover is much faster. For this reason, edge crossover was abandoned.
- \item The ($\kappa$ + $\mu$)-elimination is kept, but supplemented with fitness sharing. The high selective pressure of ($\kappa$ + $\mu$)-elimination is somewhat mitigated With the introduction of this diversity promotion scheme.
+ \item The ($\kappa$ + $\mu$)-elimination was kept for quite some time, but was supplemented with fitness sharing. The high selective pressure of ($\kappa$ + $\mu$)-elimination was largely mitigated With the introduction of this diversity promotion scheme. However, to further reduce the selective pressure present in the ($\kappa$ + $\mu$)-elimination, the elimination eventually also used k-tournament (along with the same fitness sharing technique).
  \item The mutation operator has been changed from swap mutation to inversion mutation. Hence, the effect of the mutation operator is constant for rising problem sizes.
  \item With the introduction of fitness sharing, along with the inversion mutation operator, premature convergence was largely avoided.
 \end{enumerate}
 
 \ReplaceMe{Which weak points did you not address? List them and briefly motivate (target, 3 lines each).}
 
-\begin{enumerate}
+\begin{enumerate} % TODO replace this
  \item 
  \item 
 \end{enumerate}
 
 \subsection{The best suggestion}
 \ReplaceMe{Among the two suggestions that you received and the two suggestions that you gave, which one did you find the most helpful? Briefly describe the suggestion and why you think it was the best. (suggested maximum: 10 lines)}
+
+Both groups suggested to modify the simplified edge crossover operator to the `proper' one. Although this certainly is a useful suggestion, another suggestion by one group is even more useful in my opinion, given that I was going to change the crossover operator in the individual phase anyway. The other suggestion is about changing the mutation operator from the swap mutation to the inversion mutation. In the group phase part of the project, we hadn't really observed the shortcoming of the swap mutation, which became clear after their suggestion has been made.
 
 \section{Changes since the group phase (target: $0.5$ pages)} 
 
