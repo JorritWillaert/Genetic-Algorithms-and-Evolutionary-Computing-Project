@@ -1,3 +1,4 @@
+import itertools
 from numba import jit
 import pstats
 import Reporter
@@ -491,6 +492,18 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray): 
     new_order[best_first:best_second] = new_order[best_first:best_second][::-1]
     return new_order
 
+def inner_loop(_, distanceMatrix, population, k):
+    parent1 = selection(distanceMatrix, population, k)
+    parent2 = selection(distanceMatrix, population, k)
+    #if np.array_equiv(parent1.order, parent2.order):
+    #    count += 1
+    offspring = order_crossover(distanceMatrix, parent1, parent2)
+    mutation(distanceMatrix, offspring) # In-place
+    new_order = local_search_operator_2_opt(distanceMatrix, offspring.order)
+    if new_order is not None:
+        offspring = Individual(distanceMatrix, new_order, offspring.alpha)
+    return offspring
+
 
 class r0652971:
     def __init__(self):
@@ -542,18 +555,8 @@ class r0652971:
 
             offsprings = []
             #count = 0
-            for offspring in range(p.num_offsprings):
-                parent1 = selection(distanceMatrix, population, p.k)
-                parent2 = selection(distanceMatrix, population, p.k)
-                #if np.array_equiv(parent1.order, parent2.order):
-                #    count += 1
-                offspring = order_crossover(distanceMatrix, parent1, parent2)
-                mutation(distanceMatrix, offspring) # In-place
-                new_order = local_search_operator_2_opt(distanceMatrix, offspring.order)
-                if new_order is not None:
-                    offspring = Individual(distanceMatrix, new_order, offspring.alpha)
-                offsprings.append(offspring)
-            #print("Number of same parents: " + str(count)) 
+            pool = multiprocessing.Pool(multiprocessing.cpu_count()-1)
+            offsprings = pool.starmap(inner_loop, zip(range(p.num_offsprings), itertools.repeat(np.copy(distanceMatrix)), itertools.repeat(list(population).copy()), itertools.repeat(p.k)))
             
             best_seed = random.choice(population)
             best_fitness = np.inf
@@ -606,7 +609,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour250.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
