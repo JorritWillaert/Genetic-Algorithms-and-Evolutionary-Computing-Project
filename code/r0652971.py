@@ -446,8 +446,8 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
             else:
                 distance = distance2
         distances[i][j] = distance
-    shared_part = (1 - (distances / sigma) ** alpha)
-    shared_part *= np.array(distances <= sigma)
+    shared_part = (1 - (distances[:, 0: len(survivors)] / sigma) ** alpha)
+    shared_part *= np.array(distances[:, 0:len(survivors)] <= sigma)
     sum_shared_part = np.sum(shared_part, axis=1)
     shared_fitnesses = original_fits * sum_shared_part
     shared_fitnesses = np.where(np.isnan(shared_fitnesses),
