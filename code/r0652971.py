@@ -143,7 +143,7 @@ def fitness(distanceMatrix: np.ndarray, order: np.ndarray) -> float:
         elem1 = order[i]
         elem2 = order[(i + 1) % len(order)]
         fit += distanceMatrix[elem1][elem2]
-        if fit == np.inf:
+        if fit >= INF:
             return fit
     return fit
 
