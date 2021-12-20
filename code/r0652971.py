@@ -389,11 +389,11 @@ def fitness_sharing_elimination_k_tournament(distanceMatrix: np.ndarray, populat
         fitnesses[i] = fit 
     best_ind_idx = np.argmin(fitnesses)
     survivors.append(all_individuals[best_ind_idx])
-    prev_distances = None
+    distances = np.zeros((len(all_individuals), lambd))
     for i in range(lambd - 1):
         # Best possible approach to reduce computational cost --> Only recalculate fitness for the individuals that need recomputation 
         # (for most of them, their fitness will stay the same)
-        fvals, distances = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], prev_distances, fitnesses, all_distances_hashmap)
+        fvals = fitness_sharing(distanceMatrix, all_individuals, survivors[0:i-1], distances, fitnesses, all_distances_hashmap)
         
         current_min = INF
         # To catch problems if all randomly chosen individuals have path length of infinity.
@@ -423,9 +423,9 @@ def distance_from_to(first_ind: Individual, second_ind: Individual):
 
     return num_edges_first - len(intersection)
 
-def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: np.ndarray, prev_distances: np.ndarray, original_fits: np.ndarray, all_distances_hashmap: dict) -> np.ndarray:
+def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], survivors: np.ndarray, distances: np.ndarray, original_fits: np.ndarray, all_distances_hashmap: dict) -> np.ndarray:
     if not survivors:
-        return original_fits, None
+        return original_fits
     
     alpha = 0.25 # TODO: Put this parameter in the parameter class
 
@@ -433,7 +433,6 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
     # in each others neighbourhood if the edge distance is less or equal than 2 (= 0.1 * 29 truncated). 
     sigma = int((distanceMatrix.shape)[0] * 0.5) 
     
-    new_distances = np.zeros((len(population), 1))
     j = len(survivors) - 1
     for i in range(len(population)):
         distance1 = all_distances_hashmap.get((population[i], survivors[j]), -1)
@@ -446,18 +445,14 @@ def fitness_sharing(distanceMatrix: np.ndarray, population: List[Individual], su
                 distance = distance1
             else:
                 distance = distance2
-        new_distances[i][0] = distance
-    if prev_distances is not None:
-        distances = np.concatenate((prev_distances, new_distances), axis=1)
-    else:
-        distances = new_distances
+        distances[i][j] = distance
     shared_part = (1 - (distances / sigma) ** alpha)
     shared_part *= np.array(distances <= sigma)
     sum_shared_part = np.sum(shared_part, axis=1)
     shared_fitnesses = original_fits * sum_shared_part
     shared_fitnesses = np.where(np.isnan(shared_fitnesses),
                                 np.inf, shared_fitnesses)
-    return shared_fitnesses, distances
+    return shared_fitnesses
 
 @jit(nopython=True)
 def build_cumulatives(distanceMatrix: np.ndarray, order: np.ndarray, length: int) -> Tuple[np.ndarray, np.ndarray]:
