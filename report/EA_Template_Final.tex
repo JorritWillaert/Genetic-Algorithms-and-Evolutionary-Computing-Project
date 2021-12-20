@@ -316,7 +316,12 @@ Due to this slow execution time, order crossover \cite{eiben_smith} has been imp
 \end{algorithmic}
 \end{algorithm}
 
-This crossover algorithm is inherently much cheaper to calculate and takes only about 5 \% of the total execution time in the final algorithm. This is exactly the reason why the crossover algorithm was eventually used. 
+This crossover algorithm is inherently much cheaper to calculate and takes only about 5 \% % TODO still correct?
+of the total execution time in the final algorithm. This is exactly the reason why the crossover algorithm was eventually used. 
+
+In hindsight, one reason for the slow execution time of the edge crossover operator is probably due to the usage of sets in the operator. The edge table was basically one list with sets, where a minus denoted a double entry. Sets were used because it was desirable to check quickly if a certain node was an edge in the edge table. However, since for each element, maximum four edges could be present, lists would probably have sufficed. Also because quite some bookkeeping was required with the sets (e.g. deleting a positive entry if it occurs for the second time, to insert it afterwards with a minus in front of it). 
+
+Another reason for the big performance gap is the fact that the order crossover operator was able to use the Numba for compiling the Python code and running it way faster, by using the decorator $@jit(nopython=True)$. This because the order crossover operator only uses operations on Numpy arrays (which Numba handles perfectly well), while Numba threw hundreds of compile errors in the edge crossover method, because Numba (in the $nopython=True$ mode) couldn't create new Numpy arrays, had difficulties with working on sets, and wasn't able to infer $dtype$'s most of the time.
 
 % Probable reason edge crossover was slow, the sets
 
