@@ -166,7 +166,7 @@ def selection(distanceMatrix: np.ndarray, population: List[Individual], k: int, 
     return best_ind
 
 @jit(nopython=True)
-def order_crossover_jit(distanceMatrix: np.ndarray, parent1_order: np.ndarray, parent2_order: np.ndarray, new_order) -> np.ndarray:
+def order_crossover_jit(distanceMatrix: np.ndarray, parent1_order: np.ndarray, parent2_order: np.ndarray, new_order: np.ndarray) -> np.ndarray:
     length = (distanceMatrix.shape)[0]
     first = random.randint(0, length - 1)
     second = random.randint(0, length - 1)
@@ -329,7 +329,7 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual, p
 
 def mutation(distanceMatrix: np.ndarray, individual: Individual, all_fitnesses_hashmap: dict) -> Individual:
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
-    if random.random() < individual.alpha * 4:
+    if random.random() < individual.alpha * 4: # TODO change this
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         new_order = np.copy(individual.order)
