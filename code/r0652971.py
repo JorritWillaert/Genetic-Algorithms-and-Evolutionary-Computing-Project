@@ -493,9 +493,9 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray) -
             bridge_first = partial_fitness_one_value(distanceMatrix, frm=order[first-1], to=order[second-1])
             bridge_second = partial_fitness_one_value(distanceMatrix, frm=order[first], to=order[second])
             temp = fit_first_part + fit_middle_part
-            new_fitness = temp + fit_last_part + bridge_first + bridge_second
             if temp > best_fitness:
                 continue
+            new_fitness = temp + fit_last_part + bridge_first + bridge_second
             
             if new_fitness < best_fitness:
                 best_combination = (first, second)
@@ -554,7 +554,7 @@ class r0652971:
             # if timeLeft < 0:
             # 	break
 
-            if (psutil.virtual_memory()[2] > 90.0):
+            if (psutil.virtual_memory()[2] > 95.0):
                 all_distances_hashmap = {} # To prevent thrashing (especially because RAM size of the testing framework is unknown) 
                 all_fitnesses_hashmap = {} # To prevent thrashing (especially because RAM size of the testing framework is unknown)
 
@@ -635,7 +635,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour750.csv')
+    problem.optimize('tours/tour250.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
