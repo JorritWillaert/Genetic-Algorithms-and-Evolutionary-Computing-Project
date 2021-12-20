@@ -65,6 +65,8 @@ This report should be uploaded to Toledo by \deadlineReport. It must be in the \
 
 \section{Peer review reports (target: 1 page)}
 
+% TODO add some bold keywords
+
 \RemoveMe{\textbf{Goal:} Based on this section, we will evaluate insofar as you are able to recognize and analyze common problems arising in the design and implementation of evolutionary algorithms and your ability to effectively solve them.}
 
 \subsection{The weak points}
@@ -230,8 +232,7 @@ For large problem sizes, initialization could take up to 10 seconds. Since the i
 \subsection{Selection operators}
 \label{selection}
 \ReplaceMe{Which selection operators did you implement? If they are not from the slides, describe them. Can you motivate why you chose this one? Are there parameters that need to be chosen? Did you use an advanced scheme to vary these parameters throughout the iterations? Did you try other selection operators not included in the final version? Why did you discard them?}
-The k-tournament selection operator was implemented because exploration of suboptimal solutions is promoted. After several experiments, a k-value of % TODO
-was chosen.
+The k-tournament selection operator from the group phase part has been kept. This selection operator is computationally inexpensive, since only k fitness values have to be computed, while this would require $\mu$ fitness values in fitness-based methods. Furthermore, sigma-scaled selection would for example not have been an appropriate choice, since the greedy initialization scheme introduces some very good individuals in the population. These individuals would dominate, since their selection probability would be very high.
 
 \subsection{Mutation operators}
 \label{mutation}
