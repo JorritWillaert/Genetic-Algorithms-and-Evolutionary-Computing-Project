@@ -24,7 +24,7 @@ class Parameters:
         self.percentage_greedily = percentage_greedily
 
 class Individual:
-    def __init__(self, distanceMatrix: np.ndarray, order: List[int]=None, alpha: float=0.05):
+    def __init__(self, distanceMatrix: np.ndarray, order: np.ndarray=None, alpha: float=0.05):
         if order is None:
             self.order = np.random.permutation((distanceMatrix.shape)[0])
         else:
