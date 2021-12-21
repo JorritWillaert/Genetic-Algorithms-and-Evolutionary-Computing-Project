@@ -384,7 +384,9 @@ It should also be noted that by using Numba with the command $@jit(nopython=True
 \ReplaceMe{Did you implement a diversity promotion scheme? If yes, which one? If no, why not? Describe the mechanism you implemented. In what sense does the mechanism improve the performance of your evolutionary algorithm? Are there parameters that need to be determined? Did you use an advanced scheme to determine them?}
 
 \subsection{Stopping criterion}
+Not a lot of effort has been put in implementing a stopping criterion, since all the larger problems stayed converging after running for five minutes. Hence, the stopping criterion is simply the time limit of five minutes.
 
+% TODO maybe some other stopping criterion?
 \ReplaceMe{Which stopping criterion did you implement? Did you combine several criteria?}
 
 \subsection{Parameter selection}
