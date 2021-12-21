@@ -323,12 +323,22 @@ In hindsight, one reason for the slow execution time of the edge crossover opera
 
 Another reason for the big performance gap is the fact that the order crossover operator was able to use the Numba for compiling the Python code and running it way faster, by using the decorator $@jit(nopython=True)$. This because the order crossover operator only uses operations on Numpy arrays (which Numba handles perfectly well), while Numba threw hundreds of compile errors in the edge crossover method, because Numba (in the $nopython=True$ mode) couldn't create new Numpy arrays, had difficulties with working on sets, and wasn't able to infer $dtype$'s most of the time.
 
-% Probable reason edge crossover was slow, the sets
-
 \subsection{Elimination operators}
 \label{elimination}
 \ReplaceMe{Which elimination operators did you implement? If they are not from the slides, describe them. Why did you select this one? Are there parameters that need to be chosen? Did you use an advanced scheme to vary these parameters throughout the iterations? Did you try other elimination operators not included in the final version? Why did you discard them?}
-K-tournament and ($ \mu $ + $ \lambda $)-elimination were considered. Ultimately, ($ \mu $ + $ \lambda $)-elimination was chosen, although it provides a lot of selective pressure. % Is this being mitigated by the fitness promotion scheme?
+For a long time, the ($\kappa$ + $\mu$)-elimination from the group phase part was kept in the algorithm. However, for the smaller problem sizes, it was noted that the population converged extremely quickly, even with the fitness promotion scheme present (as further discussed in Section \ref{diversity_promotion}). After some research, it became apparent that the ($\kappa$ + $\mu$)-elimination operator actually puts a lot of selective pressure. A k-tournament operator, in contrast, can mitigate this selective pressure, hence the ($\kappa$ + $\mu$)-elimination operator has been exchanged for the k-tournament operator.
+
+To combine the k-tournament operator with the fitness sharing operator, Algorithm \ref{elimination_algorithm} has been used.
+
+\begin{algorithm}
+\caption{Elimination \cite{eiben_smith}}\label{elimination_algorithm}
+\begin{algorithmic}
+\State calculate the fitnesses for all the individuals
+\ % TODO first maybe finalize code
+\end{algorithmic}
+\end{algorithm}
+
+% Value of k
 
 \subsection{Local search operators}
 \label{local_search_operator}
