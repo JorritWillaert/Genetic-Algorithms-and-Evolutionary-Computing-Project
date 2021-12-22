@@ -39,6 +39,7 @@
 \maketitle
 
 % TODO remove this section
+% TODO change elimination operator somewhat?
 
 \section{\RemoveMe{Formal requirements}} \label{sec_this}
 
@@ -455,7 +456,7 @@ Interpret your results. How do you rate the performance of your algorithm (time,
 
 \begin{enumerate}
  \item By using a population-based metaheuristic, a tradeoff can be made between exploration and exploitation. This tradeoff turned out to be instrumental in finding good solutions for the travelling salesman problem. Pure random search is computationally way too expensive (it would even take an infinity before a `decent', simply greedy solution would have been found). Pure local optimizers, on the other hand, would quickly converge to one suboptimal solution, which would most likely also be relatively far from the most optimal solution. Evolutionary algorithms provide a way to find good sub-optimal solutions in a decent amount of time.
- \item 
+ \item Evolutionary algorithms are in principle relatively easy to parallelize, since the population can explore the search space concurrently in many directions. Although in this project, not a lot of parallelization had been used (only in the initialization) step, it would probably be the next most beneficial task to undertake. Trying to use multiprocessing has been undertaken, but the execution time when using multiprocessing was more than a thousand times slower, compared to simple sequential execution on one CPU core. This probably came due to a lot of interprocess communication (IPC), since for example the list of individuals was shared, which resulted in a lot of locks and semiphores, that clearly dominated the execution time.
  \item 
 \end{enumerate}
 
