@@ -463,7 +463,7 @@ Interpret your results. How do you rate the performance of your algorithm (time,
 \ReplaceMe{What are the three main weak points of evolutionary algorithms in your experience?}
 
 \begin{enumerate}
- \item % Must be carefully designed
+ \item Evolutionary algorithms work well, as long as they are carefully designed with reasonable parameters. For example, take a population size of 100 instead of 15, and the algorithm struggles to make some iterations. This of course due to the fitness sharing elimination, which has a cubic complexity in terms of the population (and offspring) size. Furthermore, a lot of other parameters have to be chosen to obtain reasonable performance. If for example the k-tournament parameters (from selection and elimination) are not chosen correctly, either the population converges immediately to, or the overall fitnesses of the individuals hardly increase.
  \item 
  \item 
 \end{enumerate}
