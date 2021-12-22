@@ -324,6 +324,8 @@ In hindsight, one reason for the slow execution time of the edge crossover opera
 
 Another reason for the big performance gap is the fact that the order crossover operator was able to use the Numba for compiling the Python code and running it way faster, by using the decorator $@jit(nopython=True)$. This because the order crossover operator only uses operations on Numpy arrays (which Numba handles perfectly well), while Numba threw hundreds of compile errors in the edge crossover method, because Numba (in the $nopython=True$ mode) couldn't create new Numpy arrays, had difficulties with working on sets, and wasn't able to infer $dtype$'s most of the time.
 
+% TODO say how you get new alpha value
+
 \subsection{Elimination operators}
 \label{elimination}
 \ReplaceMe{Which elimination operators did you implement? If they are not from the slides, describe them. Why did you select this one? Are there parameters that need to be chosen? Did you use an advanced scheme to vary these parameters throughout the iterations? Did you try other elimination operators not included in the final version? Why did you discard them?}
@@ -393,6 +395,15 @@ Not a lot of effort has been put in implementing a stopping criterion, since all
 \subsection{Parameter selection}
 
 \ReplaceMe{For all of the parameters that are not automatically determined by adaptivity or self-adaptivity (as you have described above), describe how you determined them. Did you perform a hyperparameter search? How did you do this? How did you determine these parameters would be valid both for small and large problem instances?}
+
+\begin{enumerate}
+    \item The population size = 15
+    \item The offspring size = 15
+    \item The k-tournament parameter of the selection operator = 5 
+    \item The k-tournament parameter of the elimination operator = 8
+    \item The $\alpha$-value of fitness-sharing = 0.25
+    \item The $\sigma$-value of fitness-sharing = half of the problem size
+\end{enumerate}
 
 \subsection{Other considerations}
 
