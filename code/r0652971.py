@@ -32,10 +32,16 @@ class Individual:
         self.alpha = alpha
         self.length = (distanceMatrix.shape)[0]
         self.locally_optimal = False
-        self.build_edges()
+        self.build_edges(self.order, self.length)
 
-    def build_edges(self):
-        self.edges = set([(self.order[i], self.order[(i + 1) % self.length]) for i in range(self.length)])
+    def build_edges(self, order, length):
+        edges = [None] * length
+        prev = order[0]
+        for i in range(length):
+            next = order[(i + 1) % length]
+            edges[i] = (prev, next)
+            prev = next
+        self.edges = set(edges)
 
 def initialization(distanceMatrix: np.ndarray, population_size: int, greedily_percentage: float) -> List[Individual]:
     greedily_number = int(greedily_percentage * population_size)
@@ -635,7 +641,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour250.csv')
+    problem.optimize('tours/tour750.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
