@@ -464,8 +464,8 @@ Interpret your results. How do you rate the performance of your algorithm (time,
 
 \begin{enumerate}
  \item Evolutionary algorithms work well, as long as they are carefully designed with reasonable parameters. For example, take a population size of 100 instead of 15, and the algorithm struggles to make some iterations. This of course due to the fitness sharing elimination, which has a cubic complexity in terms of the population (and offspring) size. Furthermore, a lot of other parameters have to be chosen to obtain reasonable performance. If for example the k-tournament parameters (from selection and elimination) are not chosen correctly, either the population converges immediately to, or the overall fitnesses of the individuals hardly increase. This, in the end, comes at no surprise, since, according to the no-free-lunch theorem, there cannot exist any algorithm for solving all problems that is generally superior to any competitor.
- \item 
- \item 
+ \item The representation used in this project clearly yields valuable offsprings after crossover. If one reasons about the representation, it is apparent that subvectors of the parents are probably relatively close to each other, since they come after each other in the tour of the solution. When doing crossover, these \textbf{features} may now be combined in a more optimal way, so the offsprings have clearly a relatively high chance on having a low fitness value as well. However, for a lot of other problems, such representations and crossover operators are not that clear (i.e. features can't be extracted from the parents), and hence evolutionary algorithms can't offer a lot to these problems. 
+ \item computationally expensive
 \end{enumerate}
 
 \ReplaceMe{Describe the main lessons learned from this project. Do you believe evolutionary algorithms are appropriate for the problem studied in this project? Why (not)? What surprised you and why? What did you learn from this project?}
