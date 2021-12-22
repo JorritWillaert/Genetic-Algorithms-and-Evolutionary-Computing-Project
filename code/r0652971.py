@@ -525,7 +525,7 @@ class r0652971:
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
 
-        p = Parameters(population_size=15, num_offsprings=15, k=4, percentage_greedily=0.20)
+        p = Parameters(population_size=15, num_offsprings=15, k=5, percentage_greedily=0.20)
 
         INF = np.nanmax(distanceMatrix[distanceMatrix != np.inf]) * (distanceMatrix.shape)[0]
         print("Infinity is: " + str(INF))
