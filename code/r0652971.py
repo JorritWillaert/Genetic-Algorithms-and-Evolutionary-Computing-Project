@@ -532,10 +532,12 @@ class r0652971:
 
         population = initialization(distanceMatrix, p.population_size, p.percentage_greedily)
         best_fitness = float("+inf")
+        best_individual = population[0]
         for individual in population:
                 fit = fitness(distanceMatrix, individual.order)
                 if fit < best_fitness:
                     best_fitness = fit
+                    best_individual = individual
         print("Best fitness after initialization:", best_fitness)
 
         best_fitnesses = []
@@ -581,22 +583,10 @@ class r0652971:
                     else:
                         offspring.locally_optimal = True
                 offsprings.append(offspring)
-            #print("Number of same parents: " + str(count)) 
-            
-            best_seed = random.choice(population)
-            best_fitness = np.inf
-            for seed_ind in population:
-                fit = all_fitnesses_hashmap.get(seed_ind, -1)
-                if fit == -1:
-                    fit = fitness(distanceMatrix, seed_ind.order)
-                    all_fitnesses_hashmap[individual] = fit
-                if fit < best_fitness:
-                    best_fitness = fit
-                    best_seed = seed_ind
 
             # Mutation of the seed individuals
             for i, seed_individual in enumerate(population):
-                if seed_individual == best_seed:
+                if seed_individual == best_individual:
                     continue
                 population[i] = mutation(distanceMatrix, seed_individual, all_fitnesses_hashmap) 
 
@@ -605,7 +595,6 @@ class r0652971:
 
             fitnesses = []
             best_fitness = float('+inf')
-            best_individual = individual
             for individual in population:
                 fit = all_fitnesses_hashmap.get(individual, -1)
                 if fit == -1:
