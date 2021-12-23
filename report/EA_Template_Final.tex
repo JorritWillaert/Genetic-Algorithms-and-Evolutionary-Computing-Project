@@ -480,8 +480,11 @@ Interpret your results. How do you rate the performance of your algorithm (time,
 \end{enumerate}
 
 \ReplaceMe{Describe the main lessons learned from this project. Do you believe evolutionary algorithms are appropriate for the problem studied in this project? Why (not)? What surprised you and why? What did you learn from this project?}
+I think that the travelling salesman problem fits perfectly for the project related to this course. Finding an exact solutions is of course infeasible, hence the usage of metaheuristics become necessary and prove themselves to work extremely well. Considering that a lot of real-world applications require good approximations of the optimal solutions, it is obvious that these metaheuristics (and evolutionary algorithms in particular) are an essential tool to possess.
 
-% Numba!
+As a side-effect of this course, I would like to note that my Python coding skills are somewhat deepened, especially for computationally expensive tasks. I learned to appreciate the value of libraries such as Numba, that can speed up Python code massively by compiling the code. Surely, not all operations are allowed, but given that the Numba community is evolving rapidly, I will keep an eye on that.
+
+One kind of drawback of evolutionary algorithms are the way you have to test certain improvements. Due to the inherent randomness of evolutionary algorithms, quite a lot of variation can be observed between separate runs. Certainly if improvements of hyperparameters only yield a relatively small output, the experiments have to be repeated several times before the best parameter becomes apparent.
 
 \section{Other comments} \label{sec_other}
 
