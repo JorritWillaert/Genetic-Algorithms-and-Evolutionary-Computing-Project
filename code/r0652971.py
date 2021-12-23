@@ -41,7 +41,7 @@ class Individual:
         self.locally_optimal = False
         self.build_edges(self.order, self.length)
 
-    def build_edges(self, order, length):
+    def build_edges(self, order: np.ndarray, length: int):
         edges = [None] * length
         prev = order[0]
         for i in range(length):
