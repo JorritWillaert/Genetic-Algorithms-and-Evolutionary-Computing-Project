@@ -36,65 +36,35 @@
 \fontfamily{ppl}
 \selectfont{}
 
+% TODO Add bold keywords
+
 \maketitle
-
-% TODO remove this section
-% TODO change elimination operator somewhat?
-
-\section{\RemoveMe{Formal requirements}} \label{sec_this}
-
-\RemoveMe{The report is structured for fair and efficient grading of over 100 individual projects in the space of only a few days. Please respect the exact structure of this document. You are allowed to remove sections and . is the soul of wit: a good report will be \textbf{around $7.5$ pages} long. The hard limit is 12 pages. 
-
-\begin{quote}
-Think of this report as a \textbf{take-home exam}; it will be used at the exam for structuring the discussion and questions. Make an effort so that it can be visually scanned efficiently, e.g., by using boldface or colors to highlight key points, using lists, clearly defined paragraphs, figures, etc.
-
-You do not need to explain in this report \textbf{how} the techniques and concepts that are literally in the slides work. The goal of this report is \textbf{not} to illustrate that you can reproduce the slides. You need to convince me that you aptly used these (and other) techniques in this project. If I have doubts about your understanding of certain concepts in the course materials, I will test this hypothesis at the exam.
-\end{quote}
-
-It is recommended that you use this \LaTeX{} template, but you are allowed to reproduce it with the same structure in a WYSIWYG-editor. The purple text containing our evaluation criteria can be removed. You should replace the blue text with your discussion.
-
-This report should be uploaded to Toledo by \deadlineReport. It must be in the \textbf{Portable Document Format} (pdf) and must be named \texttt{r0123456\_final.pdf}, where r0123456 should be replaced with your student number.}
 
 \section{Metadata}
 
 \begin{itemize}
  \item \textbf{Group members during group phase:} Lukas De Greve and Thomas Vanhemel
- \item \textbf{Time spent on group phase:} \ReplaceMe{10 hours} % TODO
- \item \textbf{Time spent on final code:} \ReplaceMe{40 hours}  % TODO
- \item \textbf{Time spent on final report:} \ReplaceMe{10 hours} % TODO
+ \item \textbf{Time spent on group phase:} \ReplaceMe{10 hours}
+ \item \textbf{Time spent on final code:} \ReplaceMe{50 hours}
+ \item \textbf{Time spent on final report:} \ReplaceMe{13 hours}
 \end{itemize}
 
 \section{Peer review reports (target: 1 page)}
 
-% TODO add some bold keywords
-
-\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate insofar as you are able to recognize and analyze common problems arising in the design and implementation of evolutionary algorithms and your ability to effectively solve them.}
-
 \subsection{The weak points}
-\ReplaceMe{List the (up to six distinct) weak points that were identified in the two peer review reports that you received. Use at most 3 sentences to describe each weak point.}
-
 \begin{enumerate}
- \item Our initial recombination operator was a simplified version of the edge crossover operator \cite{initial_implementation_edge_crossover}. However, this version did not prioritize common edges between parents, but only chose an entry which itself had the shortest list. Hence, not enough exploitation of the parents features follows. 
- \item The ($\kappa$ + $\mu$)-elimination (without any type of diversity promotion) puts a lot of selective pressure on the population.
- \item Our mutation operator does not scale to larger problems, since it only swaps two random locations. As a consequence, the mutation operator will have a relatively even smaller impact on the solution when the problem size increases. 
- \item Due to the elimination strategy, together with the chosen mutation operator, premature convergence was observed.
+ \item Our initial recombination operator was a \textbf{simplified version of the edge crossover operator} \cite{initial_implementation_edge_crossover}. This version did not prioritize common edges between parents, but only chose an entry which itself had the shortest list. Hence, not enough exploitation of the parents features followeds. 
+ \item The ($\kappa$ + $\mu$)-elimination (without any type of diversity promotion) puts a \textbf{lot of selective pressure} on the population.
+ \item Our \textbf{mutation operator does not scale} to larger problems, since it only swaps two random locations. As a consequence, the mutation operator will have an even smaller impact on the solution when the problem size increases. 
+ \item Due to the elimination strategy, together with the chosen mutation operator, \textbf{premature convergence} was observed.
 \end{enumerate}
 
 \subsection{The solutions}
-\ReplaceMe{List the solutions to the identified weak points. Use at most 3 sentences to describe your solution. You do not need to explain the techniques in detail if they are in the slides or handbook; just state something like ``Weak point X was solved/mitigated/diminished by using the island model as diversity promotion scheme.'' Note there could be more or less solutions than the number of weak points.}
-
 \begin{enumerate}
- \item The simplified version of the edge crossover operator was first replaced with the proper edge crossover operator \cite{eiben_smith}. However, once the running times of edge recombination were compared with the ones of order crossover, it was apparent that order crossover is much faster. For this reason, edge crossover was abandoned.
- \item The ($\kappa$ + $\mu$)-elimination was kept for quite some time, but was supplemented with fitness sharing. The high selective pressure of ($\kappa$ + $\mu$)-elimination was largely mitigated With the introduction of this diversity promotion scheme. However, to further reduce the selective pressure present in the ($\kappa$ + $\mu$)-elimination, the elimination eventually also used k-tournament (along with the same fitness sharing technique).
- \item The mutation operator has been changed from swap mutation to inversion mutation. Hence, the effect of the mutation operator is constant for rising problem sizes.
- \item With the introduction of fitness sharing, along with the inversion mutation operator, premature convergence was largely avoided.
-\end{enumerate}
-
-\ReplaceMe{Which weak points did you not address? List them and briefly motivate (target, 3 lines each).}
-
-\begin{enumerate} % TODO replace this
- \item 
- \item 
+ \item The simplified version of the edge crossover operator was first replaced with the \textbf{proper edge crossover operator} \cite{eiben_smith}. However, once the running times of edge recombination were compared with the ones of order crossover, it was apparent that \textbf{order crossover} was much faster. For this reason, edge crossover was abandoned in favor for order crossover.
+ \item The ($\kappa$ + $\mu$)-elimination was kept for quite some time, but was supplemented with \textbf{fitness sharing}. The high selective pressure of ($\kappa$ + $\mu$)-elimination was therefore largely mitigated with the introduction of this diversity promotion scheme. However, to further reduce the selective pressure present in the ($\kappa$ + $\mu$)-elimination, the operator was swapped for the \textbf{k-tournament elimination} operator in the final version of the algorithm (along with the same fitness sharing technique).
+ \item The mutation operator has been changed from swap mutation to \textbf{inversion mutation}. Hence, the effect of the mutation operator is constant for rising problem sizes.
+ \item With the introduction of fitness sharing, along with the inversion mutation operator, \textbf{premature convergence} was largely \textbf{avoided}.
 \end{enumerate}
 
 \subsection{The best suggestion}
