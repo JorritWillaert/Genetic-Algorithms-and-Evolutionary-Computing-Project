@@ -82,22 +82,16 @@ Both groups suggested to modify the simplified edge crossover operator to the `p
 \end{enumerate}
 
 \section{Final design of the evolutionary algorithm (target: $3.5$ pages)} 
-
-\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate insofar as you are able to design and implement an advanced, effective evolutionary algorithm for solving a model problem.}
-
-
 \subsection{The three main features}
-\ReplaceMe{List the three main components of your evolutionary algorithm for this project. That is, what are its most distinctive characteristics, what components am I not allowed to change to a more basic version? Ideally these are some of the more advanced features that you added since the group phase.}
-
 \begin{enumerate}
-\item Fitness sharing has been used in the elimination step of the algorithm. This diversity promotion scheme is of crucial importance to avoid premature convergence, and hence makes sure that far better solutions can be found, instead of letting all individuals converge to one local minima.
-\item By introducing the 2-opt local search operator, far better solutions were quickly found. Without the local search operator, much more iterations were required to find the same fitness values, along with a necessary larger population. Although this operator is inherently extremely computationally expensive, it is turns out to be pivotal in the algorithm. Especially in this operator, optimizations such as making use of dynamic programming and using Numba were decisive in making the operator computationally feasible.
-\item One last crucial improvement is the introduction of the greedy and legally initializations. Greedy initialization starts from a random node, and chooses the next one according to the smallest distance. The details of this initialization scheme are elaborated in Section \ref{initialization}, along with a consideration of the introduced biases. Furthermore, legal initialization simply chooses the next node from a random neighbor that has an existing road between them.
+\item \textbf{Fitness sharing} has been used in the elimination step of the algorithm. This diversity promotion scheme is of crucial importance to \textbf{avoid premature convergence}, and hence makes sure that far better solutions can be found, instead of letting all individuals converge to one local minima.
+\item By introducing the 2-opt \textbf{local search operator}, far better solutions were found more quickly. Without the local search operator, much more iterations were required to find the same fitness values, along with a necessarily larger population. Although this operator is inherently extremely computationally expensive, it is turns out to be pivotal for the algorithm. Especially in this operator, optimizations such as making use of \textbf{dynamic programming} and using \textbf{Numba} were decisive in making the operator computationally feasible.
+\item One last crucial improvement is the introduction of the \textbf{greedy} and \textbf{legally initializations}. Greedy initialization starts from a random node, and chooses the next one according to the smallest distance. The details of this initialization scheme are elaborated in Section \ref{initialization}, along with a consideration of the introduced biases. Furthermore, legal initialization simply chooses the next node from a random neighbor that has an existing road between them.
 \end{enumerate}
 
 \subsection{The main loop}
 
-5\ReplaceMe{Make a picture of the ``flow'' in your evolutionary algorithm, similar to the example below. Include all the main components (mutation, recombination, selection, elimination, initialization, local search operators, diversity promotion mechanisms). There are no formal requirements on how to do this, as long as it is clear and you can efficiently explain your complete evolutionary algorithm using this picture at the exam. Contrary to the picture below, include the specific techniques, e.g., top-$\lambda$ elimination, $k$-tournament selection, where possible.}
+\ReplaceMe{Make a picture of the ``flow'' in your evolutionary algorithm, similar to the example below. Include all the main components (mutation, recombination, selection, elimination, initialization, local search operators, diversity promotion mechanisms). There are no formal requirements on how to do this, as long as it is clear and you can efficiently explain your complete evolutionary algorithm using this picture at the exam. Contrary to the picture below, include the specific techniques, e.g., top-$\lambda$ elimination, $k$-tournament selection, where possible.}
 
 % TODO
 
@@ -107,23 +101,19 @@ Both groups suggested to modify the simplified edge crossover operator to the `p
 %\end{center}
 
 \clearpage
-\RemoveMe{\textbf{The questions we ask from section 5.3 onwards in blue are there to guide which topics to discuss}, rather than an exact list of questions that must be answered. Feel free to add more items to discuss.}
-
-
 \subsection{Representation}
-Possible solutions are represented as \textbf{permutations} and are written down in \textbf{cycle notation}. E.g. the permutation (1423) starts at node 1, then goes to 4, then 2, then 3 and returns to 1. An advantage of this notation is that no cycles are present as long as we initialize the representations as a permutation of the list of all nodes. 
+Possible solutions are represented as \textbf{permutations} and are written down in \textbf{cycle notation}. E.g. the permutation (1423) starts at node 1, then goes to 4, then 2, then 3, and returns to 1. An advantage of this notation is that no cycles are present as long as we initialize the representations as a permutation of all nodes. 
 
-This representation is implemented in our program as a numpy array with length equal to the number of nodes in the problem. Each element in the array consists of one integer number: the node number.
+This representation is implemented in our program as a Numpy array with length equal to the number of nodes in the problem. Each element in the array consists of one integer number: the node number.
 
 \subsection{Initialization}
 \label{initialization}
-\ReplaceMe{How do you initialize the population? How did you determine the number of individuals? Did you implement advanced initialization mechanisms (local search operators, heuristic solutions)? If so, describe them. Do you believe your approach maintains sufficient diversity? How do you ensure that your population enrichment scheme does not immediately take over the population? Did you implement other initialization schemes that did not make it to the final version? Why did you discard them? How did you determine the population size?}
-In the group-phase part of the projects, individuals were generated by a random permutation, with their size determined from the distance matrix. However, especially for the larger problem size, quite a lot of paths were nonexisting or extremely long. Hence, random initialization of all individuals yielded almost always individuals where non of them represented a valid path. 
+In the group-phase part of the project, individuals were generated by a \textbf{random permutation}, with their size determined from the distance matrix. However, especially for the larger problem sizes, quite a lot of paths were \textbf{nonexisting} or \textbf{extremely long}. Hence, random initialization of all individuals yielded almost always individuals where none of them represented a valid path. 
 
-Two new initialization schemes were introduced, legal and greedy initialization, where the objective of legal initialization is to not create impossible paths when initialing an individual. This while not introducing certain biases, such as individuals who take over the population immediately. The objective of greedy initialization is introducing locally optimal individuals with a high fitness, in a computationally inexpensive way. Here, special care has been taken so the individuals don't introduce high biases and won't take over the population immediately.
+Two new initialization schemes were introduced, legal and greedy initialization, where the objective of legal initialization is to not create impossible paths when initialing an individual. This while not introducing certain biases, such as individuals who take over the population immediately. The objective of greedy initialization is introducing locally optimal individuals with a high fitness, in a computationally inexpensive way. Here, special care has been taken that the individuals don't introduce high biases and won't take over the population immediately.
 
 \subsubsection{Legal initialization}
-When initializing an individual legally, one makes sure that the generated path exists. Therefore, a city is chosen at random, after which the next city in the tour is chosen to be a random one out of all the neighbors with a non-infinite path cost. If, however, no existing neighbors are available anymore as next cities, the whole procedure restarts. The pseudo-algorithm is given in Algorithm \ref{legal_initialization_algorithm}.
+When initializing an individual legally, one makes sure that the generated path \textbf{exists}. Therefore, a city is chosen at random, after which the next city in the tour is chosen to be a random one out of all the neighbors with a non-infinite path cost. If, however, no existing neighbors are available anymore as next cities, the whole procedure restarts. The pseudo-algorithm is given in Algorithm \ref{legal_initialization_algorithm}.
 
 \begin{algorithm}
 \caption{Legal initialization}\label{legal_initialization_algorithm}
@@ -137,18 +127,18 @@ When initializing an individual legally, one makes sure that the generated path 
 \EndIf
 \State Choose a random city to be the successor of the previous city
 \EndWhile
-\If {not broken out of inner loop and path from the last city to first one is not infinity}
+\If {not broken out of inner loop and path from the last city to the first one is not infinity}
 \State Return newly generated individual
 \EndIf
 \EndWhile
 \end{algorithmic}
 \end{algorithm}
 
-This legal initialization scheme does not introduce undesirable biases. In theory, also the most optimal route could have been initialized, and the only bias present is a bias to not have nonexisting paths. I therefore can't think of any disadvantage this initialization scheme entails. 
+This legal initialization scheme \textbf{does not introduce undesirable biases}. In theory, also the most optimal route could have been initialized, and the only bias present is a bias to not have nonexisting paths. I therefore can't think of any disadvantage this initialization scheme entails. 
 
 \subsubsection{Greedy initialization}
 \label{greedy_initialization}
-Besides the legal initialization scheme, I also initialize some individuals greedily. The algorithm resembles the legal initialization scheme, with the only change that the successor city is chosen to be the closest neighbor, instead of a random legal neighbor. The pseudo-algorithm is given in Algorithm \ref{greedy_initialization_algorithm}.
+Besides the legal initialization scheme, I also initialize some individuals greedily. The algorithm resembles the legal initialization scheme, with the only change that the successor city is chosen to be the \textbf{closest neighbor}, instead of a random legal neighbor. The pseudo-algorithm is given in Algorithm \ref{greedy_initialization_algorithm}.
 
 \begin{algorithm}
 \caption{Greedy initialization}\label{greedy_initialization_algorithm}
@@ -169,7 +159,7 @@ Besides the legal initialization scheme, I also initialize some individuals gree
 \end{algorithmic}
 \end{algorithm}
 
-This initialization scheme does introduce certain biases, which could result in some individuals taking over the population immediately. Therefore, one has to take preventions against this bias, by for example only initializing a fraction of all the individuals with this scheme, as could be observed in the chosen hyperparameters of Section \ref{general_aspects_initialization}.
+This initialization scheme \textbf{does introduce certain biases}, which could result in some individuals taking over the population immediately. Therefore, one has to take preventions against this bias, by for example only initializing a small fraction of all the individuals with this scheme, as could be observed in the chosen hyperparameters of Section \ref{general_aspects_initialization}.
 
 The introduced bias is that all individuals are locally optimal, with in theory a maximum number of different solutions of the problem size. Given that it may be difficult to escape local minima, one must consider the usefulness of this initialization scheme.
 
