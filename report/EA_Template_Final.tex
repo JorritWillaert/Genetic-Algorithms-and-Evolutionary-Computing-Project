@@ -211,7 +211,7 @@ Self-adaptivity has been used for the mutation rate, which is hence specific to 
 \label{recombination}
 %\ReplaceMe{Which recombination operators did you implement? If they are not from the slides, describe them. How do you choose among several recombination operators? Why did you choose these ones specifically? Explain how you believe that these operators can produce offspring that combine the best features from their parents. How does your operator behave if there is little overlap between the parents? Can your recombination be controlled with parameters; what behavior do they change? Do you use self-adaptivity? Do you use any other advanced parameter control mechanisms (e.g., variable across iterations)? Did you try other recombination operators not included in the final version? Why did you discard them? Did you consider recombination with arity strictly greater than 2?}
 
-In the group phase part of the project, a simplified version of the edge crossover operator was used as the recombination algorithm. This process is described in Algorithm \ref{simple_edge_crossover} \cite{initial_implementation_edge_crossover}. This recombination results in a new path where all edges of the child were present in at least one of the parents. It does however not prioritize edges present in both parents over edges present in a single parent.
+In the group phase part of the project, a \textbf{simplified version} of the \textbf{edge crossover operator} was used as the recombination algorithm, for which the process is described in Algorithm \ref{simple_edge_crossover} \cite{initial_implementation_edge_crossover}. This recombination results in a new path where all edges of the child were present in at least one of the parents. It does however not prioritize edges present in both parents over edges present in a single parent.
 
 \begin{algorithm}
 \caption{Simple edge recombination operator}\label{simple_edge_crossover}
@@ -219,15 +219,15 @@ In the group phase part of the project, a simplified version of the edge crossov
 \State Let K be the empty list
 \State let N be the first node of a random parent
 \While{length(K) $<$ length(Parent)}
-\State Append K to N
+\State Append N to K
 \State Remove N from all neighbor lists
 \If{N's neighbor list is not empty}
-\State let $N^*$ be the neighbor of N with the fewest neighbors in its list (or a random one, should there be multiple)
+\State let $N^*$ be the neighbor of N with the fewest neighbors in its list (or a random one, in case of multiples)
 \Else 
 \State let $N^*$ be a randomly chosen node that is not in K
 \EndIf
-\EndWhile
 \State N $\gets N^*$
+\EndWhile
 \end{algorithmic}
 \end{algorithm}
 
@@ -236,9 +236,9 @@ when the parents are very different, the child will look fairly different from b
 
 The reason this simplified algorithm was implemented, instead of the proper one from Eiben \& Smith \cite{eiben_smith}, was due to the belief that the computational cost of this algorithm was (much) lower than the one from Eiben \& Smith. 
 
-For the individual phase of the project, an analyses was made between order crossover and the proper edge crossover algorithm of Eiben \& Smith. After some research, with a lot of contradictory advices, an arbitrary choice has been made to first try out the proper edge crossover algorithm.
+For the individual phase of the project, an analysis was made between order crossover and the proper edge crossover algorithm of Eiben \& Smith. After some research, with a lot of contradictory advices, an arbitrary choice has been made to first try out the \textbf{proper edge crossover algorithm}.
 
-Implementation wise, quite a lot of effort has been made to catch all the corner cases of the algorithm, along with achieving relatively optimized code. The algorithm was kept a long time thereafter, until it was noticed that for the large problem sizes, crossover took an extremely long time (up to 95 \% of the total runtime was spend in the edge crossover operator).
+Implementation wise, quite a lot of effort has been made to catch all the corner cases of the algorithm, along with achieving relatively optimized code. The algorithm was kept a long time thereafter, until it was noticed that for the large problem sizes, crossover took an \textbf{extremely long time} (up to 95 \% of the total runtime was spend in the edge crossover operator).
 
 \begin{algorithm}
 \caption{`Proper' edge recombination operator \cite{eiben_smith}}\label{proper_edge_crossover}
@@ -264,7 +264,7 @@ Implementation wise, quite a lot of effort has been made to catch all the corner
 \end{algorithmic}
 \end{algorithm}
 
-Due to this slow execution time, order crossover \cite{eiben_smith} has been implemented as well (Algorithm \ref{order_crossover_algorithm}).
+Due to this slow execution time, \textbf{order crossover} \cite{eiben_smith} has been implemented as well (Algorithm \ref{order_crossover_algorithm}).
 
 \begin{algorithm}
 \caption{Order crossover operator \cite{eiben_smith}}\label{order_crossover_algorithm}
@@ -275,31 +275,42 @@ Due to this slow execution time, order crossover \cite{eiben_smith} has been imp
 \end{algorithmic}
 \end{algorithm}
 
-This crossover algorithm is inherently much cheaper to calculate and takes only about 5 \% % TODO still correct?
-of the total execution time in the final algorithm. This is exactly the reason why the crossover algorithm was eventually used. 
+This crossover algorithm is inherently much cheaper to calculate and takes only about 5 \% of the total execution time in the final algorithm. This is exactly the reason why this crossover algorithm was eventually used. 
 
-In hindsight, one reason for the slow execution time of the edge crossover operator is probably due to the usage of sets in the operator. The edge table was basically one list with sets, where a minus denoted a double entry. Sets were used because it was desirable to check quickly if a certain node was an edge in the edge table. However, since for each element, maximum four edges could be present, lists would probably have sufficed. Also because quite some bookkeeping was required with the sets (e.g. deleting a positive entry if it occurs for the second time, to insert it afterwards with a minus in front of it). 
+In hindsight, one reason for the slow execution time of the edge crossover operator is probably due to the usage of sets in the operator. The edge table was basically one list with sets, where a minus denoted a double entry. Sets were used because it was desirable to check quickly if an edge was present in the edge table. However, since for each element, maximum four edges could be present, lists would probably have sufficed. The same reasoning applies because quite some bookkeeping was required with the sets (e.g. deleting a positive entry if it occurred for the second time, to insert it afterwards with a minus in front of it). 
 
-Another reason for the big performance gap is the fact that the order crossover operator was able to use the Numba for compiling the Python code and running it way faster, by using the decorator $@jit(nopython=True)$. This because the order crossover operator only uses operations on Numpy arrays (which Numba handles perfectly well), while Numba threw hundreds of compile errors in the edge crossover method, because Numba (in the $nopython=True$ mode) couldn't create new Numpy arrays, had difficulties with working on sets, and wasn't able to infer $dtype$'s most of the time.
+Another reason for the big performance gap is the fact that the order crossover operator was able to use \textbf{Numba} for compiling the Python code and running it way faster, by using the decorator $@jit(nopython=True)$. This because the order crossover operator only uses operations on Numpy arrays (which Numba handles perfectly well), while Numba threw hundreds of compile errors in the edge crossover method, because Numba (in the $nopython=True$ mode) couldn't create new Numpy arrays, had difficulties with working on sets, and wasn't able to infer the $dtype$'s most of the time.
 
 % TODO say how you get new alpha value
 
 \subsection{Elimination operators}
 \label{elimination}
-\ReplaceMe{Which elimination operators did you implement? If they are not from the slides, describe them. Why did you select this one? Are there parameters that need to be chosen? Did you use an advanced scheme to vary these parameters throughout the iterations? Did you try other elimination operators not included in the final version? Why did you discard them?}
-For a long time, the ($\kappa$ + $\mu$)-elimination from the group phase part was kept in the algorithm. However, for the smaller problem sizes, it was noted that the population converged extremely quickly, even with the fitness promotion scheme present (as further discussed in Section \ref{diversity_promotion}). After some research, it became apparent that the ($\kappa$ + $\mu$)-elimination operator actually puts a lot of selective pressure. A k-tournament operator, in contrast, can mitigate this selective pressure, hence the ($\kappa$ + $\mu$)-elimination operator has been exchanged for the k-tournament operator.
+%\ReplaceMe{Which elimination operators did you implement? If they are not from the slides, describe them. Why did you select this one? Are there parameters that need to be chosen? Did you use an advanced scheme to vary these parameters throughout the iterations? Did you try other elimination operators not included in the final version? Why did you discard them?}
+For a long time, the \textbf{($\kappa$ + $\mu$)-elimination} from the group phase part was kept in the algorithm. However, for the smaller problem sizes, it was noted that the population converged extremely quickly, even with the fitness promotion scheme present (as further discussed in Section \ref{diversity_promotion}). After some research, it became apparent that the ($\kappa$ + $\mu$)-elimination operator actually puts quite a lot of selective pressure. A \textbf{k-tournament operator}, in contrast, can mitigate this selective pressure, hence the ($\kappa$ + $\mu$)-elimination operator has been exchanged for the k-tournament operator.
 
-To combine the k-tournament operator with the fitness sharing operator, Algorithm \ref{elimination_algorithm} has been used.
+To combine the k-tournament operator with the fitness sharing operator, Algorithm \ref{elimination_algorithm} is for the k-tournament operator (along with some preparatory computations), while Algorithm \ref{fitness_sharing_algorithm} is invoked each time for the fitness sharing diversity promotion scheme itself.
 
 \begin{algorithm}
 \caption{Elimination \cite{eiben_smith}}\label{elimination_algorithm}
 \begin{algorithmic}
-\State calculate the fitnesses for all the individuals
-\ % TODO first maybe finalize code
+\State Calculate the fitnesses for all the individuals
+\State Add the best individual to the list `survivors'
+\For{i from 0 to $\lambda - 2$}
+\State Calculate the new fitness values, based on fitness sharing
+\For{j from 0 to $k_{elimination} - 1$}
+\State Randomly sample a fitness value (`fit') from the new list of fitness values
+\If{`fit' is the lowest fitness found}
+\State Store the index of the individual that corresponds to this fitness under `idx'
+\EndIf
+\EndFor
+\State The new survivor is the individual located at `idx'
+\State Append the new survivor to the `survivors' list
+\State Delete the survivor from the list containing all the individuals
+\EndFor
 \end{algorithmic}
 \end{algorithm}
 
-% Value of k
+After numerous experiments, a k-value of 8 has been chosen.
 
 \subsection{Local search operators}
 \label{local_search_operator}
@@ -343,6 +354,14 @@ It should also be noted that by using Numba with the command $@jit(nopython=True
 \subsection{Diversity promotion mechanisms}
 \label{diversity_promotion}
 \ReplaceMe{Did you implement a diversity promotion scheme? If yes, which one? If no, why not? Describe the mechanism you implemented. In what sense does the mechanism improve the performance of your evolutionary algorithm? Are there parameters that need to be determined? Did you use an advanced scheme to determine them?}
+
+\begin{algorithm}
+\begin{algorithmic}
+\label{fitness_sharing_algorithm}
+%TODO
+\State TODO
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Stopping criterion}
 Not a lot of effort has been put in implementing a stopping criterion, since all the larger problems stayed converging after running for five minutes. Hence, the stopping criterion is simply the time limit of five minutes.
