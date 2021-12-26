@@ -380,9 +380,9 @@ The used diversity promotion scheme is \textbf{fitness sharing elimination}, whi
 \end{algorithmic}
 \end{algorithm}
 
-The sub-method `distance\_from\_to' calculates the distance between two individuals, measured by the number of \textbf{common edges} between the two individuals. To do this efficiently, the edges of each individual are calculated and stored in a set, at the moment of initialization. For measuring the distance between two individuals, the intersection between the sets is calculated.
+The sub-method `distance\_from\_to' calculates the distance between two individuals, measured by the number of \textbf{common edges} between the two individuals. To do this efficiently, the edges of each individual are calculated and stored in a set, at the moment of initialization. For measuring the distance between two individuals, the \textbf{intersection} between the sets is calculated.
 
-Calculating the intersection of a lot of individual pairs over and over, turned out to be quite computationally expensive. An improvement that has been made is to store all the calculated distances in a hashmap, which gave a decent improvement, given that quite some individuals stay in the population for more than just one iteration. A precaution against thrashing has been taken, by simply emptying the hashmap if the memory usage of the system exceeds 95\%.
+Calculating the intersection of a lot of individual pairs over and over, turned out to be quite computationally expensive. An improvement that has been made is to store all the calculated distances in a \textbf{hashmap}, which gave a decent improvement, given that quite some individuals stay in the population for more than just one iteration. A precaution against thrashing has been taken, by simply emptying the hashmap if the memory usage of the system exceeds 95\%.
 
 \subsection{Stopping criterion}
 Not a lot of effort has been put in implementing a stopping criterion, since all the larger problems stayed converging after running for five minutes. Hence, the stopping criterion is simply the time limit of five minutes.
@@ -392,9 +392,11 @@ Not a lot of effort has been put in implementing a stopping criterion, since all
 
 \subsection{Parameter selection}
 %\ReplaceMe{For all of the parameters that are not automatically determined by adaptivity or self-adaptivity (as you have described above), describe how you determined them. Did you perform a hyperparameter search? How did you do this? How did you determine these parameters would be valid both for small and large problem instances?}
-The population and offspring size have largely been determined by the computational cost from the algorithm. The largest computational cost per iteration for large problem sizes is the fitness sharing elimination step. This since the matrix with the number of common edges between all the individuals and the survivors grows quadratically, and the computation of one entry in this matrix also grows linearly. Hence, the computational costs grew too large if a lot more than 15 individuals in the population (and 15 more individuals as offsprings) were taken.
+The \textbf{population} and \textbf{offspring size} have largely been determined by the computational cost from the algorithm. The largest computational cost per iteration for large problem sizes is the fitness sharing elimination step. This since the matrix with the number of common edges between all the individuals and the survivors grows quadratically, and the computation of one entry in this matrix also grows linearly. Hence, the computational costs grew too large if a lot more than 15 individuals in the population (and 15 more individuals as offsprings) were taken. Much less than 15 individuals is, naturally, also not desirable, since an evolutionary algorithm depends on having some diverse individuals.
 
+The \textbf{k-tournament parameters} were determined by a \textbf{hyperparameter search}, where values ranging from 2 to 10 have been tried. Given that these two parameters are highly correlated, a grid-search or random search were required. To make the hyperparameter search feasible, a random search for these values was undertaken, which yielded a k-tournament value of selection equal to 5, and a value of 8 for elimination.
 
+When the matrix with the number of common edges was printed, it became apparent that either a lot of entries were either the maximal problem size, or zero. Hence, after some experimentation, a $\sigma$ value of 50\% of the problem size has been taken, with 0.25 as $\alpha$ value. This low alpha is in my opinion also better, given that really `close' solutions should be penalized way more than solutions with still quite some different edges.
 
 \begin{enumerate}
     \item The population size = 15
