@@ -296,7 +296,7 @@ To combine the k-tournament operator with the fitness sharing operator, Algorith
 \State Calculate the fitnesses for all the individuals
 \State Add the best individual to the list `survivors'
 \For{i from 0 to $\lambda - 2$}
-\State Calculate the new fitness values, based on fitness sharing
+\State Calculate the new fitness values, based on fitness sharing (Algorithm \ref{fitness_sharing_algorithm})
 \For{j from 0 to $k_{elimination} - 1$}
 \State Randomly sample a fitness value (`fit') from the new list of fitness values
 \If{`fit' is the lowest fitness found}
@@ -346,7 +346,7 @@ Now, calculations of fitnesses of individuals are simply a matter of bookkeeping
 \end{algorithmic}
 \end{algorithm}
 
-As further illustrated in Figure \ref{local_search_operator_2_opt}, the first part of the tour is simply the same as the previous iteration, with one extra cost added from `first - 1' to `first'. The same reasoning applies for the last part of the tour, where in this case the total cost decreases each time by the cost from `second - 1' to `second'. Finally, also the middle part can be build up in an analogous way. This way, the total cost of the 2-opt local search algorithm is only ($O(N^2)$, where $N$ denotes the total number of cities. 
+As further illustrated in Figure \ref{local_search_operator_2_opt}, the first part of the tour is simply the same as the previous iteration, with one extra cost added from `first - 1' to `first'. The same reasoning applies for the last part of the tour, where in this case the total cost decreases each time by the cost from `second - 1' to `second'. Finally, also the middle part can be build up in an analogous way. This way, the total cost of the 2-opt local search algorithm is only $O(N^2)$, where $N$ denotes the total number of cities. 
 
 \begin{figure}[H]
 \caption{Local search operator (2-opt) \cite{local_search_slides}}
@@ -355,19 +355,31 @@ As further illustrated in Figure \ref{local_search_operator_2_opt}, the first pa
 \includegraphics[width=0.4\textwidth]{local_search_operator_2_opt.png}
 \end{figure}
 
-It should also be noted that by using Numba with the command $@jit(nopython=True)$ above the method declarations, the local search operator runs \textbf{745 times as fast}. Numba can make these huge improvements due to compilation of these methods, where especially the loops can be exploited.
+It should also be noted that by using Numba with the command $@jit(nopython=True)$ above the method declarations, the local search operator runs \textbf{745 times as fast}. Numba can make these huge improvements due to the compilation of these methods, where especially the loops can be exploited.
 
 \subsection{Diversity promotion mechanisms}
 \label{diversity_promotion}
-\ReplaceMe{Did you implement a diversity promotion scheme? If yes, which one? If no, why not? Describe the mechanism you implemented. In what sense does the mechanism improve the performance of your evolutionary algorithm? Are there parameters that need to be determined? Did you use an advanced scheme to determine them?}
+%\ReplaceMe{Did you implement a diversity promotion scheme? If yes, which one? If no, why not? Describe the mechanism you implemented. In what sense does the mechanism improve the performance of your evolutionary algorithm? Are there parameters that need to be determined? Did you use an advanced scheme to determine them?}
 
 \begin{algorithm}
 \begin{algorithmic}
+\caption{Fitness sharing algorithm}
 \label{fitness_sharing_algorithm}
-%TODO
-\State TODO
+\For{i from 0 to length of population - 1}
+\For{j from 0 to length of survivors - 1}
+\State distances[i][j] = distance_from_to(population[i], population[j])
+\EndFor
+\EndFor
+\State Calculate `shared_part' as $1 - (distances / \sigma) ^ alpha$
+\State Only keep the values in `shared_part' if the distance is less than $\sigma$
+\State Sum `shared_part' along the first axis (`sum_shared_part')
+\State Calculate the shared fitness values as the original fitness values times `sun_shared_part'
 \end{algorithmic}
 \end{algorithm}
+
+The sub-method `distance_from_to' calculates the distance between two individuals, measured by the number of common edges between the two individuals. To do this efficiently, the edges of each individual are calculated and stored in a set, at the moment of initialization. For measuring the distance between two individuals, the intersection between the sets is calculated.
+
+Calculating the intersection of a lot of individual pairs turned out to be quite computationally expensive. An improvement that has been made is to store all the calculated distances in a hashmap, which gave a decent improvement, given that quite some individuals stay in the population for more than just one iteration. A precaution against thrashing has been taken, by simply emptying the hashmap if the memory usage of the system exceeds 95\%.
 
 \subsection{Stopping criterion}
 Not a lot of effort has been put in implementing a stopping criterion, since all the larger problems stayed converging after running for five minutes. Hence, the stopping criterion is simply the time limit of five minutes.
