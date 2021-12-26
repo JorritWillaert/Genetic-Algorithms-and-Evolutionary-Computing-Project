@@ -601,7 +601,7 @@ class r0652971:
             # To prevent thrashing (especially because RAM size of the testing framework is unknown) 
             if (psutil.virtual_memory()[2] > 95.0):
                 all_distances_hashmap = {} 
-                all_fitnesses_hashmap = {}
+                #all_fitnesses_hashmap = {}
 
             offsprings = []
             #count = 0
