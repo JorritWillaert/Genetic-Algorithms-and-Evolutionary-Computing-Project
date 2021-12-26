@@ -314,9 +314,8 @@ After numerous experiments, a k-value of 8 has been chosen.
 
 \subsection{Local search operators}
 \label{local_search_operator}
-\ReplaceMe{What local search operators did you implement? Describe them. Did they cause a significant improvement in the performance of your algorithm? Why (not)? Did you consider other local search operators that did not make the cut? Why did you discard them? Are there parameters that need to be determined in your operator? Do you use an advanced scheme to determine them (e.g., adaptive or self-adaptive)?}
-
-The 2-opt local search operator has been implemented, which swaps every two possible edges in a given cycle. In a first version of this algorithm, the fitness was recalculated for every possible `neighbor' of the given individual, which entailed an unacceptable high computational cost, especially for the larger problem sizes. After some investigation, patterns were detected in the computation of the fitness. Hence, instead of recalculating the fitness for every neighbor, some kind of dynamic programming approach was undertaken. For every individual, there is a sort of preprocessing step, whereby so-called `cumulative' are created. These cumulatives capture the path length from the first city to that corresponding city in the cumulative array. The same process applies for the calculation of the path length from the last city to the corresponding city in the array (i.e. in reverse order, whereby the return cost of the last city to the first city is also incorporated). It is clear that the calculation of these cumulatives is done in $O(N)$, where $N$ is the number of cities in the problem size.
+%\ReplaceMe{What local search operators did you implement? Describe them. Did they cause a significant improvement in the performance of your algorithm? Why (not)? Did you consider other local search operators that did not make the cut? Why did you discard them? Are there parameters that need to be determined in your operator? Do you use an advanced scheme to determine them (e.g., adaptive or self-adaptive)?}
+The \textbf{2-opt local search operator} has been implemented, which swaps every two possible edges in a given cycle. In a first version of this algorithm, the fitness was recalculated for every possible neighbor of the given individual, which entailed an unacceptable high computational cost, especially for the larger problem sizes. After some investigation, patterns were detected in the computation of the fitness. Hence, instead of recalculating the fitness for every neighbor, some kind of \textbf{dynamic programming} approach was undertaken. For every individual, there is a sort of preprocessing step, whereby so-called `cumulatives' are created. These cumulatives capture the path length from the first city to that corresponding city in the cumulative array. The same process applies for the calculation of the path length from the last city to the corresponding city in the array (i.e. in reverse order, whereby the return cost of the last city to the first city is also incorporated). It is clear that the calculation of these cumulatives is done in $O(N)$, where $N$ is the number of cities in the problem size.
 
 Now, calculations of fitnesses of individuals are simply a matter of bookkeeping. The process is explained in Algorithm \ref{local_search_operator_algorithm}.
 
@@ -343,13 +342,20 @@ Now, calculations of fitnesses of individuals are simply a matter of bookkeeping
 \EndIf
 \EndFor
 \EndFor
-\State Swap the order of the individual from from the best first and best second, obtained from the best combination.
+\State Swap the order of the individual from the best first to the best second, obtained from the best combination.
 \end{algorithmic}
 \end{algorithm}
 
-It should also be noted that by using Numba with the command $@jit(nopython=True)$ above the method declarations, the local search operator runs \textbf{745 times as fast}. Numba can make these huge improvements due to compilation of these methods, where especially the looping contributes massively to the speedup.
+As further illustrated in Figure \ref{local_search_operator_2_opt}, the first part of the tour is simply the same as the previous iteration, with one extra cost added from `first - 1' to `first'. The same reasoning applies for the last part of the tour, where in this case the total cost decreases each time by the cost from `second - 1' to `second'. Finally, also the middle part can be build up in an analogous way. This way, the total cost of the 2-opt local search algorithm is only ($O(N^2)$, where $N$ denotes the total number of cities. 
 
-% TODO maybe some kind of illustration
+\begin{figure}[H]
+\caption{Local search operator (2-opt) \cite{local_search_slides}}
+\label{local_search_operator_2_opt}
+\centering
+\includegraphics[width=0.4\textwidth]{local_search_operator_2_opt.png}
+\end{figure}
+
+It should also be noted that by using Numba with the command $@jit(nopython=True)$ above the method declarations, the local search operator runs \textbf{745 times as fast}. Numba can make these huge improvements due to compilation of these methods, where especially the loops can be exploited.
 
 \subsection{Diversity promotion mechanisms}
 \label{diversity_promotion}
