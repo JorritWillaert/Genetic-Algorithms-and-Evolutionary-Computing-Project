@@ -9,6 +9,7 @@ import cProfile
 import multiprocessing
 import psutil
 import time
+import warnings
 
 INF = 10_000_000_000.0
 
@@ -552,6 +553,8 @@ class r0652971:
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename: str) -> float:
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+
         # Read distance matrix from file.		
         file = open(filename)
         distanceMatrix = np.loadtxt(file, delimiter=",")
@@ -658,11 +661,21 @@ class r0652971:
 
 
         # Your code here.
-        # plt.plot(x, mean_fitnesses, label='Mean fitnesses')
-        # plt.plot(x, best_fitnesses, label='Best fitnesses')
-        # plt.legend()
-        # plt.show()
-        # plt.savefig('mean_and_best_fitnesses.png')
+        plt.plot(mean_fitnesses, label='Mean fitness')
+        plt.plot(best_fitnesses, label='Best fitness')
+        plt.xlabel('Iteration')
+        #plt.ylabel('Fitness value')
+        plt.legend()
+        ax = plt.gca()
+        ax.set_yscale('log')
+        from matplotlib.ticker import StrMethodFormatter
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:.0f}'))
+        ax.yaxis.set_minor_formatter(StrMethodFormatter('{x:.0f}'))
+        ax.set_ylabel('Fitness value')
+        plt.subplots_adjust(left=.18)
+        #plt.ticklabel_format(style='plain')
+        #plt.show()
+        plt.savefig('figures/tour_250_27_12_2021_19_50.png')
         return best_fitness
 
 if __name__ == "__main__":
@@ -670,7 +683,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour750.csv')
+    problem.optimize('tours/tour250.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
