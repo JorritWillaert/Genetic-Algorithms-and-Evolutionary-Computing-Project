@@ -462,9 +462,9 @@ Interpret your results. How do you rate the performance of your algorithm (time,
 
 \section{Critical reflection (target: 0.75 pages)}
 
-\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate your understanding and insight into the main strengths and weaknesses of your evolutionary algorithms.}
+%\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate your understanding and insight into the main strengths and weaknesses of your evolutionary algorithms.}
 
-\ReplaceMe{What are the three main strengths of evolutionary algorithms in your experience?}
+\subsection{What are the three main strengths of evolutionary algorithms in your experience?}
 
 \begin{enumerate}
  \item By using a population-based metaheuristic, a tradeoff can be made between \textbf{exploration} and \textbf{exploitation}. This tradeoff turned out to be instrumental in finding good solutions for the travelling salesman problem. Pure random search is computationally way too expensive (it would even take an infinity before a `decent', simply greedy solution would have been found). Pure local optimizers, on the other hand, would quickly converge to one suboptimal solution, which would most likely also be relatively far from the most optimal solution. Evolutionary algorithms provide a way to find good sub-optimal solutions in a decent amount of time.
@@ -472,7 +472,7 @@ Interpret your results. How do you rate the performance of your algorithm (time,
  \item A last thing that struck me about evolutionary algorithms, is the fact that they in essence optimize a function \textbf{without using derivatives} (only by using the fitness values, leaving aside the local search operator for the moment). Especially for non-differentiable functions may an evolutionary algorithm offer salvation.
 \end{enumerate}
 
-\ReplaceMe{What are the three main weak points of evolutionary algorithms in your experience?}
+\subsection{What are the three main weak points of evolutionary algorithms in your experience?}
 
 \begin{enumerate}
  \item Evolutionary algorithms work well, as long as they are \textbf{carefully designed} with reasonable parameters. For example, take a population size of 100 instead of 15, and the algorithm struggles to make some iterations. This of course due to the fitness sharing elimination, which has a cubic complexity in terms of the population (and offspring) size. Furthermore, a lot of other parameters have to be chosen to obtain reasonable performance. If for example the k-tournament parameters (from selection and elimination) are not considerably chosen, either the population converges immediately, or the overall fitnesses of the individuals hardly increase. This, in the end, comes at no surprise, since, according to the no-free-lunch theorem, there cannot exist any algorithm for solving all problems that is generally superior to any competitor.
@@ -480,7 +480,7 @@ Interpret your results. How do you rate the performance of your algorithm (time,
  \item Evolutionary algorithms are \textbf{computationally very expensive}. Since a lot of exploration is undertaken, inherently a lot of meaningless individuals are constructed while searching.
 \end{enumerate}
 
-\ReplaceMe{Describe the main lessons learned from this project. Do you believe evolutionary algorithms are appropriate for the problem studied in this project? Why (not)? What surprised you and why? What did you learn from this project?}
+\subsection{Describe the main lessons learned from this project. Do you believe evolutionary algorithms are appropriate for the problem studied in this project? Why (not)? What surprised you and why? What did you learn from this project?}
 I think that the travelling salesman problem fits perfectly for the project related to this course. Finding an exact solutions is of course infeasible, hence the usage of metaheuristics becomes necessary, and they prove themselves to work extremely well. Considering that a lot of real-world applications require good approximations of the optimal solutions, it is obvious that these metaheuristics (and evolutionary algorithms in particular) are an essential tool to possess.
 
 As a side-effect of this course, I would like to note that my Python coding skills are somewhat deepened, especially for computationally expensive tasks. I learned to appreciate the value of libraries such as \textbf{Numba}, that can speed up Python code massively by compiling the code. Surely, not all operations are allowed, but given that the Numba community is evolving rapidly, I will keep an eye on it.
