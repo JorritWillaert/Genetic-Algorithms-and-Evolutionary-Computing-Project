@@ -675,7 +675,7 @@ class r0652971:
         plt.subplots_adjust(left=.18)
         #plt.ticklabel_format(style='plain')
         #plt.show()
-        plt.savefig('figures/tour_1000_28_12_2021_20_40.png')
+        plt.savefig('figures/tour_29_28_12_2021_21_10.png')
         return best_fitness
 
 if __name__ == "__main__":
@@ -683,7 +683,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour1000.csv')
+    problem.optimize('tours/tour29.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
