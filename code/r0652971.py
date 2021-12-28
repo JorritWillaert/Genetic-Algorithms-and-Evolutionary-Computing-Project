@@ -553,12 +553,12 @@ class r0652971:
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename: str) -> float:
-        warnings.filterwarnings("ignore", category=RuntimeWarning)
-
         # Read distance matrix from file.		
         file = open(filename)
         distanceMatrix = np.loadtxt(file, delimiter=",")
         file.close()
+
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
 
         p = Parameters(population_size=15, num_offsprings=15, k_selection=5, 
                        k_elimination=8, percentage_greedily=0.20, alpha=0.25, 
@@ -675,7 +675,7 @@ class r0652971:
         plt.subplots_adjust(left=.18)
         #plt.ticklabel_format(style='plain')
         #plt.show()
-        plt.savefig('figures/tour_100_28_12_2021_20_15.png')
+        plt.savefig('figures/tour_1000_28_12_2021_20_40.png')
         return best_fitness
 
 if __name__ == "__main__":
@@ -683,7 +683,7 @@ if __name__ == "__main__":
     pr.enable()
 
     problem = r0652971()
-    problem.optimize('tours/tour100.csv')
+    problem.optimize('tours/tour1000.csv')
 
     pr.disable()
     pr.print_stats(sort="time")
