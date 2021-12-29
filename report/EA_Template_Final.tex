@@ -438,11 +438,31 @@ The best tour found had a fitness of 27154.5, and has the following tour sequenc
 
 The convergence graph is shown in Figure \ref{fig:tour_29}.
 
-% TODO optimal found fast. Diversity stayed.
+Here, convergence of the best fitness happens extremely quickly. The mean fitness, however, does not converge, which means that the population stays diverse due to the fitness promotion elimination scheme. 
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.40\linewidth}
+      \includegraphics[width=\linewidth]{histogram_best_fitness.png}
+      \caption[b]{Best Fitness}
+      \label{fig:best_histogram}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.40\linewidth}
+          \includegraphics[width=\linewidth]{histogram_mean_fitness.png}
+      \caption{Mean fitness}
+      \label{fig:mean_histogram}
+    \end{subfigure}
+    \caption{Histograms for the best and mean fitness, after 1000 runs on tour 29}
+    \label{fig:histograms}
+\end{figure}
+
+As follows from Figure \ref{fig:histograms}, the (probably optimal) fitness value of 27154.5 has been found each time. Furthermore, the mean fitness possesses some variation due to the diversity promotion scheme. It is never equal to the best fitness value, which means that diversity is always preserved.
+
+The mean value of the thousand runs for the mean fitnesses is equal to 33551.6, with a value of 657.6 for the standard deviation,
 
 Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?
 
-Solve this problem 1000 times and record the results. Make a histogram of the final mean fitnessess and the final best fitnesses of the 1000 runs. Comment on this figure: is there a lot of variability in the results, what are the means and the standard deviations?
+Solve this problem 1000 times and record the results. Make a histogram of the final mean fitnesses and the final best fitnesses of the 1000 runs. Comment on this figure: is there a lot of variability in the results, what are the means and the standard deviations?
 
 \subsection{tour100.csv}
 
