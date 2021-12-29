@@ -456,13 +456,13 @@ Here, convergence of the best fitness happens extremely quickly. The mean fitnes
     \label{fig:histograms}
 \end{figure}
 
-As follows from Figure \ref{fig:histograms}, the (probably optimal) fitness value of 27154.5 has been found each time. Furthermore, the mean fitness possesses some variation due to the diversity promotion scheme. It is never equal to the best fitness value, which means that diversity is always preserved.
+As follows from Figure \ref{fig:histograms}, the (probably optimal) fitness value of 27154.5 has been found each time. Furthermore, the mean fitness possesses some variation due to the diversity promotion scheme. It is never equal to the best fitness value, which means that diversity is always preserved. Note that for this experiment, a time limit of 10 seconds per run was used to make the computation feasible.
 
 The mean value of the thousand runs for the mean fitnesses is equal to 33551.6, with a value of 657.6 for the standard deviation,
 
-Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?
+%Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?
 
-Solve this problem 1000 times and record the results. Make a histogram of the final mean fitnesses and the final best fitnesses of the 1000 runs. Comment on this figure: is there a lot of variability in the results, what are the means and the standard deviations?
+%Solve this problem 1000 times and record the results. Make a histogram of the final mean fitnesses and the final best fitnesses of the 1000 runs. Comment on this figure: is there a lot of variability in the results, what are the means and the standard deviations?
 
 \subsection{tour100.csv}
 
@@ -474,7 +474,11 @@ The best tour found had a fitness of 219948.4, and has the following tour sequen
 
 The convergence graph is shown in Figure \ref{fig:tour_100}.
 
-Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?
+The algorithm clearly performs great, by quickly jumping to the most interesting regions of the search space, after which the best fitness stays converging until the five minute time constraint is passed. As can be seen from the mean fitness, the population stays diverse and hence has the ability to keep exploring for better solutions.
+
+It is difficult to make an estimate of how close this solution is to the most optimal solution, since only a heuristic value was known, which this algorithm clearly outperforms.
+
+%Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?
 
 \subsection{tour500.csv}
 
@@ -488,22 +492,27 @@ The convergence graph is shown in Figure \ref{fig:tour_500}.
 
 The algorithm clearly performs great again, by quickly jumping to the most interesting regions of the search space, after which the best fitness stays converging until the five minute time constraint is passed. As can be seen from the mean fitness, the population stays diverse and hence has the ability to keep exploring for better solutions.
 
-It is also interesting to see that in this benchmark, suddenly quite some big improvements were made. This in contrast to the other benchmarks, where the convergence of the best fitness typically proceeds more gently.
+It is difficult to make an estimate of how close this solution is to the most optimal solution, since only a heuristic value was known, which this algorithm clearly outperforms.
 
 %Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one?
 
 \subsection{tour1000.csv}
 
-\ReplaceMe{Run your algorithm on this benchmark problem (with the 5 minute time limit from the Reporter). Include a typical convergence graph, by plotting the mean and best objective values in function of the time (for example based on the output of the Reporter class). 
+%\ReplaceMe{Run your algorithm on this benchmark problem (with the 5 minute time limit from the Reporter). Include a typical convergence graph, by plotting the mean and best objective values in function of the time (for example based on the output of the Reporter class). 
 
-What is the best tour length you found? 
+%What is the best tour length you found? 
 
-Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one? }
+%Interpret your results. How do you rate the performance of your algorithm (time, memory, speed of convergence, diversity of population, quality of the best solution, etc)? Is your solution close to the optimal one? }
 
 The best tour found had a fitness of 194955.2, and has the following tour sequence:
 
 [0,846,28,344,518,762,924,390,541,18,155,735,965,810,318,938,971,152,215,398,268,497,992,291,165,650,470,709,325,194,691,920,75,830,900,859,370,670,227,243,43,202,717,755,758,14,231,780,701,65,420,119,943,967,348,844,876,998,189,668,112,695,469,631,682,280,462,393,875,226,185,827,683,61,200,624,146,852,974,480,882,353,442,45,567,939,544,908,225,118,27,923,993,282,135,424,79,232,954,895,760,752,883,12,678,757,982,53,365,307,341,408,427,340,308,252,106,430,190,879,482,347,140,653,672,93,452,457,575,675,364,627,261,536,508,861,955,361,97,37,78,503,779,31,235,873,66,250,156,869,680,919,667,259,751,966,479,599,886,449,972,831,9,570,26,500,460,849,281,706,245,517,229,63,292,142,306,148,107,330,749,222,585,336,297,781,378,612,652,761,823,100,866,835,123,169,792,220,204,580,728,596,304,171,485,616,159,256,30,3,521,910,774,433,40,489,473,76,707,173,290,538,577,234,326,486,168,311,772,702,392,105,543,149,959,563,794,862,523,16,918,269,961,566,951,836,305,673,58,397,811,438,345,729,387,663,211,945,507,748,59,813,115,863,773,750,562,72,206,905,493,371,176,512,335,143,180,725,609,375,793,471,531,138,743,632,783,677,684,395,260,346,111,2,628,893,812,855,263,94,820,412,70,973,894,980,615,586,274,455,569,175,718,407,186,539,934,696,349,248,317,870,451,478,593,293,224,331,394,355,787,90,273,425,832,283,219,860,239,711,540,976,867,560,379,208,456,50,428,916,435,342,535,230,927,763,625,109,313,74,936,950,525,414,134,399,29,343,351,963,537,150,681,958,80,177,795,396,129,188,671,197,583,356,388,933,935,634,288,7,101,402,788,977,572,183,328,104,267,154,843,555,179,167,687,643,789,637,463,144,295,212,55,484,800,130,740,818,546,137,864,620,941,88,720,33,685,25,930,692,41,600,639,648,310,417,8,19,984,122,151,39,819,674,329,606,597,279,826,49,892,121,744,505,192,907,700,960,617,369,594,714,491,726,363,441,657,854,928,815,411,461,808,210,686,778,929,548,576,571,199,946,77,990,492,519,914,386,636,708,947,550,216,649,207,897,42,602,727,338,840,679,332,164,641,444,490,323,475,520,502,622,904,421,299,434,646,705,768,645,352,13,613,450,314,957,160,587,915,285,721,466,447,582,467,163,47,522,804,172,964,790,15,209,769,623,73,157,767,472,896,113,96,368,770,890,85,57,1,337,516,201,459,557,978,806,527,997,24,69,321,322,604,655,218,722,805,865,54,970,899,913,850,56,688,481,242,358,817,98,214,588,132,418,565,651,404,302,660,87,803,595,658,294,969,275,746,67,782,125,51,83,240,237,513,921,374,278,431,731,732,592,614,642,983,34,739,878,213,629,141,127,715,21,511,841,647,553,488,372,791,464,877,644,640,909,170,847,131,661,710,534,120,82,99,530,86,253,581,880,416,610,5,81,422,619,898,496,981,759,723,476,354,807,389,110,203,309,443,162,514,868,524,84,638,747,333,607,385,287,36,23,366,377,635,665,11,605,526,145,286,498,271,233,937,221,35,771,659,630,108,996,436,824,289,10,889,38,483,477,426,690,633,22,506,737,258,409,6,255,858,17,423,552,838,495,528,117,32,733,825,174,410,359,465,559,249,821,315,195,381,247,689,298,551,777,266,284,903,991,413,987,797,837,448,316,244,383,187,796,71,198,764,611,814,956,853,64,223,303,887,191,949,373,68,590,765,89,994,884,802,415,785,529,360,339,277,829,944,985,499,403,953,975,139,716,621,236,147,254,545,184,911,784,133,494,257,968,445,357,712,724,694,265,676,324,458,262,574,556,845,664,603,136,940,296,468,126,153,270,922,406,742,554,856,103,857,533,547,786,756,327,816,276,509,44,217,703,931,532,380,453,912,730,979,193,798,181,158,995,885,669,986,501,828,542,48,391,166,962,400,62,46,809,515,429,382,842,932,549,666,95,504,589,205,578,902,573,926,241,874,734,454,579,948,775,654,52,440,362,656,906,801,350,799,437,753,384,741,888,91,834,196,300,917,60,474,598,178,439,608,872,736,925,851,839,822,401,264,510,698,999,848,989,558,901,988,745,561,591,713,891,182,246,4,697,952,432,564,124,881,766,584,601,738,833,568,319,161,320,618,704,128,376,871,238,776,20,251,719,446,487,116,699,754,114,626,405,693,662,272,301,334,312,419,102,942,92,367,228]
 
+The best fitness again stays converging until the five minute time limit has been exceeded. Once more can be derived from the mean fitness that the population stays diverse.
+
+It is difficult to make an estimate of how close this solution is to the most optimal solution, since only a heuristic value was known, which this algorithm clearly outperforms.
+
+\subsection{Convergence graphs}
 The convergence graph is shown in Figure \ref{fig:tour_1000}.
 
 
