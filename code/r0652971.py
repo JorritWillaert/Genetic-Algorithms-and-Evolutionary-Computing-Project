@@ -64,9 +64,9 @@ def initialization(distanceMatrix: np.ndarray, population_size: int,
         pool.apply_async(initialize_legally, args=(distanceMatrix, L))
     pool.close()
     for _ in range(greedily_number + legal_number, population_size):
-        L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
+        L.append(Individual(distanceMatrix, alpha=max(0.04, 0.20+0.08*np.random.randn())))
     pool.join()
-    print("Initialization ended")
+    #print("Initialization ended")
     return L
 
 def initialize_legally(distanceMatrix: np.ndarray, L: list):
@@ -76,7 +76,7 @@ def initialize_legally(distanceMatrix: np.ndarray, L: list):
     while i != length:
         if time.time() - start_time > 2.0: # Don't spend more than 1 second initializing one individual
             print("Aborted initialization")
-            L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
+            L.append(Individual(distanceMatrix, alpha=max(0.04, 0.20+0.08*np.random.randn())))
         order = np.negative(np.ones((length), dtype=np.int))
         city = np.random.randint(0, length - 1)
         order[0] = city
@@ -97,7 +97,7 @@ def initialize_legally(distanceMatrix: np.ndarray, L: list):
             city = random.choice(possibilities_legal)
             order[i] = city
             i += 1
-    L.append(Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn())))
+    L.append(Individual(distanceMatrix, order=order, alpha=max(0.04, 0.20+0.08*np.random.randn())))
 
 def greedily_initialize_individual(distanceMatrix: np.ndarray, L: list):
     length = (distanceMatrix.shape)[0]	
@@ -106,7 +106,7 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray, L: list):
     while i != length:
         if time.time() - start_time > 2.0: # Don't spend more than 1 second initializing one individual
             print("Aborted initialization")
-            L.append(Individual(distanceMatrix, alpha=max(0.01, 0.05+0.02*np.random.randn())))
+            L.append(Individual(distanceMatrix, alpha=max(0.04, 0.20+0.08*np.random.randn())))
         order = np.negative(np.ones((length), dtype=np.int))
         city = np.random.randint(0, length - 1)
         order[0] = city
@@ -128,7 +128,7 @@ def greedily_initialize_individual(distanceMatrix: np.ndarray, L: list):
             city = new_city
             order[i] = city
             i += 1
-    L.append(Individual(distanceMatrix, order=order, alpha=max(0.01, 0.05+0.02*np.random.randn())))
+    L.append(Individual(distanceMatrix, order=order, alpha=max(0.04, 0.20+0.08*np.random.randn())))
 
 @jit(nopython=True)
 def partial_fitness_one_value(distanceMatrix: np.ndarray, frm: int, to: int):
@@ -196,7 +196,7 @@ def order_crossover(distanceMatrix: np.ndarray, parent1: Individual,
     new_order = order_crossover_jit(distanceMatrix, parent1.order, parent2.order, new_order)
     beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
     alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
-    alpha = max(0.01, alpha)
+    alpha = max(0.04, alpha)
     return Individual(distanceMatrix, new_order, alpha=alpha)
 
 def add_elem_to_set(set_to_be_added: set, elem: int):
@@ -296,7 +296,7 @@ def edge_crossover(distanceMatrix: np.ndarray, parent1: Individual,
             counter += 1
     beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
     alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
-    alpha = max(0.01, alpha)
+    alpha = max(0.04, alpha)
     return Individual(distanceMatrix, order=new_order, alpha=alpha)
 
 # https://en.wikipedia.org/wiki/Edge_recombination_operator
@@ -341,13 +341,13 @@ def simple_edge_recombination(distanceMatrix: np.ndarray, parent1: Individual,
         new_order.append(node)
     beta = 2 * random.random() - 0.5 # Number between -0.5 and 3.5
     alpha = parent1.alpha + beta * (parent2.alpha - parent1.alpha)
-    alpha = max(0.01, alpha)
+    alpha = max(0.04, alpha)
     return Individual(distanceMatrix, order=np.array(new_order), alpha=alpha)
 
 def mutation(distanceMatrix: np.ndarray, individual: Individual, 
              all_fitnesses_hashmap: dict) -> Individual:
     """Inversion mutation: randomly choose 2 indices and invert that subsequence."""   
-    if random.random() < individual.alpha * 4: # TODO change this
+    if random.random() < individual.alpha: 
         i = random.randint(0, len(individual.order) - 1)
         j = random.randint(0, len(individual.order) - 1)
         new_order = np.copy(individual.order)
@@ -546,7 +546,7 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray) -
     new_order[best_first:best_second] = new_order[best_first:best_second][::-1]
     return new_order
 
-def rotate_0_up_front(order: np.ndarray):
+def rotate_0_up_front(order: np.ndarray) -> np.ndarray:
     idx = np.where(order==0)
     return np.concatenate([order[int(idx[0]):], order[0:int(idx[0])]]) 
 
@@ -569,7 +569,7 @@ class r0652971:
                        sigma_percentage=0.50)
 
         INF = np.nanmax(distanceMatrix[distanceMatrix != np.inf]) * (distanceMatrix.shape)[0]
-        print("Infinity is: " + str(INF))
+        #print("Infinity is: " + str(INF))
 
         population = initialization(distanceMatrix, p.population_size, p.percentage_greedily)
         best_fitness = float("+inf")
@@ -579,10 +579,7 @@ class r0652971:
                 if fit < best_fitness:
                     best_fitness = fit
                     best_individual = individual
-        print("Best fitness after initialization:", best_fitness)
-
-        best_fitnesses = []
-        mean_fitnesses = []
+        #print("Best fitness after initialization:", best_fitness)
         
         all_distances_hashmap = {}
         all_fitnesses_hashmap = {}
@@ -591,18 +588,6 @@ class r0652971:
 
 
         while(True): 
-
-            # Your code here.
-
-            # Call the reporter with:
-            #  - the mean objective function value of the population
-            #  - the best objective function value of the population
-            #  - a 1D numpy array in the cycle notation containing the best solution 
-            #    with city numbering starting from 0
-
-            # timeLeft = self.reporter.report(meanObjective, bestObjective, bestSolution)
-            # if timeLeft < 0:
-            # 	break
 
             # To prevent thrashing (especially because RAM size of the testing framework is unknown) 
             if (psutil.virtual_memory()[2] > 95.0):
@@ -659,43 +644,9 @@ class r0652971:
                 best_prev_fitness = best_fitness
                 num = 0
             num += 1
-            # print(f"{it}: Mean fitness: {mean_fitness} \t Best fitness: {min(fitnesses)}")
-            best_fitnesses.append(best_fitness)
-            mean_fitnesses.append(mean_fitness)
 
-
-        # Your code here.
-        # TODO remove this
-        plt.plot(mean_fitnesses, label='Mean fitness')
-        plt.plot(best_fitnesses, label='Best fitness')
-        plt.xlabel('Iteration')
-        #plt.ylabel('Fitness value')
-        plt.legend()
-        ax = plt.gca()
-        ax.set_yscale('log')
-        from matplotlib.ticker import StrMethodFormatter
-        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:.0f}'))
-        ax.yaxis.set_minor_formatter(StrMethodFormatter('{x:.0f}'))
-        ax.set_ylabel('Fitness value')
-        plt.subplots_adjust(left=.18)
-        #plt.ticklabel_format(style='plain')
-        #plt.show()
-        #plt.savefig('figures/tour_29_29_12_2021.png')
         return best_fitness
 
 if __name__ == "__main__":
-    pr = cProfile.Profile()
-    pr.enable()
-
     problem = r0652971()
-    problem.optimize('tours/tour29.csv')
-
-    pr.disable()
-    pr.print_stats(sort="time")
-    
-    pr.dump_stats('output.prof')
-
-    stream = open('output.txt', 'w')
-    stats = pstats.Stats('output.prof', stream=stream)
-    stats.sort_stats('cumtime')
-    stats.print_stats()
+    problem.optimize('tours/tour750.csv')
