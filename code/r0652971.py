@@ -546,6 +546,10 @@ def local_search_operator_2_opt(distanceMatrix: np.ndarray, order: np.ndarray) -
     new_order[best_first:best_second] = new_order[best_first:best_second][::-1]
     return new_order
 
+def rotate_0_up_front(order: np.ndarray):
+    idx = np.where(order==0)
+    return np.concatenate([order[int(idx[0]):], order[0:int(idx[0])]]) 
+
 
 class r0652971:
     def __init__(self):
@@ -585,7 +589,6 @@ class r0652971:
         num = 0
         best_prev_fitness = np.inf
 
-        # TODO reporter: city numbering starting from 0!
 
         while(True): 
 
@@ -649,7 +652,8 @@ class r0652971:
                     best_individual = individual
             mean_fitness = sum(fitnesses) / len(fitnesses)
             if num >= 100 or best_fitness < best_prev_fitness:
-                timeLeft = self.reporter.report(mean_fitness, best_fitness, best_individual.order)
+                report_order = rotate_0_up_front(best_individual.order)
+                timeLeft = self.reporter.report(mean_fitness, best_fitness, report_order)
                 if timeLeft < 0: 
                     break
                 best_prev_fitness = best_fitness
@@ -661,6 +665,7 @@ class r0652971:
 
 
         # Your code here.
+        # TODO remove this
         plt.plot(mean_fitnesses, label='Mean fitness')
         plt.plot(best_fitnesses, label='Best fitness')
         plt.xlabel('Iteration')
