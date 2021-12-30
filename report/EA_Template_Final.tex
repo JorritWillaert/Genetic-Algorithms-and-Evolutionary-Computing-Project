@@ -50,20 +50,20 @@
  \item \textbf{Time spent on final report:} 16 hours
 \end{itemize}
 
-\section{Peer review reports (target: 1 page)}
+\section{Peer review reports}
 
 \subsection{The weak points}
 \begin{enumerate}
- \item Our initial recombination operator was a \textbf{simplified version of the edge crossover operator} \cite{initial_implementation_edge_crossover}. This version did not prioritize common edges between parents, but only chose an entry which itself had the shortest list. Hence, not enough exploitation of the parents features followeds. 
+ \item Our initial recombination operator was a \textbf{simplified version of the edge crossover operator} \cite{initial_implementation_edge_crossover}. This version did not prioritize common edges between parents, but only chose an entry which itself had the shortest list. Hence, not enough exploitation of the parents' features follows. 
  \item The ($\kappa$ + $\mu$)-elimination (without any type of diversity promotion) puts a \textbf{lot of selective pressure} on the population.
- \item Our \textbf{mutation operator does not scale} to larger problems, since it only swaps two random locations. As a consequence, the mutation operator will have an even smaller impact on the solution when the problem size increases. 
+ \item Our \textbf{mutation operator does not scale} to larger problem sizes, since it only swaps two random locations. As a consequence, the mutation operator will have an even smaller impact on the solution when the problem size increases. 
  \item Due to the elimination strategy, together with the chosen mutation operator, \textbf{premature convergence} was observed.
 \end{enumerate}
 
 \subsection{The solutions}
 \begin{enumerate}
- \item The simplified version of the edge crossover operator was first replaced with the \textbf{proper edge crossover operator} \cite{eiben_smith}. However, once the running times of edge recombination were compared with the ones of order crossover, it was apparent that \textbf{order crossover} was much faster. For this reason, edge crossover was abandoned in favor for order crossover.
- \item The ($\kappa$ + $\mu$)-elimination was kept for quite some time, but was supplemented with \textbf{fitness sharing}. The high selective pressure of ($\kappa$ + $\mu$)-elimination was therefore largely mitigated with the introduction of this diversity promotion scheme. However, to further reduce the selective pressure present in the ($\kappa$ + $\mu$)-elimination, the operator was swapped for the \textbf{k-tournament elimination} operator in the final version of the algorithm (along with the same fitness sharing technique).
+ \item The simplified version of the edge crossover operator was first replaced with the \textbf{proper edge crossover operator} \cite{eiben_smith}. However, once the running times of edge crossover were compared with the ones of order crossover, it was apparent that \textbf{order crossover} ran much faster. For this reason, edge crossover was abandoned in favor for order crossover.
+ \item The ($\kappa$ + $\mu$)-elimination scheme was kept for quite some time, but was supplemented with \textbf{fitness sharing}. The high selective pressure of ($\kappa$ + $\mu$)-elimination was therefore largely mitigated with the introduction of this diversity promotion scheme. However, to further reduce the selective pressure present in the ($\kappa$ + $\mu$)-elimination, the operator was swapped for the \textbf{k-tournament elimination} operator in the final version of the algorithm (along with the same fitness sharing technique).
  \item The mutation operator has been changed from swap mutation to \textbf{inversion mutation}. Hence, the effect of the mutation operator is constant for rising problem sizes.
  \item With the introduction of fitness sharing, along with the inversion mutation operator, \textbf{premature convergence} was largely \textbf{avoided}.
 \end{enumerate}
@@ -71,22 +71,22 @@
 \subsection{The best suggestion}
 Both groups suggested to modify the simplified edge crossover operator to the `proper' one. Although this certainly is a useful suggestion, another suggestion by one group is even more useful in my opinion, given that I was going to change the crossover operator in the individual phase anyway. The other suggestion is about changing the mutation operator from swap mutation to inversion mutation. In the group phase part of the project, we hadn't really observed the shortcoming of the swap mutation, which only became clear after their suggestion has been made.
 
-\section{Changes since the group phase (target: $0.5$ pages)} 
+\section{Changes since the group phase} 
 \begin{enumerate}
 \item The simplified edge recombination operator was first replaced with the \textbf{proper edge recombination operator}, after which it eventually was replaced by the \textbf{order recombination operator} due to massive speed gains. An elaboration on the recombination operators is provided in Section \ref{recombination}. 
 \item \textbf{Fitness sharing} has been introduced in the elimination step, as further explained in Section \ref{diversity_promotion}.
 \item A \textbf{local search operator} (2-opt) has been introduced to increase the fitnesses of the newly created offsprings (Section \ref{local_search_operator}).
 \item Simple random initialization has been replaced by \textbf{greedy} and \textbf{legal initialization}, as further explained in Section \ref{initialization}.
-\item The mutation operator has been changed from the swap mutation to \textbf{inversion mutation}. This is more elaborated in Section \ref{mutation}.
+\item The mutation operator has been changed from swap mutation to \textbf{inversion mutation}. This is more elaborated in Section \ref{mutation}.
 \item The elimination operator has eventually been changed from ($\kappa$ + $\mu$)-elimination to \textbf{k-tournament elimination}, for reasons explained further in Section \ref{elimination}.
 \item Numerous \textbf{optimizations} have been made in almost all parts of the algorithm to significantly increase the execution speed.
 \end{enumerate}
 
-\section{Final design of the evolutionary algorithm (target: $3.5$ pages)} 
+\section{Final design of the evolutionary algorithm} 
 \subsection{The three main features}
 \begin{enumerate}
 \item \textbf{Fitness sharing} has been used in the elimination step of the algorithm. This diversity promotion scheme is of crucial importance to \textbf{avoid premature convergence}, and hence makes sure that far better solutions can be found, instead of letting all individuals converge to one local minima.
-\item By introducing the 2-opt \textbf{local search operator}, far better solutions were found more quickly. Without the local search operator, much more iterations were required to find the same fitness values, along with a necessarily larger population. Although this operator is inherently extremely computationally expensive, it is turns out to be pivotal for the algorithm. Especially in this operator, optimizations such as making use of \textbf{dynamic programming} and using \textbf{Numba} were decisive in making the operator computationally feasible.
+\item By introducing the 2-opt \textbf{local search operator}, far better solutions were found more quickly. Without the local search operator, much more iterations were required to find the same fitness values, along with a necessarily larger population. Although this operator is inherently extremely computationally expensive, it turns out to be pivotal for the algorithm. Especially in this operator, optimizations such as making use of \textbf{dynamic programming} and using \textbf{Numba} were decisive in making the operator computationally feasible.
 \item One last crucial improvement is the introduction of the \textbf{greedy} and \textbf{legally initializations}. Greedy initialization starts from a random node, and chooses the next one according to the smallest distance. The details of this initialization scheme are elaborated in Section \ref{initialization}, along with a consideration of the introduced biases. Furthermore, legal initialization simply chooses the next node from a random neighbor that has an existing road between them.
 \end{enumerate}
 
@@ -104,15 +104,15 @@ Both groups suggested to modify the simplified edge crossover operator to the `p
 
 \clearpage
 \subsection{Representation}
-Possible solutions are represented as \textbf{permutations} and are written down in \textbf{cycle notation}. E.g. the permutation (1423) starts at node 1, then goes to 4, then 2, then 3, and returns to 1. An advantage of this notation is that no cycles are present as long as we initialize the representations as a permutation of all nodes. 
+Possible solutions are represented as \textbf{permutations} and are written down in \textbf{cycle notation}. For example, the permutation (1423) starts at 1, then goes to 4, then 2, then 3, and returns to 1. An advantage of this notation is that no cycles are present as long as we initialize the representations as a permutation. 
 
-This representation is implemented in our program as a Numpy array with length equal to the number of nodes in the problem. Each element in the array consists of one integer number: the node number.
+This representation is implemented in as a Numpy array with its length equal to the number of cities in the problem. Each element in the array represents a city number.
 
 \subsection{Initialization}
 \label{initialization}
 In the group-phase part of the project, individuals were generated by a \textbf{random permutation}, with their size determined from the distance matrix. However, especially for the larger problem sizes, quite a lot of paths were \textbf{nonexisting} or \textbf{extremely long}. Hence, random initialization of all individuals yielded almost always individuals where none of them represented a valid path. 
 
-Two new initialization schemes were introduced, legal and greedy initialization, where the objective of legal initialization is to not create impossible paths when initialing an individual. This while not introducing certain biases, such as individuals who take over the population immediately. The objective of greedy initialization is introducing locally optimal individuals with a high fitness, in a computationally inexpensive way. Here, special care has been taken that the individuals don't introduce high biases and won't take over the population immediately.
+Two new initialization schemes were introduced, legal and greedy initialization, where the objective of legal initialization is to not create nonexisting paths when initialing an individual. This while not introducing certain biases, such as individuals who take over the population immediately. The objective of greedy initialization, on the other hand, is introducing locally optimal individuals with a high fitness, in a computationally inexpensive way. Here, special care has been taken that the individuals don't introduce high biases and won't take over the population immediately.
 
 \subsubsection{Legal initialization}
 When initializing an individual legally, one makes sure that the generated path \textbf{exists}. Therefore, a city is chosen at random, after which the next city in the tour is chosen to be a random one out of all the neighbors with a non-infinite path cost. If, however, no existing neighbors are available anymore as next cities, the whole procedure restarts. The pseudo-algorithm is given in Algorithm \ref{legal_initialization_algorithm}.
@@ -140,7 +140,7 @@ This legal initialization scheme \textbf{does not introduce undesirable biases}.
 
 \subsubsection{Greedy initialization}
 \label{greedy_initialization}
-Besides the legal initialization scheme, I also initialize some individuals greedily. The algorithm resembles the legal initialization scheme, with the only change that the successor city is chosen to be the \textbf{closest neighbor}, instead of a random legal neighbor. The pseudo-algorithm is given in Algorithm \ref{greedy_initialization_algorithm}.
+Besides the legal initialization scheme, another initialization scheme named greedy initialization is used. The algorithm resembles the legal initialization scheme, with the only change that the successor city is chosen to be the \textbf{closest neighbor}, instead of a random legal neighbor. The pseudo-algorithm is given in Algorithm \ref{greedy_initialization_algorithm}.
 
 \begin{algorithm}
 \caption{Greedy initialization}\label{greedy_initialization_algorithm}
@@ -154,14 +154,14 @@ Besides the legal initialization scheme, I also initialize some individuals gree
 \EndIf
 \State Choose the closest neighboring city to be the successor of the previous city
 \EndWhile
-\If {not broken out of inner loop and path from the last city to first one is not infinity}
+\If {not broken out of inner loop and path from the last city to the first one is not infinity}
 \State Return newly generated individual
 \EndIf
 \EndWhile
 \end{algorithmic}
 \end{algorithm}
 
-This initialization scheme \textbf{does introduce certain biases}, which could result in some individuals taking over the population immediately. Therefore, one has to take preventions against this bias, by for example only initializing a small fraction of all the individuals with this scheme, as could be observed in the chosen hyperparameters of Section \ref{general_aspects_initialization}.
+This initialization scheme \textbf{does introduce certain biases}, which could result in some individuals taking over the population immediately. Therefore, one has to take preventions against this bias, by for example only initializing a small fraction of all the individuals with this scheme.
 
 The introduced bias is that all individuals are locally optimal, where in theory the maximum number of different solutions is given by the problem size. Given that it may be difficult to escape local minima, one must consider the usefulness of this initialization scheme.
 
@@ -169,7 +169,7 @@ However, after experimenting with this initialization scheme, it became apparent
 
 \subsubsection{General aspects}
 \label{general_aspects_initialization}
-The distance matrix can be given in such a way that greedy initialization gets stuck in an \textbf{infinite loop}, because greedy initialization simply constructs a dead path (due to always taking the closest neighbor), starting from each node. To create a legal path in special cases, it should instead sometimes take sub-optimal paths to a neighbor to not end up in a dead path near the end of the initialization. To prevent the whole algorithm from crashing, a \textbf{time constraint} on the initialization of one individual has been introduced. Once an individual takes longer than two second to initialize, simple random initialization of that individual ensues.
+The distance matrix can be given in such a way that greedy initialization gets stuck in an \textbf{infinite loop}, because greedy initialization may always construct a dead path (due to always taking the closest neighbor), starting from each node. To create a legal path in special cases, it should instead sometimes take sub-optimal paths to a neighbor to not end up in a dead path near the end of the initialization. To prevent the whole algorithm from crashing, a \textbf{time constraint} on the initialization of one individual has been introduced. Once an individual takes longer than two second to initialize, simple random initialization of that individual ensues.
 
 An individual also gets assigned a random $\alpha$ value, which represents the probability that the individual will mutate in the mutation step of the algorithm. This way, a suitable mutation rate is determined by \textbf{self-adaptivity}.
 
@@ -177,45 +177,45 @@ The initial value of $\alpha$ is given by Formula \ref{initial_alpha}.
 
 \begin{equation}
     \label{initial_alpha}
-    \alpha = max(0.01, 0.05+0.02 \cdot (X \sim \mathcal{N}(0,\,1)))
+    \alpha = \max(0.04, 0.20+0.08 \cdot (X \sim \mathcal{N}(0,\,1)))
 \end{equation}
 
-After some testing with population sizes, a size of 15 has been chosen. Furthermore, as mentioned in Section \ref{greedy_initialization}, only a fraction of the population should be initialized greedily. Given that the  population size is 15, I found that greedily initializing 20 \% of the individuals (i.e. 3 individuals) worked out quite well in practice. The remaining 80 \% of the individuals are initialized legally.
+After some testing with population sizes, a size of 15 had been chosen. Furthermore, as mentioned in Section \ref{greedy_initialization}, only a fraction of the population should be initialized greedily. Given that the  population size is 15, I found that greedily initializing 20 \% of the individuals (i.e. 3 individuals) worked out quite well in practice. The remaining 80 \% of the individuals are initialized legally.
 
 For large problem sizes, initialization could take up to 10 seconds. Since the initialization of an individual is totally independent of the other individuals, \textbf{multiprocessing} has been added to this step, which entailed a factor five speed improvement on a machine with four physical cores (eight virtual cores).
 
 
 \subsection{Selection operators}
 \label{selection}
-The \textbf{k-tournament selection operator} from the group phase part has been kept. This selection operator is computationally inexpensive, since only k fitness values have to be computed, while this would require $\mu$ fitness values in fitness-based methods. Furthermore, sigma-scaled selection would for example not have been an appropriate choice, since the greedy initialization scheme introduces some very good individuals in the population. These individuals would dominate, since their selection probability would be very high.
+The \textbf{k-tournament selection operator} from the group phase part has been kept. This selection operator is computationally inexpensive, since only k fitness values have to be computed, while this would require $\mu$ fitness values in fitness-based methods. Furthermore, sigma-scaled selection would for example not have been an appropriate choice, since the greedy initialization scheme introduces some very good individuals in the population. These individuals would dominate in such a scheme, since their selection probability would be very high.
 
 A k-value of 5 has been chosen after numerous experiments.
 
 \subsection{Mutation operators}
 \label{mutation}
-The mutation operator used for the final implementation is the \textbf{inversion mutation}, whereby a random sub-vector is chosen and its order is reversed. The swap mutation operator that was used in the group phase part, did not scale well to larger problems, since it only swaps two random locations. That mutation operator, as a consequence, had a relatively even smaller impact on the solution when the problem size increased.
+The mutation operator used for the final implementation is the \textbf{inversion mutation}, whereby a random sub-vector is chosen and its order is reversed. The swap mutation operator that was used in the group phase part did not scale well to larger problems, since it only swaps two random locations. That mutation operator, as a consequence, had a relatively even smaller impact on the solution when the problem size increased.
 
 Inversion mutation does not suffer from this scaling problem, since the cities that determine the sub-vector are randomly chosen. Hence, the effect of the mutation operator is constant for rising problem sizes.  
 
-Self-adaptivity has been used for the mutation rate, which is hence specific to each individual, and is initialized as in Formula \ref{initial_alpha}, which changes in crossover as described in Formula \ref{crossover_alpha_1} and Formula \ref{crossover_alpha_2}.
+Self-adaptivity has been used for the mutation rate, which is hence specific to each individual. It is initialized as in Formula \ref{initial_alpha}, and it changes in crossover as described in Formula \ref{crossover_alpha_1} and Formula \ref{crossover_alpha_2}.
 
 \begin{equation}
     \label{crossover_alpha_1}
-    \beta = 2 \cdot (X \sim \mathcal{N}(0,\,1) - 0.5
+    \beta = 2 \cdot (X \sim \mathcal{N}(0,\,1)) - 0.5
 \end{equation}
 
 \begin{equation}
     \label{crossover_alpha_2}
-    alpha = max(0.01, \alpha_{parent\_1} + \beta \cdot (\alpha_{parent\_2} - \alpha_{parent\_1})
+    alpha = \max(0.04, \alpha_{parent\_1} + \beta \cdot (\alpha_{parent\_2} - \alpha_{parent\_1}))
 \end{equation}
 
-Lastly, \textbf{elitism} is used to prevent the best seed individual from being mutated.
+As a last note, \textbf{elitism} is used to prevent the best seed individual from mutating.
 
 \subsection{Recombination operators}
 \label{recombination}
 %\ReplaceMe{Which recombination operators did you implement? If they are not from the slides, describe them. How do you choose among several recombination operators? Why did you choose these ones specifically? Explain how you believe that these operators can produce offspring that combine the best features from their parents. How does your operator behave if there is little overlap between the parents? Can your recombination be controlled with parameters; what behavior do they change? Do you use self-adaptivity? Do you use any other advanced parameter control mechanisms (e.g., variable across iterations)? Did you try other recombination operators not included in the final version? Why did you discard them? Did you consider recombination with arity strictly greater than 2?}
 
-In the group phase part of the project, a \textbf{simplified version} of the \textbf{edge crossover operator} was used as the recombination algorithm, for which the process is described in Algorithm \ref{simple_edge_crossover} \cite{initial_implementation_edge_crossover}. This recombination results in a new path where all edges of the child were present in at least one of the parents. It does however not prioritize edges present in both parents over edges present in a single parent.
+In the group phase part of the project, a \textbf{simplified version} of the \textbf{edge crossover operator} was used as the recombination operator, for which the process is described in Algorithm \ref{simple_edge_crossover} \cite{initial_implementation_edge_crossover}. This recombination results in a new path where all edges of the child were present in at least one of the parents. It does however not prioritize edges present in both parents over edges present in a single parent.
 
 \begin{algorithm}
 \caption{Simple edge recombination operator}\label{simple_edge_crossover}
@@ -389,7 +389,6 @@ Calculating the intersection of a lot of individual pairs over and over, turned 
 \subsection{Stopping criterion}
 Not a lot of effort has been put in implementing a stopping criterion, since all the larger problems stayed converging after running for five minutes. Given that even if the best fitness stayed for a very long time fixed, it occurred that due to a well chosen mutation/crossover operation, suddenly the algorithm can proceed even further. Hence, the stopping criterion is simply the time limit of five minutes.
 
-% TODO maybe some other stopping criterion?
 %\ReplaceMe{Which stopping criterion did you implement? Did you combine several criteria?}
 
 \subsection{Parameter selection}
@@ -416,7 +415,7 @@ As discussed in Section \ref{diversity_promotion}, quite a speedup was attained 
 %\ReplaceMe{Did you consider other items not listed above, such as elitism, multiobjective optimization strategies (e.g., island model, pareto front approximation), a parallel implementation, or other interesting computational optimizations (e.g. using advanced algorithms or data structures)? You can describe them here or add additional subsections as needed.}
 
 
-\section{Numerical experiments (target: 1.5 pages)}
+\section{Numerical experiments}
 
 %\RemoveMe{\textbf{Goal:} Based on this section and our execution of your code, we will evaluate the performance (time, quality of solutions) of your implementation and your ability to interpret and explain the results on benchmark problems.}
 
@@ -543,7 +542,7 @@ The convergence graph is shown in Figure \ref{fig:tour_1000}.
     \label{fig:convergence_graphs}
   \end{figure}
 
-\section{Critical reflection (target: 0.75 pages)}
+\section{Critical reflection}
 
 %\RemoveMe{\textbf{Goal:} Based on this section, we will evaluate your understanding and insight into the main strengths and weaknesses of your evolutionary algorithms.}
 
