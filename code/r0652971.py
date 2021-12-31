@@ -1,11 +1,8 @@
 from numba import jit
-import pstats
 import Reporter
 import numpy as np
 from typing import List, Tuple
 import random
-import matplotlib.pyplot as plt
-import cProfile
 import multiprocessing
 import psutil
 import time
